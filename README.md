@@ -2,3 +2,7 @@
 
 Hapi plugin to handle 'custom' pagination
 
+## TODO
+
+* Refactor
+* Tests
