@@ -86,11 +86,10 @@ exports.register = function (server, options, next) {
         const exclude = config.routes.exclude;
         const path = request.route.path;
 
-
         // If the route does not match, just skip this part
-        if ((_.includes(include[0] === '*') ||
-                _.includes(include, path)) &&
-            !_.includes(exclude, path)) {
+        if ((include[0] === '*') ||
+            (_.includes(include, path) &&
+                !_.includes(exclude, path))) {
 
             let page = config.query.page.default;
             let limit = config.query.limit.default;
@@ -113,8 +112,8 @@ exports.register = function (server, options, next) {
                 limit = _.parseInt(request.query[config.query.limit.name]);
             }
 
-            request.query[config.meta.page.name] = page;
-            request.query[config.meta.limit.name] = limit;
+            request.query[config.query.page.name] = page;
+            request.query[config.query.limit.name] = limit;
         }
 
         return reply.continue();
@@ -141,9 +140,9 @@ exports.register = function (server, options, next) {
         const path = request.route.path;
 
 
-        if ((_.includes(include[0] === '*') ||
-                _.includes(include, path)) &&
-            !_.includes(exclude, path)) {
+        if ((include[0] === '*') ||
+            (_.includes(include, path) &&
+                !_.includes(exclude, path))) {
 
             const totalCount = request[config.meta.totalCount.name];
             const results = request.response.source;
@@ -235,6 +234,6 @@ exports.register = function (server, options, next) {
 
 
 exports.register.attributes = {
-    name: require('package.json').name,
-    version: require('package.json').version
+    name: require('./package.json').name,
+    version: require('./package.json').version
 };
