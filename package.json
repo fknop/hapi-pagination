@@ -1,6 +1,6 @@
 {
   "name": "hapi-pagination",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A hapi plugin to paginate resource ",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "pagination"
   ],
   "author": "fknop",
-  "license": "MIT",
+  "license": "GPLv3",
   "dependencies": {
     "hoek": "^2.16.3",
     "lodash": "^3.10.1",
