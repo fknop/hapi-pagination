@@ -147,7 +147,6 @@ exports.register = function (server, options, next) {
             const baseUrl = request.server.info.uri + request.url.pathname + '?';
             const qs = request.query;
 
-
             let meta = {};
 
             if (config.meta.page.active)
