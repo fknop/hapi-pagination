@@ -87,9 +87,8 @@ exports.register = function (server, options, next) {
         const path = request.route.path;
 
         // If the route does not match, just skip this part
-        if ((include[0] === '*') ||
-            (_.includes(include, path) &&
-                !_.includes(exclude, path))) {
+        if ((include[0] === '*' || _.includes(include, path)) &&
+            !_.includes(exclude, path)) {
 
             let page = config.query.page.default;
             let limit = config.query.limit.default;
@@ -140,18 +139,23 @@ exports.register = function (server, options, next) {
         const path = request.route.path;
 
 
-        if ((include[0] === '*') ||
-            (_.includes(include, path) &&
-                !_.includes(exclude, path))) {
+        if ((include[0] === '*' || _.includes(include, path)) &&
+            !_.includes(exclude, path))  {
 
             const totalCount = request[config.meta.totalCount.name];
             const results = request.response.source;
             const baseUrl = request.server.info.uri + request.url.pathname + '?';
             const qs = request.query;
 
+
             let meta = {};
 
-            // FIXME - Check if results.length is correct
+            if (config.meta.page.active)
+                meta[config.query.page.name] = qs[config.query.page.name];
+
+            if (config.meta.limit.active)
+                meta[config.query.limit.name] = qs[config.query.limit.name];
+
             if (config.meta.count.active)
                 meta[config.meta.count.name] = results.length;
 
@@ -188,7 +192,7 @@ exports.register = function (server, options, next) {
                 let url = null;
                 let qsPage = qs[config.query.page.name];
 
-                if (!totalCount && qsPage !== totalCount / qs[config.query.limit.name]) {
+                if (totalCount && qsPage !== totalCount / qs[config.query.limit.name]) {
                     let override = {};
                     override[config.query.page.name] = qsPage + 1;
                     let qsNext = Hoek.applyToDefaults(qs, override);
@@ -208,7 +212,7 @@ exports.register = function (server, options, next) {
             if (config.meta.last.active) {
                 let url = null;
 
-                if (!totalCount) {
+                if (totalCount) {
                     let pageCount = totalCount / qs[config.query.limit.name];
                     let override = {};
                     override[config.query.page.name] = pageCount;
@@ -220,7 +224,10 @@ exports.register = function (server, options, next) {
             }
 
 
-            _.merge(meta, request.response.source);
+            let response = {};
+            response[config.meta.name] = meta;
+            response[config.results.name] = results;
+            request.response.source = response;
 
         }
 
