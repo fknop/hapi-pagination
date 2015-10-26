@@ -1,6 +1,7 @@
 # hapi-pagination
 
-Hapi plugin to handle 'custom' resources pagination (in json only).
+Hapi plugin to handle 'custom' resources pagination in json only (for now at
+least).
 
 ## How to install
 
@@ -17,6 +18,8 @@ By default, the plugin will listen to the `limit` and `page` query parameters
 
 You can pass to the `register` method an `options` object. You can change the
  names of the default query parameters, the meta generated in the json response.
+
+ For this to work, the response send with the `reply` method must be an array.
 
 To have certain attributes in the meta object, you have to expose a
 `totalCount` attribute to the `request` object. If totalCount is set to false
