@@ -15,7 +15,7 @@
     "dependencies": {
         "hoek": "^2.16.3",
         "lodash": "^3.10.1",
-        "qs": "^5.2.0"
+        "qs": "^5.2.0" 
     },
     "devDependencies": {
         "code": "^1.5.0",

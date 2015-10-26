@@ -11,6 +11,29 @@ const before = lab.before;
 const after = lab.after;
 const expect = Code.expect;
 
+const users = [
+    {name: 'name1', username: 'username1'},
+    {name: 'name2', username: 'username2'},
+    {name: 'name3', username: 'username3'},
+    {name: 'name4', username: 'username4'},
+    {name: 'name5', username: 'username5'},
+    {name: 'name6', username: 'username6'},
+    {name: 'name7', username: 'username7'},
+    {name: 'name8', username: 'username8'},
+    {name: 'name9', username: 'username9'},
+    {name: 'name10', username: 'username10'},
+    {name: 'name11', username: 'username11'},
+    {name: 'name12', username: 'username12'},
+    {name: 'name13', username: 'username13'},
+    {name: 'name14', username: 'username14'},
+    {name: 'name15', username: 'username15'},
+    {name: 'name16', username: 'username16'},
+    {name: 'name17', username: 'username17'},
+    {name: 'name18', username: 'username18'},
+    {name: 'name19', username: 'username19'},
+    {name: 'name20', username: 'username20'}
+];
+
 const register = () => {
     let server = new Hapi.Server();
     server.connection({
@@ -25,7 +48,19 @@ const register = () => {
     server.route({
         method: 'GET',
         path: '/users',
-        handler: (request, reply) => reply('users')
+        handler: (request, reply) => {
+            request.totalCount = 20;
+            const limit = request.query.limit;
+            const page  = request.query.page;
+
+            const offset = limit * (page - 1);
+            let response = [];
+
+            for (let i = offset; i < (offset + limit) && i < users.length; ++i)
+                response.push(users[i]);
+
+            return reply(response);
+        }
     });
 
     return server;
@@ -188,7 +223,6 @@ describe('Override default values', () => {
             server.inject({method: 'GET', url: '/'}, (res) => {
 
 
-
                 let query = res.request.query;
                 expect(query.limit).to.be.undefined();
                 expect(query.page).to.be.undefined();
@@ -237,7 +271,7 @@ describe('Override default values', () => {
                 limit: {
                     active: true
                 },
-                page:{
+                page: {
                     active: true
                 }
             }
@@ -302,7 +336,7 @@ describe('Override default values', () => {
                 limit: {
                     active: false
                 },
-                page:{
+                page: {
                     active: false
                 }
             }
@@ -335,131 +369,162 @@ describe('Override default values', () => {
             });
         });
     });
+});
 
-    describe('Override default values for / route', () => {
-        let options = {
-            query: {
-                limit: {
-                    default: 10
-                },
-                page: {
-                    default: 3
-                }
+describe('Override default values for / route', () => {
+    const options = {
+        query: {
+            limit: {
+                default: 10
             },
-            routes: {
-                override: [
-                    {
-                        routes: ['/'],
-                        limit: 5,
-                        page: 2
-                    }
-                ]
+            page: {
+                default: 3
             }
-        };
-        it('Test if overridden values are correct', (done) => {
+        },
+        routes: {
+            override: [
+                {
+                    routes: ['/'],
+                    limit: 5,
+                    page: 2
+                }
+            ]
+        }
+    };
 
-            let server = register();
+    it('Test if overridden values are correct', (done) => {
 
-            server.register({register: require('../'), options: options}, (err) => {
-                expect(err).to.be.undefined();
+        let server = register();
 
-                server.inject({method: 'GET', url: '/'}, (res) => {
+        server.register({register: require('../'), options: options}, (err) => {
+            expect(err).to.be.undefined();
 
-                    expect(res.request.query.limit).to.equal(5);
-                    expect(res.request.query.page).to.equal(2);
-                    done();
-                });
+            server.inject({method: 'GET', url: '/'}, (res) => {
+
+                expect(res.request.query.limit).to.equal(5);
+                expect(res.request.query.page).to.equal(2);
+                done();
             });
-
         });
 
-        it ('Test if default values are still correct for other routes', done => {
-            let server = register();
+    });
 
-            server.register({register: require('../'), options: options}, (err) => {
-                expect(err).to.be.undefined();
+    it ('Test if default values are still correct for other routes', done => {
+        let server = register();
 
-                server.inject({method: 'GET', url: '/users'}, (res) => {
+        server.register({register: require('../'), options: options}, (err) => {
+            expect(err).to.be.undefined();
 
-                    expect(res.request.query.limit).to.equal(10);
-                    expect(res.request.query.page).to.equal(3);
-                    done();
-                });
+            server.inject({method: 'GET', url: '/users'}, (res) => {
+
+                expect(res.request.query.limit).to.equal(10);
+                expect(res.request.query.page).to.equal(3);
+                done();
+            });
+        });
+    });
+});
+
+
+describe('Passing page and limit as query parameters', () => {
+
+    let options = {
+        query: {
+            limit: {
+                default: 5,
+                name: 'myLimit'
+            },
+            page: {
+                default: 2,
+                name: 'myPage'
+            }
+        }
+    };
+
+    it('Passing limit', done => {
+        let server = register();
+
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({method: 'GET', url: '/?limit=5'}, (res) => {
+                expect(res.request.query.limit).to.equal(5);
+                expect(res.request.query.page).to.equal(1);
+                done();
             });
         });
     });
 
+    it('Overriding and passing limit', done => {
+        let server = register();
 
-    describe('Passing page and limit as query parameters', () => {
+        server.register({register: require('../'), options: options}, (err) => {
+            expect(err).to.be.undefined();
 
-        let options = {
-            query: {
-                limit: {
-                    default: 5,
-                    name: 'myLimit'
-                },
-                page: {
-                    default: 2,
-                    name: 'myPage'
-                }
-            }
-        };
-
-        it('Passing limit', done => {
-            let server = register();
-
-            server.register(require('../'), (err) => {
-                expect(err).to.be.undefined();
-
-                server.inject({method: 'GET', url: '/?limit=5'}, (res) => {
-                    expect(res.request.query.limit).to.equal(5);
-                    expect(res.request.query.page).to.equal(1);
-                    done();
-                });
+            server.inject({method: 'GET', url: '/?myLimit=7'}, (res) => {
+                expect(res.request.query[options.query.limit.name]).to.equal(7);
+                expect(res.request.query[options.query.page.name]).to.equal(2);
+                done();
             });
         });
+    });
 
-        it('Overriding and passing limit', done => {
-            let server = register();
+    it('Passing page', done => {
+        let server = register();
 
-            server.register({register: require('../'), options: options}, (err) => {
-                expect(err).to.be.undefined();
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
 
-                server.inject({method: 'GET', url: '/?myLimit=7'}, (res) => {
-                    expect(res.request.query[options.query.limit.name]).to.equal(7);
-                    expect(res.request.query[options.query.page.name]).to.equal(2);
-                    done();
-                });
+            server.inject({method: 'GET', url: '/?page=5'}, (res) => {
+                expect(res.request.query.page).to.equal(5);
+                done();
             });
         });
+    });
 
-        it('Passing page', done => {
-            let server = register();
+    it('Overriding and passing page', done => {
+        let server = register();
 
-            server.register(require('../'), (err) => {
-                expect(err).to.be.undefined();
+        server.register({register: require('../'), options: options}, (err) => {
+            expect(err).to.be.undefined();
 
-                server.inject({method: 'GET', url: '/?page=5'}, (res) => {
-                    expect(res.request.query.page).to.equal(5);
-                    done();
-                });
+            server.inject({method: 'GET', url: '/?myPage=5'}, (res) => {
+                expect(res.request.query[options.query.limit.name]).to.equal(5);
+                expect(res.request.query[options.query.page.name]).to.equal(5);
+                done();
             });
         });
+    });
+});
 
-        it('Overriding and passing page', done => {
-            let server = register();
+describe('Test /users route', () => {
 
-            server.register({register: require('../'), options: options}, (err) => {
-                expect(err).to.be.undefined();
+    it ('Test default with totalCount added to request object', done => {
 
-                server.inject({method: 'GET', url: '/?myPage=5'}, (res) => {
-                    expect(res.request.query[options.query.limit.name]).to.equal(5);
-                    expect(res.request.query[options.query.page.name]).to.equal(5);
-                    done();
-                });
+        let server = register();
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({method: 'GET', url: '/users?page=2&limit=5'}, (res) => {
+
+                const response = res.request.response.source;
+                const meta = response.meta;
+
+                expect(meta).to.be.an.object();
+                expect(meta.count).to.equal(5);
+                expect(meta.totalCount).to.equal(20);
+                expect(meta.pageCount).to.equal(4);
+                expect(meta.previous).to.equal('http://localhost/users?page=1&limit=5');
+                expect(meta.next).to.equal('http://localhost/users?page=3&limit=5');
+                expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
+                expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
+                expect(meta.self).to.equal('http://localhost/users?page=2&limit=5');
+
+                expect(response.results).to.be.an.array();
+                expect(response.results).to.have.length(5);
+
+                done();
             });
         });
-
-
     });
 });
