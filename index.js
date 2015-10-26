@@ -99,6 +99,8 @@ exports.register = function (server, options, next) {
                     page = v.page;
                     limit = v.limit;
                 }
+                
+                return !match;
             };
 
             _.every(config.routes.override, checkRoute);
