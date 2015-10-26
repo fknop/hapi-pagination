@@ -1,6 +1,6 @@
 # hapi-pagination
 
-Hapi plugin to handle 'custom' pagination.
+Hapi plugin to handle 'custom' resources pagination (in json only).
 
 ## How to install
 
@@ -208,4 +208,16 @@ server.register({register: require('hapi-pagination'), options: options}, (err)
         throw err;
 });
 ```
+
+## Tests
+
+Make sure you have `lab` and `code` installed and run :
+
+```
+npm test
+```
+
+## Contribute
+
+Post an issue if you encounter a bug or an error in the documentation.
 
