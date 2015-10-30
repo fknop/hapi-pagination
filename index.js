@@ -178,7 +178,7 @@ exports.register = function (server, options, next) {
 				let pageCount = null;
 
 				if (totalCount) {
-					pageCount = totalCount / qs[config.query.limit.name] +
+					pageCount = Math.trunc(totalCount / qs[config.query.limit.name]) +
 						((totalCount % qs[config.query.limit.name] == 0) ? 0 : 1);
 				}
 
@@ -207,8 +207,8 @@ exports.register = function (server, options, next) {
 				let qsPage = qs[config.query.page.name];
 
 				// TODO - CHECK
-				if (totalCount && qsPage !== totalCount / qs[config.query.limit.name]) {
-					let pageCount = totalCount / qs[config.query.limit.name] +
+				if (totalCount) {
+					let pageCount = Math.trunc(totalCount / qs[config.query.limit.name]) +
 						((totalCount % qs[config.query.limit.name] == 0) ? 0 : 1);
 
 					if (qsPage < pageCount) {
@@ -233,7 +233,7 @@ exports.register = function (server, options, next) {
 				let url = null;
 
 				if (totalCount) {
-					let pageCount = totalCount / qs[config.query.limit.name] +
+					let pageCount = Math.trunc(totalCount / qs[config.query.limit.name]) +
 						((totalCount % qs[config.query.limit.name] == 0) ? 0 : 1);
 					let override = {};
 					override[config.query.page.name] = pageCount;
