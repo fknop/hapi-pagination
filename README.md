@@ -1,3 +1,8 @@
+# Important
+
+The previous version had a little bug for the pageCount. This has been fixed on
+1.1. 
+
 # hapi-pagination
 
 Hapi plugin to handle 'custom' resources pagination in json only (for now at
