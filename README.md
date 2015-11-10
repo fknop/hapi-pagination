@@ -1,7 +1,7 @@
 # Important
 
 The previous version had a little bug for the pageCount. This has been fixed on
-1.1. 
+1.0.2.
 
 # hapi-pagination
 
