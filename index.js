@@ -106,11 +106,17 @@ exports.register = function (server, options, next) {
             _.every(config.routes.override, checkRoute);
 
             if (_.has(request.query, config.query.page.name)) {
-                page = _.parseInt(request.query[config.query.page.name]);
+              	const temp = _.parseInt(request.query[config.query.page.name]);
+				if (!_.isNaN(temp)) {
+					page = temp;
+				}
             }
 
             if (_.has(request.query, config.query.limit.name)) {
-                limit = _.parseInt(request.query[config.query.limit.name]);
+                const temp = _.parseInt(request.query[config.query.limit.name]);
+				if (!_.isNaN(temp)) {
+					limit = temp;
+				}
             }
 
             request.query[config.query.page.name] = page;

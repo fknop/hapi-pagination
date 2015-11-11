@@ -574,6 +574,25 @@ describe('Passing page and limit as query parameters', () => {
         });
     });
 
+	it ('Passing wrong limit and page should return the defaults', done => {
+		
+		let server = register();
+
+		server.register(require('../'), err => {
+			expect(err).to.be.undefined();
+
+			server.inject({
+				method: 'GET',
+				url: '/?limit=abc10&page=c2'
+			}, res => {
+				expect(res.request.query.limit).to.equal(25);
+				expect(res.request.query.page).to.equal(1);
+				done();
+			});
+		});
+
+	});
+
     it('Overriding and passing limit', done => {
         let server = register();
 
