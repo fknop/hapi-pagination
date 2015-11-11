@@ -1,8 +1,3 @@
-# Important
-
-The previous version had a little bug with the pageCount. This has been fixed in
-1.0.2.
-
 # hapi-pagination
 
 Hapi plugin to handle 'custom' resources pagination in json only (for now at
@@ -21,22 +16,30 @@ hapi-pagination uses EcmaScript 6. The following examples will use it as well.
 By default, the plugin will listen to the `limit` and `page` query parameters
  (`request.query.limit` and `request.query.page`), you don't have to validate
  them yourself with Joi. If the page or limit  is not a number, the default
- value will be assigned instead. You can override this behavior with an option
- (see below).
+ value will be assigned instead. You can override this behavior (see below).
 
 You can pass to the `register` method an `options` object. You can change the
- names of the default query parameters, the meta generated in the json response.
+ names of the default query parameters, the meta generated in the JSON response.
 
- For this to work, the response send with the `reply` method must be an array.
+For this to work, the response send with the `reply` method must be an array.
 
 To have certain attributes in the meta object, you have to expose a
-`totalCount` attribute to the `request` object. If totalCount is set to false
- or not exposed through the request object, the following attributes will be
- set to null if they are active:
+`totalCount` (with the name you chose in the options) attribute to the `request` object. 
+
+Alternatively, since 1.1.0, you can use reply.paginate(Array, [totalCount])
+(totalCount being optional). This will expose for you the results and the
+totalCount. The name of this method can also be modified (see below).
+
+If totalCount is not exposed through the request object 
+or the reply.paginate method, the following attributes will be
+set to null if they are active.
  * last
  * pageCount
  * totalCount
  * next
+
+You can still have these four attributes by exposing totalCount even if
+totalCount is set to false.
 
 The default options are:
 
@@ -126,6 +129,9 @@ const options = {
     results: {
         name: 'results'
     },
+	reply: {
+		paginate: 'paginate' // The name of the paginate method, by default: reply.paginate
+	},
 
     // The routes concerned by the pagination
     routes: {

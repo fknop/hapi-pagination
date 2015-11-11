@@ -66,6 +66,9 @@ const internals = {
         results: {
             name: 'results'
         },
+        reply: {
+            paginate: 'paginate'
+        },
         routes: {
             include: ['*'],
             exclude: [],
@@ -84,8 +87,8 @@ exports.register = function (server, options, next) {
 
     Hoek.assert(config.query.invalid === 'defaults' || config.query.invalid === 'badRequest', 'options.query.invalid can only be: \'defaults\' or \'badRequest\' ');
 
-    server.decorate('reply', 'paginate', function(results, totalCount) {
-        Hoek.assert(Array.isArray(results), '#reply.paginate results must be an array.');
+    server.decorate('reply', config.reply.paginate, function(results, totalCount) {
+        Hoek.assert(Array.isArray(results), '#reply.' + config.reply.paginate + ' results must be an array.');
 
         return this.response({ results: results, totalCount: totalCount });
     });
