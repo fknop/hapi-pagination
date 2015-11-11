@@ -177,13 +177,17 @@ exports.register = function (server, options, next) {
         if ((include[0] === '*' || _.includes(include, path)) &&
             !_.includes(exclude, path)) {
 
-            const totalCount = request.response.source.totalCount;
+            const temp = request.response.source;
+
+            const results = Array.isArray(temp) ? request.response.source : request.response.source.results;
+            Hoek.assert(Array.isArray(results), 'The results must be an array');
+            const totalCount = request.response.source.totalCount || request[config.meta.totalCount.name];
+
             const baseUrl = request.server.info.uri + request.url.pathname + '?';
             const qs = request.query;
             const qsPage = qs[config.query.page.name];
 
 
-            const results = request.response.source.results;
 
             const meta = {};
 

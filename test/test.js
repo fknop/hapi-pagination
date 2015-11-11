@@ -100,7 +100,7 @@ const register = () => {
     server.route({
         method: 'GET',
         path: '/',
-        handler: (request, reply) => reply.paginate([])
+        handler: (request, reply) => reply([])
     });
 
     server.route({
