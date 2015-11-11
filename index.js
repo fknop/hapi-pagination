@@ -1,8 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
+const _    = require('lodash');
 const Hoek = require('hoek');
-const Qs = require('qs');
+const Qs   = require('qs');
+const Boom = require('boom');
 
 const internals = {
     defaults: {
@@ -14,7 +15,8 @@ const internals = {
             limit: {
                 name: 'limit',
                 default: 25
-            }
+            },
+            invalid: 'defaults'
         },
         meta: {
             name: 'meta',
@@ -80,6 +82,14 @@ const internals = {
 exports.register = function (server, options, next) {
     const config = Hoek.applyToDefaults(internals.defaults, options);
 
+    Hoek.assert(config.query.invalid === 'defaults' || config.query.invalid === 'badRequest', 'options.query.invalid can only be: \'defaults\' or \'badRequest\' ');
+
+    server.decorate('reply', 'paginate', function(results, totalCount) {
+        Hoek.assert(Array.isArray(results), '#reply.paginate results must be an array.');
+
+        return this.response({ results: results, totalCount: totalCount });
+    });
+
     server.ext('onPreHandler', function (request, reply) {
 
         const include = config.routes.include;
@@ -105,18 +115,32 @@ exports.register = function (server, options, next) {
 
             _.every(config.routes.override, checkRoute);
 
+
             if (_.has(request.query, config.query.page.name)) {
-              	const temp = _.parseInt(request.query[config.query.page.name]);
-				if (!_.isNaN(temp)) {
-					page = temp;
-				}
+                const temp = _.parseInt(request.query[config.query.page.name]);
+                if (_.isNaN(temp)) {
+                    if (config.query.invalid === 'defaults') {
+                        page = config.query.page.default;
+                    } else {
+                        return reply(Boom.badRequest('Invalid page'));
+                    }
+
+                } else {
+                    page = temp;
+                }
             }
 
             if (_.has(request.query, config.query.limit.name)) {
                 const temp = _.parseInt(request.query[config.query.limit.name]);
-				if (!_.isNaN(temp)) {
-					limit = temp;
-				}
+                if (_.isNaN(temp)) {
+                    if (config.query.invalid === 'defaults') {
+                        limit = config.query.limit.default;
+                    } else {
+                        return reply(Boom.badRequest('Invalid limit'));
+                    }
+                } else {
+                    limit = temp;
+                }
             }
 
             request.query[config.query.page.name] = page;
@@ -141,6 +165,9 @@ exports.register = function (server, options, next) {
      */
     server.ext('onPreResponse', function (request, reply) {
 
+        if (request.response.isBoom) {
+            return reply.continue();
+        }
 
         const include = config.routes.include;
         const exclude = config.routes.exclude;
@@ -150,13 +177,13 @@ exports.register = function (server, options, next) {
         if ((include[0] === '*' || _.includes(include, path)) &&
             !_.includes(exclude, path)) {
 
-            const totalCount = request[config.meta.totalCount.name];
+            const totalCount = request.response.source.totalCount;
             const baseUrl = request.server.info.uri + request.url.pathname + '?';
             const qs = request.query;
             const qsPage = qs[config.query.page.name];
 
 
-            const results = request.response.source;
+            const results = request.response.source.results;
 
             const meta = {};
 

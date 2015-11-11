@@ -12,11 +12,12 @@
   ],
   "author": "fknop",
   "license": "GPLv3",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/fknop/hapi-pagination.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fknop/hapi-pagination.git"
   },
   "dependencies": {
+    "boom": "^3.0.0",
     "hoek": "^2.16.3",
     "lodash": "^3.10.1",
     "qs": "^5.2.0"

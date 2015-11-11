@@ -1,6 +1,6 @@
 # Important
 
-The previous version had a little bug for the pageCount. This has been fixed in
+The previous version had a little bug with the pageCount. This has been fixed in
 1.0.2.
 
 # hapi-pagination
@@ -19,7 +19,10 @@ npm install hapi-pagination --save
 hapi-pagination uses EcmaScript 6. The following examples will use it as well.
 
 By default, the plugin will listen to the `limit` and `page` query parameters
- (`request.query.limit` and `request.query.page`).
+ (`request.query.limit` and `request.query.page`), you don't have to validate
+ them yourself with Joi. If the page or limit  is not a number, the default
+ value will be assigned instead. You can override this behavior with an option
+ (see below).
 
 You can pass to the `register` method an `options` object. You can change the
  names of the default query parameters, the meta generated in the json response.
@@ -49,7 +52,9 @@ const options = {
         limit: {
             name: 'limit',
             default: 25 // limit default value
-        }
+        },
+		invalid: 'defaults' // 'defaults': set defaults value if invalid,
+							// 'badRequest': send 400 badRequest if invalid
     },
 
     // The meta object generated along the results

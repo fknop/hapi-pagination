@@ -100,14 +100,13 @@ const register = () => {
     server.route({
         method: 'GET',
         path: '/',
-        handler: (request, reply) => reply([])
+        handler: (request, reply) => reply.paginate([])
     });
 
     server.route({
         method: 'GET',
         path: '/users',
         handler: (request, reply) => {
-            request.totalCount = 20;
             const limit = request.query.limit;
             const page = request.query.page;
 
@@ -118,7 +117,7 @@ const register = () => {
                 response.push(users[i]);
             }
 
-            return reply(response);
+            return reply.paginate(response, 20);
         }
     });
 
@@ -574,24 +573,74 @@ describe('Passing page and limit as query parameters', () => {
         });
     });
 
-	it ('Passing wrong limit and page should return the defaults', done => {
-		
-		let server = register();
+    it ('Wrong limit and page should return the defaults', done => {
 
-		server.register(require('../'), err => {
-			expect(err).to.be.undefined();
+        let server = register();
 
-			server.inject({
-				method: 'GET',
-				url: '/?limit=abc10&page=c2'
-			}, res => {
-				expect(res.request.query.limit).to.equal(25);
-				expect(res.request.query.page).to.equal(1);
-				done();
-			});
-		});
+        server.register(require('../'), err => {
+            expect(err).to.be.undefined();
 
-	});
+            server.inject({
+                method: 'GET',
+                url: '/?limit=abc10&page=c2'
+            }, res => {
+                expect(res.request.query.limit).to.equal(25);
+                expect(res.request.query.page).to.equal(1);
+                done();
+            });
+        });
+
+    });
+
+    it ('Wrong limit with badRequest behavior should return 400 bad request', done => {
+
+        let server = register();
+
+        server.register({
+            register: require('../'),
+            options: {
+                query: {
+                    invalid: 'badRequest'
+                }
+            }
+        }, err => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/?limit=abc10'
+            }, res => {
+                expect(res.request.response.source.statusCode).to.equal(400);
+                expect(res.request.response.statusCode).to.equal(400);
+                done();
+            });
+        });
+    });
+
+     it ('Wrong page with badRequest behavior should return 400 bad request', done => {
+
+        let server = register();
+
+        server.register({
+            register: require('../'),
+            options: {
+                query: {
+                    invalid: 'badRequest'
+                }
+            }
+        }, err => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/?page=abc10'
+            }, res => {
+                expect(res.request.response.source.statusCode).to.equal(400);
+                expect(res.request.response.statusCode).to.equal(400);
+                done();
+            });
+        });
+    });
 
     it('Overriding and passing limit', done => {
         let server = register();
