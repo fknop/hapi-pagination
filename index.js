@@ -85,16 +85,11 @@ const internals = {
 exports.register = function (server, options, next) {
 
 	
-	if (server.connections > 1) {
-		Hoek.assert(options.connection,
-				'Connection label is required if multiple connections are registered');
-		const connection = server.select(options.connection);
-		Hoek.assert(connection, 'Invalid label');
+	Hoek.assert(server.connections.length === 1,
+		'You cannot register this plugin for two connections at once. Register it for each connection on your server.');
+	
+	internals.uri = server.info.uri
 
-		internals.uri = connection.info.uri;
-	} else {
-		internals.uri = server.info.uri
-	}
 
     const config = Hoek.applyToDefaults(internals.defaults, options);
 
