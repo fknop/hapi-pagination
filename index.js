@@ -83,6 +83,19 @@ const internals = {
 
 
 exports.register = function (server, options, next) {
+
+	
+	if (server.connections > 1) {
+		Hoek.assert(options.connection,
+				'Connection label is required if multiple connections are registered');
+		const connection = server.select(options.connection);
+		Hoek.assert(connection, 'Invalid label');
+
+		internals.uri = connection.info.uri;
+	} else {
+		internals.uri = server.info.uri
+	}
+
     const config = Hoek.applyToDefaults(internals.defaults, options);
 
     Hoek.assert(config.query.invalid === 'defaults' || config.query.invalid === 'badRequest', 'options.query.invalid can only be: \'defaults\' or \'badRequest\' ');
@@ -186,7 +199,7 @@ exports.register = function (server, options, next) {
             Hoek.assert(Array.isArray(results), 'The results must be an array');
             const totalCount = request.response.source.totalCount || request[config.meta.totalCount.name];
 
-            const baseUrl = request.server.info.uri + request.url.pathname + '?';
+            const baseUrl = internals.uri + request.url.pathname + '?';
             const qs = request.query;
             const qsPage = qs[config.query.page.name];
 
