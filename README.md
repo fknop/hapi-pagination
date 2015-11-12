@@ -1,7 +1,11 @@
 # hapi-pagination
 
 Hapi plugin to handle 'custom' resources pagination in json only (for now at
-least).
+least). (Get method only for now)
+
+## TODO
+
+* Configure method per route 
 
 ## How to install
 

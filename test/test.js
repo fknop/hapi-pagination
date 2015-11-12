@@ -121,6 +121,14 @@ const register = () => {
         }
     });
 
+    server.route({
+        method: 'POST',
+        path: '/users',
+        handler: (request, reply) => {
+            return reply('Works');
+        }
+    });
+
     return server;
 };
 
@@ -769,21 +777,41 @@ describe('Testing pageCount', () => {
             });
         });
     });
-});
 
-it('Limit is 1, page should be 20', done => {
-    let server = register();
-    server.register(require('../'), (err) => {
-        expect(err).to.be.undefined();
-        server.inject({
-            method: 'GET',
-            url: '/users?limit=1',
-        }, (res) => {
-            const response = res.request.response.source;
-            const meta = response.meta;
 
-            expect(meta.pageCount).to.equal(20);
-            done();
+    it('Limit is 1, page should be 20', done => {
+        let server = register();
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
+            server.inject({
+                method: 'GET',
+                url: '/users?limit=1',
+            }, (res) => {
+                const response = res.request.response.source;
+                const meta = response.meta;
+
+                expect(meta.pageCount).to.equal(20);
+                done();
+            });
         });
     });
 });
+
+describe('Post request', done => {
+     it('Should work with a post request', done => {
+        let server = register();
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
+            server.inject({
+                method: 'POST',
+                url: '/users',
+            }, (res) => {
+                const response = res.request.response.source;
+
+                expect(response).to.equal('Works');
+                done();
+            });
+        });
+    });
+});
+

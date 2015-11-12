@@ -100,7 +100,7 @@ exports.register = function (server, options, next) {
         const path = request.route.path;
 
         // If the route does not match, just skip this part
-        if ((include[0] === '*' || _.includes(include, path)) &&
+        if (request.route.method === 'get' && (include[0] === '*' || _.includes(include, path)) &&
             !_.includes(exclude, path)) {
 
             let page = config.query.page.default;
@@ -168,7 +168,7 @@ exports.register = function (server, options, next) {
      */
     server.ext('onPreResponse', function (request, reply) {
 
-        if (request.response.isBoom) {
+        if (request.response.isBoom || request.route.method !== 'get') {
             return reply.continue();
         }
 
