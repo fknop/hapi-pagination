@@ -119,8 +119,9 @@ exports.register = function (server, options, next) {
             pagination = config.query.pagination.default;
         }
 
+        request.query[config.query.pagination.name] = pagination;
+
         if (pagination === 'false') {
-            request.query[config.query.pagination.name] = pagination;
             return reply.continue();
         }
 
