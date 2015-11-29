@@ -3,10 +3,6 @@
 Hapi plugin to handle 'custom' resources pagination in json only (for now at
 least). (Get method only for now)
 
-## Possible bugs
-
-* Bugs may appear with multi-connections server.
-
 ## TODO
 
 * Configure method per route 
