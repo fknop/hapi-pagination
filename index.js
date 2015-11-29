@@ -117,11 +117,15 @@ exports.register = function (server, options, next) {
 
         if (typeof pagination === 'undefined') {
             pagination = config.query.pagination.default;
+        } else if (pagination === 'false') {
+            pagination = false;
+        } else if (pagination === 'true') {
+            pagination = true;
         }
 
         request.query[config.query.pagination.name] = pagination;
 
-        if (pagination === 'false') {
+        if (pagination === false) {
             return reply.continue();
         }
 
@@ -198,8 +202,10 @@ exports.register = function (server, options, next) {
             return reply.continue();
         }
 
-        if (request.query[config.query.pagination.name] === 'false') {
+        if (request.query[config.query.pagination.name] === false) {
             return reply.continue();
+        } else {
+            delete request.query[config.query.pagination.name];
         }
 
         const include = config.routes.include;
