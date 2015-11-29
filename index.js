@@ -16,6 +16,10 @@ const internals = {
                 name: 'limit',
                 default: 25
             },
+            pagination: {
+                name: 'pagination',
+                default: true
+            },
             invalid: 'defaults'
         },
         meta: {
@@ -84,16 +88,18 @@ const internals = {
 
 exports.register = function (server, options, next) {
 
-	
-	Hoek.assert(server.connections.length === 1,
-		'You cannot register this plugin for two connections at once. Register it for each connection on your server.');
-	
-	internals.uri = server.info.uri
+
+    Hoek.assert(server.connections.length === 1,
+                'You cannot register this plugin for two connections at once. ' +
+                'Register it for each connection on your server.');
+
+    internals.uri = server.info.uri
 
 
     const config = Hoek.applyToDefaults(internals.defaults, options);
 
-    Hoek.assert(config.query.invalid === 'defaults' || config.query.invalid === 'badRequest', 'options.query.invalid can only be: \'defaults\' or \'badRequest\' ');
+    Hoek.assert(config.query.invalid === 'defaults' || config.query.invalid === 'badRequest',
+                'options.query.invalid can only be: \'defaults\' or \'badRequest\' ');
 
     server.decorate('reply', config.reply.paginate, function(results, totalCount) {
         Hoek.assert(Array.isArray(results), '#reply.' + config.reply.paginate + ' results must be an array.');
@@ -106,6 +112,17 @@ exports.register = function (server, options, next) {
         const include = config.routes.include;
         const exclude = config.routes.exclude;
         const path = request.route.path;
+
+        let pagination = request.query[config.query.pagination.name];
+
+        if (typeof pagination === 'undefined') {
+            pagination = config.query.pagination.default;
+        }
+
+        if (pagination === 'false') {
+            request.query[config.query.pagination.name] = pagination;
+            return reply.continue();
+        }
 
         // If the route does not match, just skip this part
         if (request.route.method === 'get' && (include[0] === '*' || _.includes(include, path)) &&
@@ -177,6 +194,10 @@ exports.register = function (server, options, next) {
     server.ext('onPreResponse', function (request, reply) {
 
         if (request.response.isBoom || request.route.method !== 'get') {
+            return reply.continue();
+        }
+
+        if (request.query[config.query.pagination.name] === 'false') {
             return reply.continue();
         }
 

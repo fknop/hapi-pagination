@@ -797,7 +797,7 @@ describe('Testing pageCount', () => {
     });
 });
 
-describe('Post request', done => {
+describe('Post request', () => {
      it('Should work with a post request', done => {
         let server = register();
         server.register(require('../'), (err) => {
@@ -811,6 +811,24 @@ describe('Post request', done => {
                 expect(response).to.equal('Works');
                 done();
             });
+        });
+    });
+});
+
+describe('Pagination to false', () => {
+    it ('Should return the results with no pagination', done => {
+        let server = register();
+        server.register(require('../'), (err) => {
+            expect(err).to.be.undefined();
+            server.inject({
+                method: 'GET',
+                url: '/?pagination=false',
+            }, res => {
+                const response = res.request.response.source;
+                expect(response).to.be.an.array();
+                done();
+            });
+
         });
     });
 });
