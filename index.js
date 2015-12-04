@@ -113,25 +113,27 @@ exports.register = function (server, options, next) {
         const exclude = config.routes.exclude;
         const path = request.route.path;
 
-        let pagination = request.query[config.query.pagination.name];
-
-        if (typeof pagination === 'undefined') {
-            pagination = config.query.pagination.default;
-        } else if (pagination === 'false') {
-            pagination = false;
-        } else if (pagination === 'true') {
-            pagination = true;
-        }
-
-        request.query[config.query.pagination.name] = pagination;
-
-        if (pagination === false) {
-            return reply.continue();
-        }
 
         // If the route does not match, just skip this part
         if (request.route.method === 'get' && (include[0] === '*' || _.includes(include, path)) &&
             !_.includes(exclude, path)) {
+
+            let pagination = request.query[config.query.pagination.name];
+
+            if (typeof pagination === 'undefined') {
+                pagination = config.query.pagination.default;
+            } else if (pagination === 'false') {
+                pagination = false;
+            } else if (pagination === 'true') {
+                pagination = true;
+            }
+
+
+            if (pagination === false) {
+                return reply.continue();
+            }
+
+            request.query[config.query.pagination.name] = pagination;
 
             let page = config.query.page.default;
             let limit = config.query.limit.default;
@@ -202,11 +204,6 @@ exports.register = function (server, options, next) {
             return reply.continue();
         }
 
-        if (request.query[config.query.pagination.name] === false) {
-            return reply.continue();
-        } else {
-            delete request.query[config.query.pagination.name];
-        }
 
         const include = config.routes.include;
         const exclude = config.routes.exclude;
@@ -215,6 +212,12 @@ exports.register = function (server, options, next) {
 
         if ((include[0] === '*' || _.includes(include, path)) &&
             !_.includes(exclude, path)) {
+
+            if (request.query[config.query.pagination.name] === false) {
+                return reply.continue();
+            } else {
+                delete request.query[config.query.pagination.name];
+            }
 
             const temp = request.response.source;
 
