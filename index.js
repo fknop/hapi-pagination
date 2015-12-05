@@ -128,12 +128,12 @@ exports.register = function (server, options, next) {
                 pagination = true;
             }
 
+            request.query[config.query.pagination.name] = pagination;
 
             if (pagination === false) {
                 return reply.continue();
             }
 
-            request.query[config.query.pagination.name] = pagination;
 
             let page = config.query.page.default;
             let limit = config.query.limit.default;
