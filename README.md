@@ -1,11 +1,7 @@
 # hapi-pagination
 
-Hapi plugin to handle 'custom' resources pagination in json only (for now at
-least). (Get method only for now)
-
-## TODO
-
-* Configure method per route 
+Hapi plugin to handle 'custom' resources pagination in json only.
+Support only get method for now.
 
 ## How to install
 
@@ -17,22 +13,92 @@ npm install hapi-pagination --save
 
 hapi-pagination uses EcmaScript 6. The following examples will use it as well.
 
-By default, the plugin will listen to the `limit` and `page` query parameters
- (`request.query.limit` and `request.query.page`), you don't have to validate
- them yourself with Joi. If the page or limit  is not a number, the default
- value will be assigned instead. You can override this behavior (see below).
+The plugin works with settings that you can override. You can override the
+default value of a setting and even the default name. It allows you to customize 
+your calls to your API to suit your needs.
 
-You can pass to the `register` method an `options` object. You can change the
- names of the default query parameters, the meta generated in the JSON response.
+### Options
 
-For this to work, the response send with the `reply` method must be an array.
+See this defaults options object below.
 
-To have certain attributes in the meta object, you have to expose a
-`totalCount` (with the name you chose in the options) attribute to the `request` object. 
+#### The query parameters
 
-Alternatively, since 1.1.0, you can use reply.paginate(Array, [totalCount])
-(totalCount being optional). This will expose for you the results and the
-totalCount. The name of this method can also be modified (see below).
+The plugin accepts query parameters to handle the pagination, you can customize
+these parameters with the following options:
+
+* limit: The number of resources by page. Default value is 25, default name is
+  limit.
+* page: The number of the page that will be returned. Default value is 1,
+  default name is page.
+* pagination: Allows you to enable, disable pagination for one request. Default
+  value is true (enabled), default name is pagination.
+* invalid: This is `NOT` a query parameter, but it allows you to customize the
+  behavior if the validation of limit and page fails. By defaults, it sets the
+  defaults, you can set it to 'badRequest' that will send you a `400 - Bad
+  Request`.
+
+Notes:
+* You can access to limit, page and pagination in the handler method through `request.query`. 
+* If the pagination is set to false, the metadata object will not be a part of
+  the response but the `pagination` parameter will still be accessible through
+  `request.query`
+
+#### The metadata
+
+The plugin will generate a metadata object alongside your resources, you can
+customize this object with the following options:
+
+* name: The name of the metadata object. Default is 'meta'.
+* count: The number of rows returned. Default name is count. Enabled by default.
+* totalCount: The total numbers of rows available. Default name is totalCount.
+  Enabled by default.
+* pageCount: The total number of pages available. Default name is pageCount,
+  enabled by default.
+* self: The link to the requested page. Default name is self, enabled by
+  default.
+* previous: The link to the previous page. Default name is previous, enabled by
+  default. null if no previous page is available.
+* next: Same than previous but with next page.
+* first: Same than previous but with first page.
+* last: Same than previous but with last page.
+* page: The page number requested. Default name is page, disabled by default.
+* limit: The limit requested. Default name is limit, disabled by default.
+
+#### The results
+
+* name: the name of the results array, results by default.
+* reply: Object with:
+	+ paginate: The name of the paginate method (see below), paginate by
+	  default.
+
+#### The routes
+
+* include: An array of routes that you want to include, support \*.
+  Default to '\*'.
+* exclude: An array of routes that you want to exclude. Useful when include is
+  '\*'. Default to empty array.
+* override: An array ob object containing: (default to empty array)
+	+ routes: An array of routes for which you want to override the defaults.
+	+ limit: The overrided limit.
+	+ page: The overrided page.
+
+#### reply.paginate(Array, [totalCount]) 
+
+The method is an helper method. This is a shortcut for:
+
+```javascript
+reply({results: results, totalCount: totalCount});
+```
+
+You can also reply the array and set the totalCount by adding the totalCount
+(with whatever name you chose) to the request object.
+
+```
+request.totalCount = 10;
+reply(results); 
+```
+
+##### WARNING: If the results is not an array, the program will exit.
 
 If totalCount is not exposed through the request object 
 or the reply.paginate method, the following attributes will be
@@ -42,108 +108,84 @@ set to null if they are active.
  * totalCount
  * next
 
-You can still have these four attributes by exposing totalCount even if
+You can still have those four attributes by exposing totalCount even if
 totalCount is set to false.
 
-The default options are:
+#### The defaults options
 
 ```javascript
 const options = {
     query: {
-        // The page (accessed by request.query.page if page.name === 'page')
         page: {
             name: 'page',
-            default: 1 // page default value
+            default: 1 
         },
-        // The limit (accessed by request.query.limit if page.limit === 'limit')
         limit: {
             name: 'limit',
-            default: 25 // limit default value
+            default: 25 
         },
-		invalid: 'defaults' // 'defaults': set defaults value if invalid,
-							// 'badRequest': send 400 badRequest if invalid
+		pagination: { 
+			name: 'pagination', 
+			default: true
+		}
+		invalid: 'defaults' 
     },
 
-    // The meta object generated along the results
     meta: {
-        name: 'meta', // The name of the meta object
-        // The number of rows returned
+        name: 'meta', 
         count: {
             active: true,
             name: 'count'
         },
-
-        // The total number of rows
         totalCount: {
             active: true,
             name: 'totalCount'
         },
-
-        // the number of pages
         pageCount: {
             active: true,
             name: 'pageCount'
         },
-
-        // The url linking to the same page of the resources returned
         self: {
             active: true,
             name: 'self'
         },
-
-        // The url linking to the previous page of the resources returned
         previous: {
             active: true,
             name: 'previous'
         },
-
-        // The url linking to the next page of the resources returned
         next: {
             active: true,
             name: 'next'
         },
-
-        // The url linking to the first page of the resources returned
         first: {
             active: true,
             name: 'first'
         },
-
-        // The url linking to the last page of the resources returned
         last: {
             active: true,
             name: 'last'
         },
-
-        // The current page
         page: {
             active: false,
             // name == default.query.page.name
         },
-
-        // The current limit
         limit: {
             active: false
             // name == default.query.limit.name
         }
-
     },
 
-    // The results (array of rows) returned by the reply method
     results: {
         name: 'results'
     },
 	reply: {
-		paginate: 'paginate' // The name of the paginate method, by default: reply.paginate
+		paginate: 'paginate' 
 	},
 
-    // The routes concerned by the pagination
     routes: {
         include: ['*'],
-        exclude: [], // useful if include is *
+        exclude: [], 
 
-        // Overrides default values of specified routes.
-        // Must be specified in include (or *)
         override: [{
             routes: [],
             limit: 25,
@@ -240,7 +282,11 @@ Make sure you have `lab` and `code` installed and run :
 npm test
 ```
 
+Note: The tests may fail because of `qs` that is inversing the order of the
+query parameters, if you know how to avoid this, you can post an issue on the
+repository, thank you.
+
 ## Contribute
 
-Post an issue if you encounter a bug or an error in the documentation.
+Post an issue if you encounter a bug or an error in the documentation. 
 
