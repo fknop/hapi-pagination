@@ -33,7 +33,7 @@ these parameters with the following options:
 * pagination: Allows you to enable, disable pagination for one request. Default
   value is true (enabled), default name is pagination.
 * invalid: This is `NOT` a query parameter, but it allows you to customize the
-  behavior if the validation of limit and page fails. By defaults, it sets the
+  behavior if the validation of limit and page fails. By default, it sets the
   defaults, you can set it to 'badRequest' that will send you a `400 - Bad
   Request`.
 
