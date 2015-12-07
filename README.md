@@ -98,7 +98,7 @@ request.totalCount = 10;
 reply(results); 
 ```
 
-##### WARNING: If the results is not an array, the program will exit.
+##### WARNING: If the results is not an array, the program will throw an implementation error.
 
 If totalCount is not exposed through the request object 
 or the reply.paginate method, the following attributes will be
