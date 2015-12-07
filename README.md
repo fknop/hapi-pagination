@@ -19,7 +19,7 @@ your calls to your API to suit your needs.
 
 ### Options
 
-See this defaults options object below.
+See the default options object below.
 
 #### The query parameters
 
