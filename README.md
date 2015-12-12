@@ -288,10 +288,6 @@ Make sure you have `lab` and `code` installed and run :
 npm test
 ```
 
-Note: The tests may fail because of `qs` that is inversing the order of the
-query parameters, if you know how to avoid this, you can post an issue on the
-repository, thank you.
-
 ## Contribute
 
 Post an issue if you encounter a bug or an error in the documentation.
