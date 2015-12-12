@@ -400,8 +400,8 @@ describe('Override default values', () => {
                 expect(meta[names.previous.name]).to.be.null();
                 expect(meta[names.next.name]).to.be.null();
                 expect(meta[names.last.name]).to.be.null();
-                expect(meta[names.first.name]).to.equal('http://localhost/?page=1&limit=25');
-                expect(meta[names.self.name]).to.equal('http://localhost/?page=1&limit=25');
+                expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
+                expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
                 expect(response.results).to.be.an.array();
                 expect(response.results).to.have.length(0);
 
@@ -711,6 +711,8 @@ describe('Test /users route', () => {
 
     it('Test default with totalCount added to request object', done => {
 
+        function urlForPage(page) { return ['http://localhost/users?','page='+page,'&','limit=5'];  }
+
         let server = register();
         server.register(require('../'), (err) => {
             expect(err).to.be.undefined();
@@ -727,11 +729,11 @@ describe('Test /users route', () => {
                 expect(meta.count).to.equal(5);
                 expect(meta.totalCount).to.equal(20);
                 expect(meta.pageCount).to.equal(4);
-                expect(meta.previous).to.equal('http://localhost/users?page=1&limit=5');
-                expect(meta.next).to.equal('http://localhost/users?page=3&limit=5');
-                expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
-                expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
-                expect(meta.self).to.equal('http://localhost/users?page=2&limit=5');
+                expect(meta.previous).to.part.include(urlForPage(1));
+                expect(meta.next).to.part.include(urlForPage(3));
+                expect(meta.last).to.part.include(urlForPage(4));
+                expect(meta.first).to.part.include(urlForPage(1));
+                expect(meta.self).to.part.include(urlForPage(2));
 
                 expect(response.results).to.be.an.array();
                 expect(response.results).to.have.length(5);
@@ -832,4 +834,3 @@ describe('Pagination to false', () => {
         });
     });
 });
-
