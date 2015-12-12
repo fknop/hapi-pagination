@@ -12,7 +12,7 @@
     "pagination"
   ],
   "author": "fknop",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/fknop/hapi-pagination.git"
