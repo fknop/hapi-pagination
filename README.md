@@ -1,5 +1,11 @@
 # hapi-pagination
 
+[![NPM Version](https://img.shields.io/npm/v/hapi-pagination.svg)](https://npmjs.org/package/hapi-pagination)
+[![Build Status](https://travis-ci.org/fknop/hapi-pagination.svg)](https://travis-ci.org/fknop/hapi-pagination)
+[![Coverage Status](https://coveralls.io/repos/fknop/hapi-pagination/badge.svg?branch=master&service=github)](https://coveralls.io/github/fknop/hapi-pagination?branch=master)
+[![Dependency Status](https://david-dm.org/fknop/hapi-pagination.svg)](https://david-dm.org/fknop/hapi-pagination)
+[![bitHound Overalll Score](https://www.bithound.io/github/fknop/hapi-pagination/badges/score.svg)](https://www.bithound.io/github/fknop/hapi-pagination)
+
 Hapi plugin to handle 'custom' resources pagination in json only.
 Support only get method for now.
 
@@ -14,7 +20,7 @@ npm install hapi-pagination --save
 hapi-pagination uses EcmaScript 6. The following examples will use it as well.
 
 The plugin works with settings that you can override. You can override the
-default value of a setting and even the default name. It allows you to customize 
+default value of a setting and even the default name. It allows you to customize
 your calls to your API to suit your needs.
 
 ### Options
@@ -38,7 +44,7 @@ these parameters with the following options:
   Request`.
 
 Notes:
-* You can access to limit, page and pagination in the handler method through `request.query`. 
+* You can access to limit, page and pagination in the handler method through `request.query`.
 * If the pagination is set to false, the metadata object will not be a part of
   the response but the `pagination` parameter will still be accessible through
   `request.query`
@@ -82,7 +88,7 @@ customize this object with the following options:
 	+ limit: The overrided limit.
 	+ page: The overrided page.
 
-#### reply.paginate(Array, [totalCount]) 
+#### reply.paginate(Array, [totalCount])
 
 The method is an helper method. This is a shortcut for:
 
@@ -95,12 +101,12 @@ You can also reply the array and set the totalCount by adding the totalCount
 
 ```
 request.totalCount = 10;
-reply(results); 
+reply(results);
 ```
 
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
-If totalCount is not exposed through the request object 
+If totalCount is not exposed through the request object
 or the reply.paginate method, the following attributes will be
 set to null if they are active.
  * last
@@ -118,21 +124,21 @@ const options = {
     query: {
         page: {
             name: 'page',
-            default: 1 
+            default: 1
         },
         limit: {
             name: 'limit',
-            default: 25 
+            default: 25
         },
-		pagination: { 
-			name: 'pagination', 
+        pagination: {
+            name: 'pagination',
 			default: true
 		}
-		invalid: 'defaults' 
+        invalid: 'defaults'
     },
 
     meta: {
-        name: 'meta', 
+        name: 'meta',
         count: {
             active: true,
             name: 'count'
@@ -179,12 +185,12 @@ const options = {
 		name: 'results'
     },
 	reply: {
-		paginate: 'paginate' 
+        paginate: 'paginate'
 	},
 
     routes: {
         include: ['*'],
-        exclude: [], 
+        exclude: [],
 
         override: [{
             routes: [],
@@ -288,5 +294,4 @@ repository, thank you.
 
 ## Contribute
 
-Post an issue if you encounter a bug or an error in the documentation. 
-
+Post an issue if you encounter a bug or an error in the documentation.
