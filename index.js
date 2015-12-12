@@ -93,7 +93,7 @@ exports.register = function (server, options, next) {
                 'You cannot register this plugin for two connections at once. ' +
                 'Register it for each connection on your server.');
 
-    internals.uri = server.info.uri
+    internals.uri = server.info.uri;
 
 
     const config = Hoek.applyToDefaults(internals.defaults, options);
@@ -120,12 +120,12 @@ exports.register = function (server, options, next) {
 
             let pagination = request.query[config.query.pagination.name];
 
-            if (typeof pagination === 'undefined') {
-                pagination = config.query.pagination.default;
-            } else if (pagination === 'false') {
+            if (pagination === 'false') {
                 pagination = false;
             } else if (pagination === 'true') {
                 pagination = true;
+            } else {
+                pagination = config.query.pagination.default;
             }
 
             request.query[config.query.pagination.name] = pagination;
