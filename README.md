@@ -32,13 +32,13 @@ See the default options object below.
 The plugin accepts query parameters to handle the pagination, you can customize
 these parameters with the following options:
 
-* limit: The number of resources by page. Default value is 25, default name is
+* `limit`: The number of resources by page. Default value is 25, default name is
   limit.
-* page: The number of the page that will be returned. Default value is 1,
+* `page`: The number of the page that will be returned. Default value is 1,
   default name is page.
-* pagination: Allows you to enable, disable pagination for one request. Default
+* `pagination`: Allows you to enable, disable pagination for one request. Default
   value is true (enabled), default name is pagination.
-* invalid: This is `NOT` a query parameter, but it allows you to customize the
+* `invalid`: This is `NOT` a query parameter, but it allows you to customize the
   behavior if the validation of limit and page fails. By default, it sets the
   defaults, you can set it to 'badRequest' that will send you a `400 - Bad
   Request`.
@@ -54,39 +54,39 @@ Notes:
 The plugin will generate a metadata object alongside your resources, you can
 customize this object with the following options:
 
-* name: The name of the metadata object. Default is 'meta'.
-* count: The number of rows returned. Default name is count. Enabled by default.
-* totalCount: The total numbers of rows available. Default name is totalCount.
+* `name`: The name of the metadata object. Default is 'meta'.
+* `count`: The number of rows returned. Default name is count. Enabled by default.
+* `totalCount`: The total numbers of rows available. Default name is totalCount.
   Enabled by default.
-* pageCount: The total number of pages available. Default name is pageCount,
+* `pageCount`: The total number of pages available. Default name is pageCount,
   enabled by default.
-* self: The link to the requested page. Default name is self, enabled by
+* `self`: The link to the requested page. Default name is self, enabled by
   default.
-* previous: The link to the previous page. Default name is previous, enabled by
+* `previous`: The link to the previous page. Default name is previous, enabled by
   default. null if no previous page is available.
-* next: Same than previous but with next page.
-* first: Same than previous but with first page.
-* last: Same than previous but with last page.
-* page: The page number requested. Default name is page, disabled by default.
-* limit: The limit requested. Default name is limit, disabled by default.
+* `next`: Same than previous but with next page.
+* `first`: Same than previous but with first page.
+* `last`: Same than previous but with last page.
+* `page`: The page number requested. Default name is page, disabled by default.
+* `limit`: The limit requested. Default name is limit, disabled by default.
 
 #### The results
 
-* name: the name of the results array, results by default.
-* reply: Object with:
-	+ paginate: The name of the paginate method (see below), paginate by
+* `name`: the name of the results array, results by default.
+* `reply`: Object with:
+    + `paginate`: The name of the paginate method (see below), paginate by
 	  default.
 
 #### The routes
 
-* include: An array of routes that you want to include, support \*.
+* `include`: An array of routes that you want to include, support \*.
   Default to '\*'.
-* exclude: An array of routes that you want to exclude. Useful when include is
+* `exclude`: An array of routes that you want to exclude. Useful when include is
   '\*'. Default to empty array.
-* override: An array ob object containing: (default to empty array)
-	+ routes: An array of routes for which you want to override the defaults.
-	+ limit: The overrided limit.
-	+ page: The overrided page.
+* `override`: An array ob object containing: (default to empty array)
+    + `routes`: An array of routes for which you want to override the defaults.
+    + `limit`: The overrided limit.
+    + `page`: The overrided page.
 
 #### reply.paginate(Array, [totalCount])
 
@@ -109,10 +109,10 @@ reply(results);
 If totalCount is not exposed through the request object
 or the reply.paginate method, the following attributes will be
 set to null if they are active.
- * last
- * pageCount
- * totalCount
- * next
+ * `last`
+ * `pageCount`
+ * `totalCount`
+ * `next`
 
 You can still have those four attributes by exposing totalCount even if
 totalCount is set to false.
