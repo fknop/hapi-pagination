@@ -9,6 +9,8 @@ const describe = lab.describe;
 const it = lab.it;
 const expect = Code.expect;
 
+const pluginName = '../lib';
+
 const users = [
     {
         name: 'name1',
@@ -135,7 +137,7 @@ const register = () => {
 describe('Test with defaults values', () => {
     it('Test if limit default is added to request object', (done) => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
 
             expect(err).to.be.undefined();
 
@@ -156,7 +158,7 @@ describe('Test with defaults values', () => {
 
     it('Test with additional query string', (done) => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
 
             server.inject({
@@ -189,7 +191,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -221,7 +223,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
 
@@ -251,7 +253,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -281,7 +283,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -311,7 +313,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -377,7 +379,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -448,7 +450,7 @@ describe('Override default values', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -508,7 +510,7 @@ describe('Override default values for / route', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -530,7 +532,7 @@ describe('Override default values for / route', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -567,7 +569,7 @@ describe('Passing page and limit as query parameters', () => {
     it('Passing limit', done => {
         let server = register();
 
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
 
             server.inject({
@@ -585,7 +587,7 @@ describe('Passing page and limit as query parameters', () => {
 
         let server = register();
 
-        server.register(require('../'), err => {
+        server.register(require(pluginName), err => {
             expect(err).to.be.undefined();
 
             server.inject({
@@ -605,7 +607,7 @@ describe('Passing page and limit as query parameters', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: {
                 query: {
                     invalid: 'badRequest'
@@ -630,7 +632,7 @@ describe('Passing page and limit as query parameters', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: {
                 query: {
                     invalid: 'badRequest'
@@ -654,7 +656,7 @@ describe('Passing page and limit as query parameters', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -673,7 +675,7 @@ describe('Passing page and limit as query parameters', () => {
     it('Passing page', done => {
         let server = register();
 
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
 
             server.inject({
@@ -690,7 +692,7 @@ describe('Passing page and limit as query parameters', () => {
         let server = register();
 
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
@@ -714,7 +716,7 @@ describe('Test /users route', () => {
         function urlForPage(page) { return ['http://localhost/users?','page='+page,'&','limit=5'];  }
 
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
 
             server.inject({
@@ -747,7 +749,7 @@ describe('Test /users route', () => {
 describe('Testing pageCount', () => {
     it('Limit is 3, page should be 7', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
@@ -765,7 +767,7 @@ describe('Testing pageCount', () => {
 
     it('Limit is 4, page should be 5', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
@@ -783,7 +785,7 @@ describe('Testing pageCount', () => {
 
     it('Limit is 1, page should be 20', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
@@ -802,7 +804,7 @@ describe('Testing pageCount', () => {
 describe('Post request', () => {
      it('Should work with a post request', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'POST',
@@ -820,7 +822,7 @@ describe('Post request', () => {
 describe('Pagination to false', () => {
     it ('Should return the results with no pagination', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
@@ -836,7 +838,7 @@ describe('Pagination to false', () => {
 
     it ('Pagination to random value (default is true)', done => {
         let server = register();
-        server.register(require('../'), (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
@@ -854,7 +856,7 @@ describe('Pagination to false', () => {
     it ('Pagination to random value (default is false)', done => {
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: {
                 query: {
                     pagination: {
@@ -922,7 +924,7 @@ describe('Pagination to false', () => {
         };
         let server = register();
         server.register({
-            register: require('../'),
+            register: require(pluginName),
             options: options
         }, (err) => {
             expect(err).to.be.undefined();
