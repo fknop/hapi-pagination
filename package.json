@@ -1,6 +1,6 @@
 {
   "name": "hapi-pagination",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A hapi plugin to paginate resources",
   "main": "index.js",
   "scripts": {
