@@ -1,8 +1,8 @@
 {
   "name": "hapi-pagination",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "A hapi plugin to paginate resources",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/lab -v -t 100",
     "cover": "lab -s -r lcov | coveralls"
