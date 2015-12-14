@@ -482,6 +482,53 @@ describe('Override default values', () => {
             });
         });
     });
+
+
+    it('use custom baseUri instead of server provided uri', (done) => {
+        const myCustomUri = 'https://127.0.0.1:81';
+       const options = {
+            meta: {
+                baseUri: myCustomUri,
+                name: 'meta',
+                count: {
+                    active: true
+                },
+                totalCount: {
+                    active: true
+                },
+                pageCount: {
+                    active: true
+                },
+                self: {
+                    active: true
+                },
+                first: {
+                    active: true
+                }
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/'
+            }, (res) => {
+
+                const response = res.request.response.source;
+                const meta = response.meta;
+                expect(meta.first).to.include(myCustomUri);
+                expect(meta.self).to.include(myCustomUri);
+                done();
+            });
+        });
+    });
+
 });
 
 describe('Override default values for / route', () => {
