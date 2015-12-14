@@ -54,7 +54,9 @@ Notes:
 The plugin will generate a metadata object alongside your resources, you can
 customize this object with the following options:
 
+
 * `name`: The name of the metadata object. Default is 'meta'.
+* `baseUri`: The base uri for the generated links. Default is ''.
 * `count`: The number of rows returned. Default name is count. Enabled by default.
 * `totalCount`: The total numbers of rows available. Default name is totalCount.
   Enabled by default.
