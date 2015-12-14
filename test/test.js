@@ -486,7 +486,7 @@ describe('Override default values', () => {
 
     it('use custom baseUri instead of server provided uri', (done) => {
         const myCustomUri = 'https://127.0.0.1:81';
-       const options = {
+        const options = {
             meta: {
                 baseUri: myCustomUri,
                 name: 'meta',
