@@ -583,7 +583,7 @@ describe('Passing page and limit as query parameters', () => {
         });
     });
 
-    it ('Wrong limit and page should return the defaults', done => {
+    it('Wrong limit and page should return the defaults', done => {
 
         const server = register();
 
@@ -602,7 +602,7 @@ describe('Passing page and limit as query parameters', () => {
 
     });
 
-    it ('Wrong limit with badRequest behavior should return 400 bad request', done => {
+    it('Wrong limit with badRequest behavior should return 400 bad request', done => {
 
         const server = register();
 
@@ -627,7 +627,7 @@ describe('Passing page and limit as query parameters', () => {
         });
     });
 
-     it ('Wrong page with badRequest behavior should return 400 bad request', done => {
+    it('Wrong page with badRequest behavior should return 400 bad request', done => {
 
         const server = register();
 
@@ -713,7 +713,7 @@ describe('Test /users route', () => {
 
     it('Test default with totalCount added to request object', done => {
 
-        function urlForPage(page) { return ['http://localhost/users?','page='+page,'&','limit=5'];  }
+        var urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
 
         const server = register();
         server.register(require(pluginName), (err) => {
@@ -753,7 +753,7 @@ describe('Testing pageCount', () => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/users?limit=3',
+                url: '/users?limit=3'
             }, (res) => {
                 const response = res.request.response.source;
                 const meta = response.meta;
@@ -771,7 +771,7 @@ describe('Testing pageCount', () => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/users?limit=4',
+                url: '/users?limit=4'
             }, (res) => {
                 const response = res.request.response.source;
                 const meta = response.meta;
@@ -789,7 +789,7 @@ describe('Testing pageCount', () => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/users?limit=1',
+                url: '/users?limit=1'
             }, (res) => {
                 const response = res.request.response.source;
                 const meta = response.meta;
@@ -802,13 +802,13 @@ describe('Testing pageCount', () => {
 });
 
 describe('Post request', () => {
-     it('Should work with a post request', done => {
+    it('Should work with a post request', done => {
         const server = register();
         server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'POST',
-                url: '/users',
+                url: '/users'
             }, (res) => {
                 const response = res.request.response.source;
 
@@ -820,13 +820,13 @@ describe('Post request', () => {
 });
 
 describe('Pagination to false', () => {
-    it ('Should return the results with no pagination', done => {
+    it('Should return the results with no pagination', done => {
         const server = register();
         server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/?pagination=false',
+                url: '/?pagination=false'
             }, res => {
                 const response = res.request.response.source;
                 expect(response).to.be.an.array();
@@ -836,13 +836,13 @@ describe('Pagination to false', () => {
         });
     });
 
-    it ('Pagination to random value (default is true)', done => {
+    it('Pagination to random value (default is true)', done => {
         const server = register();
         server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/?pagination=abcd',
+                url: '/?pagination=abcd'
             }, res => {
                 const response = res.request.response.source;
                 expect(response.meta).to.be.an.object();
@@ -853,7 +853,7 @@ describe('Pagination to false', () => {
         });
     });
 
-    it ('Pagination to random value (default is false)', done => {
+    it('Pagination to random value (default is false)', done => {
         const server = register();
         server.register({
             register: require(pluginName),
@@ -868,7 +868,7 @@ describe('Pagination to false', () => {
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
-                url: '/?pagination=abcd',
+                url: '/?pagination=abcd'
             }, res => {
                 const response = res.request.response.source;
                 expect(response).to.be.an.array();
@@ -991,7 +991,7 @@ describe('Wrong options', () => {
         });
     });
 
-     it('Should return an error on register', done => {
+    it('Should return an error on register', done => {
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1008,7 +1008,7 @@ describe('Wrong options', () => {
         });
     });
 
-     it('Should return an error on register', done => {
+    it('Should return an error on register', done => {
         const server = register();
         server.register({
             register: require(pluginName),
