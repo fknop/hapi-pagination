@@ -4,7 +4,8 @@
   "description": "A hapi plugin to paginate resources",
   "main": "lib/index.js",
   "scripts": {
-    "test": "node_modules/.bin/lab -v -t 100",
+    "test": "lab -v -t 100",
+    "lint": "lab -L",
     "cover": "lab -s -r lcov | coveralls"
   },
   "keywords": [
