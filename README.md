@@ -288,6 +288,8 @@ You have two choices when you uses this plugin with Joi:
 * You can set the `allowUnknown` option to true.
   [See here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)
 
+You don't need this if you don't need to validate anything !
+
 #### Example
 
 ```javascript
