@@ -267,7 +267,7 @@ const options = {
              routes: ['/accounts', '/persons'],
              limit: 25,
              page: 1
-         }, { / Overrides default values for route '/'
+         }, { // Overrides default values for route '/'
             routes: ['/'],
             limit: 100,
             page: 1
