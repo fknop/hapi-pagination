@@ -17,8 +17,6 @@ npm install hapi-pagination --save
 
 ## How to use
 
-hapi-pagination uses EcmaScript 6. The following examples will use it as well.
-
 The plugin works with settings that you can override. You can override the
 default value of a setting and even the default name. It allows you to customize
 your calls to your API to suit your needs.
@@ -280,6 +278,39 @@ server.register({register: require('hapi-pagination'), options: options}, (err)
     if (err)
         throw err;
 });
+```
+
+### Usage with Joi (route data validation)
+
+You have two choices when you uses this plugin with Joi:
+
+* You can simply add the `limit`, `page` and `pagination` to the query schema.
+* You can set the `allowUnknown` option to true.
+  [https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback](See
+  here)
+
+#### Example
+
+```
+validate: {
+	query: {
+		// Your other parameters ...
+		limit: Joi.number.integer(),
+		page: Joi.number.integer(),
+		pagination: Joi.boolean()
+	}
+}
+
+// OR 
+
+validate: {
+	options: {
+		allowUnknown: true
+	}
+	query: {
+		// Your other parameters...
+	}
+}
 ```
 
 ## Tests
