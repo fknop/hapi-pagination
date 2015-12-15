@@ -12,12 +12,10 @@ const expect = Code.expect;
 
 const pluginName = '../lib';
 
-const users = _.range(1, 20).map(function (i) {
-    return {
+const users = _.range(1, 20).map((i) =>({
         name: 'name' + i,
         username: 'username' + i
-    };
-});
+    }));
 
 const register = () => {
     const server = new Hapi.Server();
@@ -58,6 +56,24 @@ const register = () => {
 
     return server;
 };
+
+describe('Register', ()=>{
+
+   it('fails if too much connections', (done)=>{
+
+       const server = register();
+       server.connection({host: 'newhost'});
+       server.register(require(pluginName), (err) => {
+           expect(err).to.exist();
+           expect(err.name).to.equal('ValidationError');
+           expect(err.details.message).to.match(/You cannot register this plugin/);
+           expect(err.details.context).to.have.length(2);
+           done()
+       })
+   })
+
+});
+
 
 describe('Test with defaults values', () => {
     it('Test if limit default is added to request object', (done) => {
