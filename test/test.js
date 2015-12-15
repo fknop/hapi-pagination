@@ -807,7 +807,7 @@ describe('Post request', () => {
     });
 });
 
-describe('Pagination to false', () => {
+describe('Changing pagination query parameter', () => {
     it('Should return the results with no pagination', done => {
         const server = register();
         server.register(require(pluginName), (err) => {
@@ -823,6 +823,7 @@ describe('Pagination to false', () => {
 
         });
     });
+
 
     it('Pagination to random value (default is true)', done => {
         const server = register();
@@ -937,6 +938,90 @@ describe('Pagination to false', () => {
                 expect(meta[names.last.name]).to.be.null();
                 expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
                 expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
+                expect(response.results).to.be.an.array();
+                expect(response.results).to.have.length(0);
+
+                done();
+            });
+        });
+    });
+
+    it('Pagination default is false', (done) => {
+        const options = {
+            query: {
+                pagination: {
+                    default: false
+                }
+            },
+            meta: {
+                name: 'myMeta',
+                count: {
+                    active: true,
+                    name: 'myCount'
+                },
+                totalCount: {
+                    active: true,
+                    name: 'myTotalCount'
+                },
+                pageCount: {
+                    active: true,
+                    name: 'myPageCount'
+                },
+                self: {
+                    active: true,
+                    name: 'mySelf'
+                },
+                previous: {
+                    active: true,
+                    name: 'myPrevious'
+                },
+                next: {
+                    active: true,
+                    name: 'myNext'
+                },
+                first: {
+                    active: true,
+                    name: 'myFirst'
+                },
+                last: {
+                    active: true,
+                    name: 'myLast'
+                },
+                limit: {
+                    active: true
+                },
+                page: {
+                    active: true
+                }
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/?pagination=true'
+            }, (res) => {
+
+                const response = res.request.response.source;
+                const names = options.meta;
+
+                const meta = response[names.name];
+                expect(meta).to.be.an.object();
+                expect(meta.limit).to.equal(25);
+                expect(meta.page).to.equal(1);
+                expect(meta[names.count.name]).to.equal(0);
+                expect(meta[names.totalCount.name]).to.be.null();
+                expect(meta[names.pageCount.name]).to.be.null();
+                expect(meta[names.previous.name]).to.be.null();
+                expect(meta[names.next.name]).to.be.null();
+                expect(meta[names.last.name]).to.be.null();
+                expect(meta[names.first.name]).to.part.include(['pagination=true']);
+                expect(meta[names.self.name]).to.part.include(['pagination=true']);
                 expect(response.results).to.be.an.array();
                 expect(response.results).to.have.length(0);
 
