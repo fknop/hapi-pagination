@@ -284,14 +284,13 @@ server.register({register: require('hapi-pagination'), options: options}, (err)
 
 You have two choices when you uses this plugin with Joi:
 
-* You can simply add the `limit`, `page` and `pagination` to the query schema.
+* You can simply add the `limit`, `page` and `pagination` to the query schema (with the names that you chose !).
 * You can set the `allowUnknown` option to true.
-  [https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback](See
-  here)
+  [See here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)
 
 #### Example
 
-```
+```javascript
 validate: {
 	query: {
 		// Your other parameters ...
