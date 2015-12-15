@@ -68,9 +68,9 @@ describe('Register', ()=>{
            expect(err.name).to.equal('ValidationError');
            expect(err.details.message).to.match(/You cannot register this plugin/);
            expect(err.details.context).to.have.length(2);
-           done()
-       })
-   })
+           done();
+       });
+   });
 
 });
 
