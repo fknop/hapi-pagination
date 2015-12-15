@@ -4,6 +4,7 @@ const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
+const _ = require('lodash');
 
 const describe = lab.describe;
 const it = lab.it;
@@ -11,88 +12,12 @@ const expect = Code.expect;
 
 const pluginName = '../lib';
 
-const users = [
-    {
-        name: 'name1',
-        username: 'username1'
-    },
-    {
-        name: 'name2',
-        username: 'username2'
-    },
-    {
-        name: 'name3',
-        username: 'username3'
-    },
-    {
-        name: 'name4',
-        username: 'username4'
-    },
-    {
-        name: 'name5',
-        username: 'username5'
-    },
-    {
-        name: 'name6',
-        username: 'username6'
-    },
-    {
-        name: 'name7',
-        username: 'username7'
-    },
-    {
-        name: 'name8',
-        username: 'username8'
-    },
-    {
-        name: 'name9',
-        username: 'username9'
-    },
-    {
-        name: 'name10',
-        username: 'username10'
-    },
-    {
-        name: 'name11',
-        username: 'username11'
-    },
-    {
-        name: 'name12',
-        username: 'username12'
-    },
-    {
-        name: 'name13',
-        username: 'username13'
-    },
-    {
-        name: 'name14',
-        username: 'username14'
-    },
-    {
-        name: 'name15',
-        username: 'username15'
-    },
-    {
-        name: 'name16',
-        username: 'username16'
-    },
-    {
-        name: 'name17',
-        username: 'username17'
-    },
-    {
-        name: 'name18',
-        username: 'username18'
-    },
-    {
-        name: 'name19',
-        username: 'username19'
-    },
-    {
-        name: 'name20',
-        username: 'username20'
-    }
-];
+const users = _.range(1, 20).map(function (i) {
+    return {
+        name: 'name' + i,
+        username: 'username' + i
+    };
+});
 
 const register = () => {
     const server = new Hapi.Server();
