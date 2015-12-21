@@ -22,10 +22,17 @@ const register = () => {
     server.connection({
         host: 'localhost'
     });
+
     server.route({
         method: 'GET',
         path: '/',
         handler: (request, reply) => reply([])
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/empty',
+        handler: (request, reply) => reply.paginate([], 0)
     });
 
     server.route({
@@ -1263,6 +1270,31 @@ describe('Wrong options', () => {
         }, (err) => {
             expect(err).to.exists();
             done();
+        });
+    });
+});
+
+describe('Empty result set', () => {
+
+    it('Counts should be 0', (done) => {
+        const server = register();
+        server.register(require(pluginName), (err) => {
+
+            expect(err).to.be.undefined();
+
+            const request = {
+                method: 'GET',
+                url: '/empty'
+            };
+
+            server.inject(request, (res) => {
+                const response = res.request.response.source;
+                expect(response.meta.totalCount).to.equal(0);
+                expect(response.meta.pageCount).to.equal(0);
+                expect(response.meta.count).to.equal(0);
+
+                done();
+            });
         });
     });
 });
