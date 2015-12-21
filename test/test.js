@@ -215,6 +215,90 @@ describe('Override default values', () => {
 
     });
 
+    it('Override defaults routes with regex in include', (done) => {
+        const options = {
+            routes: {
+                include: [/^\/u.*s$/]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.equal(25);
+                expect(query.page).to.equal(1);
+
+                done();
+            });
+        });
+    });
+
+    it('Override defaults routes with both regex and string in include', (done) => {
+        const options = {
+            routes: {
+                include: [/^\/hello$/, "/users"]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.equal(25);
+                expect(query.page).to.equal(1);
+
+                done();
+            });
+        });
+    });
+
+    it('Override defaults routes with regex in include without a match', (done) => {
+        const options = {
+            routes: {
+                include: [/^\/hello.*$/]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.be.undefined();
+                expect(query.page).to.be.undefined();
+
+                done();
+            });
+        });
+    });
+
     it('Override defaults routes with exclude', (done) => {
         const options = {
             routes: {
@@ -245,7 +329,7 @@ describe('Override default values', () => {
 
     });
 
-    it('Override defaults routes with exclude', (done) => {
+    it('Override defaults routes with exclude 2', (done) => {
         const options = {
             routes: {
                 include: ['/users'],
@@ -268,6 +352,90 @@ describe('Override default values', () => {
                 const query = res.request.query;
                 expect(query.limit).to.be.undefined();
                 expect(query.page).to.be.undefined();
+
+                done();
+            });
+        });
+    });
+
+    it('Override defaults routes with regex in exclude', (done) => {
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^\/.*/]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.be.undefined();
+                expect(query.page).to.be.undefined();
+
+                done();
+            });
+        });
+    });
+
+    it('Override defaults routes with both regex and string in exclude', (done) => {
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^nothing/, "/"]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.be.undefined();
+                expect(query.page).to.be.undefined();
+
+                done();
+            });
+        });
+    });
+
+    it('Override defaults routes with regex without a match', (done) => {
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^nothing/]
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.equal(25);
+                expect(query.page).to.equal(1);
 
                 done();
             });
