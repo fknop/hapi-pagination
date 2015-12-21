@@ -47,6 +47,28 @@ const register = () => {
     });
 
     server.route({
+        method: 'GET',
+        path: '/enabled',
+        config: {
+            plugins: {
+                pagination: { enabled: true }
+            },
+            handler: (request, reply) => reply([])
+        }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/disabled',
+        config: {
+            plugins: {
+                pagination: { enabled: false }
+            },
+            handler: (request, reply) => reply([])
+        }
+    });
+
+    server.route({
         method: 'POST',
         path: '/users',
         handler: (request, reply) => {
@@ -470,6 +492,66 @@ describe('Override default values', () => {
         });
     });
 
+});
+
+describe('Custom route options', () => {
+    it('Force a route to include pagination', (done) => {
+        const options = {
+            routes: {
+                exclude: ['/enabled']
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/enabled'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.equal(25);
+                expect(query.page).to.equal(1);
+
+                done();
+            });
+        });
+    });
+
+    it('Force a route to exclude pagination', (done) => {
+        const options = {
+            routes: {
+                include: ['/disabled']
+            }
+        };
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/disabled'
+            }, (res) => {
+
+                const query = res.request.query;
+                expect(query.limit).to.be.undefined();
+                expect(query.page).to.be.undefined();
+
+                done();
+            });
+        });
+
+
+    });
 });
 
 describe('Override default values for / route', () => {
