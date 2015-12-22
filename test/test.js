@@ -80,6 +80,35 @@ const register = () => {
     });
 
     server.route({
+        method: 'GET',
+        path: '/defaults',
+        config: {
+            plugins: {
+                pagination: {
+                    defaults: {
+                        pagination: false,
+                        limit: 10,
+                        page: 2
+                    }
+                }
+            }
+        },
+        handler: (request, reply) => {
+            const limit = request.query.limit;
+            const page = request.query.page;
+
+            const offset = limit * (page - 1);
+            const response = [];
+
+            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+                response.push(users[i]);
+            }
+
+            return reply.paginate(response, 20);
+        }
+    });
+
+    server.route({
         method: 'POST',
         path: '/users',
         handler: (request, reply) => {
