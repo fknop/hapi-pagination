@@ -761,45 +761,23 @@ describe('Custom route options', () => {
 
     });
 });
-/*
 
-describe('Override default values for / route', () => {
-    const options = {
-        query: {
-            limit: {
-                default: 10
-            },
-            page: {
-                default: 3
-            }
-        },
-        routes: {
-            override: [
-                {
-                    routes: ['/'],
-                    limit: 5,
-                    page: 2
-                }
-            ]
-        }
-    };
+
+describe('Override on route level', () => {
 
     it('Test if overridden values are correct', (done) => {
 
         const server = register();
 
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
+        server.register(require(pluginName), (err) => {
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
-                url: '/'
+                url: '/defaults'
             }, (res) => {
-
-                expect(res.request.query.limit).to.equal(5);
+                console.log(res.request.query);
+                expect(res.request.query.limit).to.equal(10);
                 expect(res.request.query.page).to.equal(2);
                 done();
             });
@@ -807,29 +785,9 @@ describe('Override default values for / route', () => {
 
     });
 
-    it('Test if default values are still correct for other routes', (done) => {
-        const server = register();
-
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/users'
-            }, (res) => {
-
-                expect(res.request.query.limit).to.equal(10);
-                expect(res.request.query.page).to.equal(3);
-                done();
-            });
-        });
-    });
 });
 
-*/
+
 
 describe('Passing page and limit as query parameters', () => {
 
@@ -1415,3 +1373,4 @@ describe('Empty result set', () => {
         });
     });
 });
+
