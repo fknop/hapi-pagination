@@ -15,6 +15,40 @@ Support only get method for now.
 npm install hapi-pagination --save
 ```
 
+## CHANGELOG
+
+### 1.6.0
+
+* *BREAKING CHANGE*: Route overriding are not available anymore on the plugin
+  options. 
+* Added override on route level instead of override on options:
+  https://github.com/fknop/hapi-pagination/pull/7
+
+```javascript
+config: {
+	plugins: {
+		pagination: {
+			// enabled: boolean - force enable or force disable 
+			defaults: {
+				// page: override page
+				// limit: override limit
+				// pagination: override if pagination is false or true by
+				// default
+			}
+		}
+	}
+}
+```
+
+### 1.5.5
+
+* Added regex path support: https://github.com/fknop/hapi-pagination/pull/6
+* totalCount and count are now 0 if enabled and no results are returned.
+
+### Previous versions
+
+Not in the changelog...
+
 ## How to use
 
 The plugin works with settings that you can override. You can override the
