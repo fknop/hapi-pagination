@@ -58,7 +58,9 @@ const register = () => {
         path: '/enabled',
         config: {
             plugins: {
-                pagination: { enabled: true }
+                pagination: {
+                    enabled: true
+                }
             },
             handler: (request, reply) => reply([])
         }
@@ -69,7 +71,9 @@ const register = () => {
         path: '/disabled',
         config: {
             plugins: {
-                pagination: { enabled: false }
+                pagination: {
+                    enabled: false
+                }
             },
             handler: (request, reply) => reply([])
         }
@@ -728,6 +732,7 @@ describe('Custom route options', () => {
 
     });
 });
+/*
 
 describe('Override default values for / route', () => {
     const options = {
@@ -795,6 +800,7 @@ describe('Override default values for / route', () => {
     });
 });
 
+*/
 
 describe('Passing page and limit as query parameters', () => {
 
