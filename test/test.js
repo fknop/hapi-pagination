@@ -12,7 +12,7 @@ const expect = Code.expect;
 
 const pluginName = '../lib';
 
-const users = _.range(1, 20).map((i) => ({
+const users = _.range(0, 20).map((i) => ({
     name: 'name' + i,
     username: 'username' + i
 }));
@@ -41,6 +41,7 @@ const register = () => {
         handler: (request, reply) => {
             const limit = request.query.limit;
             const page = request.query.page;
+            const pagination = request.query.pagination;
 
             const offset = limit * (page - 1);
             const response = [];
@@ -49,7 +50,12 @@ const register = () => {
                 response.push(users[i]);
             }
 
-            return reply.paginate(response, 20);
+
+            if (pagination) {
+                return reply.paginate(response, users.length);
+            } else {
+                return reply(users);
+            }
         }
     });
 
@@ -96,6 +102,7 @@ const register = () => {
         handler: (request, reply) => {
             const limit = request.query.limit;
             const page = request.query.page;
+            const pagination = request.query.pagination;
 
             const offset = limit * (page - 1);
             const response = [];
@@ -104,7 +111,12 @@ const register = () => {
                 response.push(users[i]);
             }
 
-            return reply.paginate(response, 20);
+
+            if (pagination) {
+                return reply.paginate(response, users.length);
+            } else {
+                return reply(users);
+            }
         }
     });
 
@@ -152,6 +164,7 @@ describe('Test with defaults values', () => {
             server.inject(request, (res) => {
                 expect(res.request.query.limit).to.equal(25);
                 expect(res.request.query.page).to.equal(1);
+                expect(res.request.response.source.meta.totalCount).to.be.null();
 
                 done();
             });
@@ -765,7 +778,7 @@ describe('Custom route options', () => {
 
 describe('Override on route level', () => {
 
-    it('Test if overridden values are correct', (done) => {
+    it('Overriden defaults on route level with pagination to false', (done) => {
 
         const server = register();
 
@@ -776,9 +789,54 @@ describe('Override on route level', () => {
                 method: 'GET',
                 url: '/defaults'
             }, (res) => {
-                console.log(res.request.query);
+                expect(res.request.response.source).to.be.an.array();
+                expect(res.request.response.source).to.have.length(20);
+                done();
+            });
+        });
+
+    });
+
+    it('Overriden defaults on route level with pagination to true', (done) => {
+
+        const server = register();
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/defaults?pagination=true'
+            }, (res) => {
+                const response = res.request.response.source;
+                expect(response).to.be.an.object();
+                expect(response.results).to.have.length(10);
+                expect(response.meta.totalCount).to.equal(20);
                 expect(res.request.query.limit).to.equal(10);
                 expect(res.request.query.page).to.equal(2);
+                done();
+            });
+        });
+
+    });
+
+    it('Overriden defaults on route level with limit and page to 5 and 1', (done) => {
+
+        const server = register();
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/defaults?pagination=true&page=1&limit=5'
+            }, (res) => {
+                const response = res.request.response.source;
+                expect(response).to.be.an.object();
+                expect(response.results).to.have.length(5);
+                expect(response.meta.totalCount).to.equal(20);
+                expect(res.request.query.limit).to.equal(5);
+                expect(res.request.query.page).to.equal(1);
                 done();
             });
         });
@@ -1373,4 +1431,99 @@ describe('Empty result set', () => {
         });
     });
 });
+
+describe('Override on route level error', () => {
+
+    it('Should return an error', (done) => {
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            limit: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.exists();
+            done();
+        });
+    });
+
+    it('Should return an error', (done) => {
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            page: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.exists();
+            done();
+        });
+    });
+
+    it('Should return an error', (done) => {
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            pagination: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.exists();
+            done();
+        });
+    });
+
+    it('Should return an error', (done) => {
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        enabled: 'a'
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        server.register(require(pluginName), (err) => {
+            expect(err).to.exists();
+            done();
+        });
+    });
+});
+
+
 
