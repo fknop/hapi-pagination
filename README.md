@@ -51,6 +51,8 @@ Not in the changelog...
 
 ## How to use
 
+Note: If you're reading this on npm, the README may not be up to date.
+
 The plugin works with settings that you can override. You can override the
 default value of a setting and even the default name. It allows you to customize
 your calls to your API to suit your needs.
@@ -113,14 +115,33 @@ customize this object with the following options:
 
 #### The routes
 
-* `include`: An array of routes that you want to include, support \*.
-  Default to '\*'.
+* `include`: An array of routes that you want to include, support \* and regex.
+  Default to '\*'. 
 * `exclude`: An array of routes that you want to exclude. Useful when include is
-  '\*'. Default to empty array.
-* `override`: An array ob object containing: (default to empty array)
-    + `routes`: An array of routes for which you want to override the defaults.
-    + `limit`: The overrided limit.
-    + `page`: The overrided page.
+  '\*'. Default to empty array. Support regex.
+
+#### Override on route level
+
+You can override the page, limit, and pagination default value on route level.
+You can also force enable or disable the pagination on a route level. This is
+useful when you're using regex for example.
+
+
+```javascript
+config: {
+	plugins: {
+		pagination: {
+			// enabled: boolean - force enable or force disable 
+			defaults: {
+				// page: override page
+				// limit: override limit
+				// pagination: override if pagination is false or true by
+				// default
+			}
+		}
+	}
+}
+```
 
 #### reply.paginate(Array, [totalCount])
 
@@ -224,13 +245,7 @@ const options = {
 
     routes: {
         include: ['*'],
-        exclude: [],
-
-        override: [{
-            routes: [],
-            limit: 25,
-            page: 1
-        }]
+        exclude: []
     }
 };
 ```
@@ -291,19 +306,6 @@ const options = {
      },
      routes: {
          include: ['/users', '/accounts', '/persons', '/'],
-
-         // Overrides default values of specified routes.
-         // Must be specified in include (or *)
-         override: [{
-             // Overrides default values for routes '/accounts' and '/persons'
-             routes: ['/accounts', '/persons'],
-             limit: 25,
-             page: 1
-         }, { // Overrides default values for route '/'
-            routes: ['/'],
-            limit: 100,
-            page: 1
-         }]
      }
 };
 
@@ -313,6 +315,8 @@ server.register({register: require('hapi-pagination'), options: options}, (err)
         throw err;
 });
 ```
+
+If you want to provide more examples, I'll accept a PR.
 
 ### Usage with Joi (route data validation)
 
