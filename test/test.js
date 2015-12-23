@@ -17,7 +17,8 @@ const users = _.range(0, 20).map((i) => ({
     username: 'username' + i
 }));
 
-const register = () => {
+const register = function () {
+
     const server = new Hapi.Server();
     server.connection({
         host: 'localhost'
@@ -39,6 +40,7 @@ const register = () => {
         method: 'GET',
         path: '/users',
         handler: (request, reply) => {
+
             const limit = request.query.limit;
             const page = request.query.page;
             const pagination = request.query.pagination;
@@ -53,9 +55,9 @@ const register = () => {
 
             if (pagination) {
                 return reply.paginate(response, users.length);
-            } else {
-                return reply(users);
             }
+
+            return reply(users);
         }
     });
 
@@ -100,6 +102,7 @@ const register = () => {
             }
         },
         handler: (request, reply) => {
+
             const limit = request.query.limit;
             const page = request.query.page;
             const pagination = request.query.pagination;
@@ -114,18 +117,16 @@ const register = () => {
 
             if (pagination) {
                 return reply.paginate(response, users.length);
-            } else {
-                return reply(users);
             }
+
+            return reply(users);
         }
     });
 
     server.route({
         method: 'POST',
         path: '/users',
-        handler: (request, reply) => {
-            return reply('Works');
-        }
+        handler: (request, reply) => reply('Works')
     });
 
     return server;
@@ -138,6 +139,7 @@ describe('Register', () => {
         const server = register();
         server.connection({ host: 'newhost' });
         server.register(require(pluginName), (err) => {
+
             expect(err).to.exist();
             expect(err.name).to.equal('ValidationError');
             expect(err.details.message).to.match(/You cannot register this plugin/);
@@ -150,7 +152,9 @@ describe('Register', () => {
 
 
 describe('Test with defaults values', () => {
+
     it('Test if limit default is added to request object', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
 
@@ -162,6 +166,7 @@ describe('Test with defaults values', () => {
             };
 
             server.inject(request, (res) => {
+
                 expect(res.request.query.limit).to.equal(25);
                 expect(res.request.query.page).to.equal(1);
                 expect(res.request.response.source.meta.totalCount).to.be.null();
@@ -173,14 +178,17 @@ describe('Test with defaults values', () => {
 
 
     it('Test with additional query string', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?param=1&paramm=2'
             }, (res) => {
+
                 expect(res.request.query.param).to.equal('1');
                 expect(res.request.query.paramm).to.equal('2');
 
@@ -192,7 +200,9 @@ describe('Test with defaults values', () => {
 });
 
 describe('Override default values', () => {
+
     it('Override default limit and page', (done) => {
+
         const options = {
             query: {
                 limit: {
@@ -205,11 +215,13 @@ describe('Override default values', () => {
                 }
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -232,11 +244,13 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with include', (done) => {
+
         const options = {
             routes: {
                 include: ['/']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -262,18 +276,20 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with include 2', (done) => {
+
         const options = {
             routes: {
                 include: ['/']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
-            expect(err).to.be.undefined();
 
+            expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/users'
@@ -291,11 +307,13 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with regex in include', (done) => {
+
         const options = {
             routes: {
                 include: [/^\/u.*s$/]
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -319,10 +337,12 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with both regex and string in include', (done) => {
+
         const options = {
             routes: {
-                include: [/^\/hello$/, "/users"]
+                include: [/^\/hello$/, '/users']
             }
+
         };
         const server = register();
         server.register({
@@ -347,11 +367,13 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with regex in include without a match', (done) => {
+
         const options = {
             routes: {
                 include: [/^\/hello.*$/]
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -375,17 +397,20 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with exclude', (done) => {
+
         const options = {
             routes: {
                 include: ['*'],
                 exclude: ['/']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -405,24 +430,26 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with exclude 2', (done) => {
+
         const options = {
             routes: {
                 include: ['/users'],
                 exclude: ['/']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/'
             }, (res) => {
-
 
                 const query = res.request.query;
                 expect(query.limit).to.be.undefined();
@@ -434,17 +461,20 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with regex in exclude', (done) => {
+
         const options = {
             routes: {
                 include: ['*'],
                 exclude: [/^\/.*/]
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -462,17 +492,20 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with both regex and string in exclude', (done) => {
+
         const options = {
             routes: {
                 include: ['*'],
-                exclude: [/^nothing/, "/"]
+                exclude: [/^nothing/, '/']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -490,17 +523,20 @@ describe('Override default values', () => {
     });
 
     it('Override defaults routes with regex without a match', (done) => {
+
         const options = {
             routes: {
                 include: ['*'],
                 exclude: [/^nothing/]
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -518,6 +554,7 @@ describe('Override default values', () => {
     });
 
     it('Override names of meta', (done) => {
+
         const options = {
             meta: {
                 name: 'myMeta',
@@ -561,11 +598,13 @@ describe('Override default values', () => {
                 }
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -597,6 +636,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta - set active to false', (done) => {
+
         const options = {
             meta: {
                 name: 'meta',
@@ -632,11 +672,13 @@ describe('Override default values', () => {
                 }
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -669,6 +711,7 @@ describe('Override default values', () => {
 
 
     it('use custom baseUri instead of server provided uri', (done) => {
+
         const myCustomUri = 'https://127.0.0.1:81';
         const options = {
             meta: {
@@ -691,6 +734,7 @@ describe('Override default values', () => {
                 }
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -716,12 +760,15 @@ describe('Override default values', () => {
 });
 
 describe('Custom route options', () => {
+
     it('Force a route to include pagination', (done) => {
+
         const options = {
             routes: {
                 exclude: ['/enabled']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -745,11 +792,13 @@ describe('Custom route options', () => {
     });
 
     it('Force a route to exclude pagination', (done) => {
+
         const options = {
             routes: {
                 include: ['/disabled']
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -783,12 +832,14 @@ describe('Override on route level', () => {
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/defaults'
             }, (res) => {
+
                 expect(res.request.response.source).to.be.an.array();
                 expect(res.request.response.source).to.have.length(20);
                 done();
@@ -802,12 +853,14 @@ describe('Override on route level', () => {
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/defaults?pagination=true'
             }, (res) => {
+
                 const response = res.request.response.source;
                 expect(response).to.be.an.object();
                 expect(response.results).to.have.length(10);
@@ -825,12 +878,14 @@ describe('Override on route level', () => {
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/defaults?pagination=true&page=1&limit=5'
             }, (res) => {
+
                 const response = res.request.response.source;
                 expect(response).to.be.an.object();
                 expect(response.results).to.have.length(5);
@@ -863,15 +918,18 @@ describe('Passing page and limit as query parameters', () => {
     };
 
     it('Passing limit', (done) => {
+
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?limit=5'
             }, (res) => {
+
                 expect(res.request.query.limit).to.equal(5);
                 expect(res.request.query.page).to.equal(1);
                 done();
@@ -884,12 +942,14 @@ describe('Passing page and limit as query parameters', () => {
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?limit=abc10&page=c2'
             }, (res) => {
+
                 expect(res.request.query.limit).to.equal(25);
                 expect(res.request.query.page).to.equal(1);
                 done();
@@ -910,12 +970,14 @@ describe('Passing page and limit as query parameters', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?limit=abc10'
             }, (res) => {
+
                 expect(res.request.response.source.statusCode).to.equal(400);
                 expect(res.request.response.statusCode).to.equal(400);
                 done();
@@ -935,12 +997,14 @@ describe('Passing page and limit as query parameters', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?page=abc10'
             }, (res) => {
+
                 expect(res.request.response.source.statusCode).to.equal(400);
                 expect(res.request.response.statusCode).to.equal(400);
                 done();
@@ -949,18 +1013,21 @@ describe('Passing page and limit as query parameters', () => {
     });
 
     it('Overriding and passing limit', (done) => {
+
         const server = register();
 
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?myLimit=7'
             }, (res) => {
+
                 expect(res.request.query[options.query.limit.name]).to.equal(7);
                 expect(res.request.query[options.query.page.name]).to.equal(2);
                 done();
@@ -969,15 +1036,18 @@ describe('Passing page and limit as query parameters', () => {
     });
 
     it('Passing page', (done) => {
+
         const server = register();
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?page=5'
             }, (res) => {
+
                 expect(res.request.query.page).to.equal(5);
                 done();
             });
@@ -985,18 +1055,21 @@ describe('Passing page and limit as query parameters', () => {
     });
 
     it('Overriding and passing page', (done) => {
+
         const server = register();
 
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
                 method: 'GET',
                 url: '/?myPage=5'
             }, (res) => {
+
                 expect(res.request.query[options.query.limit.name]).to.equal(5);
                 expect(res.request.query[options.query.page.name]).to.equal(5);
                 done();
@@ -1013,6 +1086,7 @@ describe('Test /users route', () => {
 
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -1043,14 +1117,18 @@ describe('Test /users route', () => {
 });
 
 describe('Testing pageCount', () => {
+
     it('Limit is 3, page should be 7', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/users?limit=3'
             }, (res) => {
+
                 const response = res.request.response.source;
                 const meta = response.meta;
 
@@ -1062,13 +1140,16 @@ describe('Testing pageCount', () => {
 
 
     it('Limit is 4, page should be 5', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/users?limit=4'
             }, (res) => {
+
                 const response = res.request.response.source;
                 const meta = response.meta;
 
@@ -1080,13 +1161,16 @@ describe('Testing pageCount', () => {
 
 
     it('Limit is 1, page should be 20', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/users?limit=1'
             }, (res) => {
+
                 const response = res.request.response.source;
                 const meta = response.meta;
 
@@ -1098,14 +1182,18 @@ describe('Testing pageCount', () => {
 });
 
 describe('Post request', () => {
+
     it('Should work with a post request', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'POST',
                 url: '/users'
             }, (res) => {
+
                 const response = res.request.response.source;
 
                 expect(response).to.equal('Works');
@@ -1116,14 +1204,18 @@ describe('Post request', () => {
 });
 
 describe('Changing pagination query parameter', () => {
+
     it('Should return the results with no pagination', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/?pagination=false'
             }, (res) => {
+
                 const response = res.request.response.source;
                 expect(response).to.be.an.array();
                 done();
@@ -1134,13 +1226,16 @@ describe('Changing pagination query parameter', () => {
 
 
     it('Pagination to random value (default is true)', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/?pagination=abcd'
             }, (res) => {
+
                 const response = res.request.response.source;
                 expect(response.meta).to.be.an.object();
                 expect(response.results).to.be.an.array();
@@ -1151,6 +1246,7 @@ describe('Changing pagination query parameter', () => {
     });
 
     it('Pagination to random value (default is false)', (done) => {
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1162,11 +1258,13 @@ describe('Changing pagination query parameter', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.be.undefined();
             server.inject({
                 method: 'GET',
                 url: '/?pagination=abcd'
             }, (res) => {
+
                 const response = res.request.response.source;
                 expect(response).to.be.an.array();
                 done();
@@ -1176,6 +1274,7 @@ describe('Changing pagination query parameter', () => {
     });
 
     it('Pagination explicitely to true', (done) => {
+
         const options = {
             meta: {
                 name: 'myMeta',
@@ -1219,11 +1318,13 @@ describe('Changing pagination query parameter', () => {
                 }
             }
         };
+
         const server = register();
         server.register({
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -1255,6 +1356,7 @@ describe('Changing pagination query parameter', () => {
     });
 
     it('Pagination default is false', (done) => {
+
         const options = {
             query: {
                 pagination: {
@@ -1308,6 +1410,7 @@ describe('Changing pagination query parameter', () => {
             register: require(pluginName),
             options: options
         }, (err) => {
+
             expect(err).to.be.undefined();
 
             server.inject({
@@ -1340,7 +1443,9 @@ describe('Changing pagination query parameter', () => {
 });
 
 describe('Wrong options', () => {
+
     it('Should return an error on register', (done) => {
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1352,12 +1457,14 @@ describe('Wrong options', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error on register', (done) => {
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1367,12 +1474,14 @@ describe('Wrong options', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error on register', (done) => {
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1384,12 +1493,14 @@ describe('Wrong options', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error on register', (done) => {
+
         const server = register();
         server.register({
             register: require(pluginName),
@@ -1401,6 +1512,7 @@ describe('Wrong options', () => {
                 }
             }
         }, (err) => {
+
             expect(err).to.exists();
             done();
         });
@@ -1410,6 +1522,7 @@ describe('Wrong options', () => {
 describe('Empty result set', () => {
 
     it('Counts should be 0', (done) => {
+
         const server = register();
         server.register(require(pluginName), (err) => {
 
@@ -1421,6 +1534,7 @@ describe('Empty result set', () => {
             };
 
             server.inject(request, (res) => {
+
                 const response = res.request.response.source;
                 expect(response.meta.totalCount).to.equal(0);
                 expect(response.meta.pageCount).to.equal(0);
@@ -1435,6 +1549,7 @@ describe('Empty result set', () => {
 describe('Override on route level error', () => {
 
     it('Should return an error', (done) => {
+
         const server = register();
         server.route({
             path: '/error',
@@ -1452,12 +1567,14 @@ describe('Override on route level error', () => {
         });
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error', (done) => {
+
         const server = register();
         server.route({
             path: '/error',
@@ -1475,12 +1592,14 @@ describe('Override on route level error', () => {
         });
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error', (done) => {
+
         const server = register();
         server.route({
             path: '/error',
@@ -1498,12 +1617,14 @@ describe('Override on route level error', () => {
         });
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.exists();
             done();
         });
     });
 
     it('Should return an error', (done) => {
+
         const server = register();
         server.route({
             path: '/error',
@@ -1519,6 +1640,7 @@ describe('Override on route level error', () => {
         });
 
         server.register(require(pluginName), (err) => {
+
             expect(err).to.exists();
             done();
         });
