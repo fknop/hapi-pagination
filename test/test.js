@@ -536,10 +536,12 @@ describe('Override default values', () => {
 
             expect(err).to.be.undefined();
             server.inject({
-                url: '/users',
+                url: '/users?limit=12',
                 method: 'GET'
             }, (res) => {
 
+                expect(res.request.response.source.rows).to.be.an.array();
+                expect(res.request.response.source.rows).to.have.length(12);
                 done();
             });
 
