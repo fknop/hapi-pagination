@@ -522,6 +522,30 @@ describe('Override default values', () => {
         });
     });
 
+    it('Override results name', (done) => {
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: {
+                results: {
+                    name: 'rows'
+                }
+            }
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+            server.inject({
+                url: '/users',
+                method: 'GET'
+            }, (res) => {
+
+                done();
+            });
+
+        });
+    });
+
     it('Override defaults routes with regex without a match', (done) => {
 
         const options = {
