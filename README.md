@@ -7,7 +7,6 @@
 [![bitHound Overalll Score](https://www.bithound.io/github/fknop/hapi-pagination/badges/score.svg)](https://www.bithound.io/github/fknop/hapi-pagination)
 
 Hapi plugin to handle 'custom' resources pagination in json only.
-Support only get method for now.
 
 ## How to install
 
@@ -15,39 +14,18 @@ Support only get method for now.
 npm install hapi-pagination --save
 ```
 
+## Contribute
+
+Post an issue if you encounter a bug or an error in the documentation.
+Create a new pull request if you want to add a new functionality or do any change that might get the plugin better.
+
+I'm looking for new ideas to make the plugin better, if you have any, post an issue !
+
+The plugin is supporting get method only for now, tell me if you need it tu support other methods too.
+
 ## CHANGELOG
 
-### 1.6.0
-
-* *BREAKING CHANGE*: Route overriding are not available anymore on the plugin
-  options. 
-* Added override on route level instead of override on options:
-  https://github.com/fknop/hapi-pagination/pull/7
-
-```javascript
-config: {
-	plugins: {
-		pagination: {
-			// enabled: boolean - force enable or force disable 
-			defaults: {
-				// page: override page
-				// limit: override limit
-				// pagination: override if pagination is false or true by
-				// default
-			}
-		}
-	}
-}
-```
-
-### 1.5.5
-
-* Added regex path support: https://github.com/fknop/hapi-pagination/pull/6
-* totalCount and count are now 0 if enabled and no results are returned.
-
-### Previous versions
-
-Not in the changelog...
+Check the release log: https://github.com/fknop/hapi-pagination/releases
 
 ## How to use
 
@@ -360,6 +338,3 @@ Make sure you have `lab` and `code` installed and run :
 npm test
 ```
 
-## Contribute
-
-Post an issue if you encounter a bug or an error in the documentation.
