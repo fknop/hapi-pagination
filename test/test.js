@@ -4,7 +4,6 @@ const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
-const _ = require('lodash');
 
 const describe = lab.describe;
 const it = lab.it;
@@ -12,10 +11,13 @@ const expect = Code.expect;
 
 const pluginName = '../lib';
 
-const users = _.range(0, 20).map((i) => ({
-    name: 'name' + i,
-    username: 'username' + i
-}));
+const users = [];
+for (let i = 0; i < 20; ++i) {
+    users.push({
+        name: `name${i}`,
+        username: `username${i}`
+    });
+}
 
 const register = function () {
 
