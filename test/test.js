@@ -37,6 +37,8 @@ const register = function () {
         path: '/empty',
         handler: (request, reply) => reply.paginate([], 0)
     });
+    
+    
 
     server.route({
         method: 'GET',
@@ -57,6 +59,32 @@ const register = function () {
 
             if (pagination) {
                 return reply.paginate(response, users.length);
+            }
+
+            return reply(users);
+        }
+    });
+    
+    server.route({
+        method: 'GET',
+        path: '/users2',
+        handler: (request, reply) => {
+            const limit = request.query.limit;
+            const page = request.query.page;
+            const pagination = request.query.pagination;
+
+            const offset = limit * (page - 1);
+            const response = [];
+
+            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+                response.push(users[i]);
+            }
+
+
+            if (pagination) {
+                return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' }, 
+                                        users.length,
+                                        { key: 'results' });
             }
 
             return reply(users);
@@ -88,6 +116,8 @@ const register = function () {
             handler: (request, reply) => reply([])
         }
     });
+    
+    
 
     server.route({
         method: 'GET',
@@ -1545,6 +1575,102 @@ describe('Wrong options', () => {
             done();
         });
     });
+});
+
+describe('Results with other keys', () => {
+   
+    it ('Should returns the response with the original response keys', (done) => {
+      
+        const server = register();
+        server.register(require(pluginName), (err) => {
+         
+            expect(err).to.be.undefined();
+            
+            const request = {
+                method: 'GET',
+                url: '/users2'
+            };
+            
+            server.inject(request, (res) => {
+               
+               const response = res.request.response.source;
+               expect(response.otherKey).to.equal('otherKey'); 
+               expect(response.otherKey2).to.equal('otherKey2'); 
+               expect(response.meta).to.exists();
+               expect(response.results).to.exists();
+               done();
+            });
+      });
+   });
+   
+   it ('Should throw an error', (done) => {
+      
+        const server = register();
+        
+        
+        server.register(require(pluginName), (err) => {
+         
+            expect(err).to.be.undefined();
+            
+            server.route({
+                method: 'GET',
+                path: '/error',
+                handler: (request, reply) => {
+                    
+                    return reply.paginate({ results: [] }, 0);   
+                    
+                }
+            });
+                    
+            const request = {
+                method: 'GET',
+                url: '/error'
+            };
+            
+            expect(() => {
+                
+                server.inject(request, () => { });
+            }).to.throw();
+            done();
+      });
+   });
+   
+   it ('Should not override meta and results', (done) => {
+      
+        const server = register();
+        
+        
+        server.register(require(pluginName), (err) => {
+         
+            expect(err).to.be.undefined();
+            
+            server.route({
+                method: 'GET',
+                path: '/nooverride',
+                handler: (request, reply) => {
+                    
+                    return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });   
+                    
+                }
+            });
+                    
+            const request = {
+                method: 'GET',
+                url: '/nooverride'
+            };
+            
+                
+            server.inject(request, (res) => {
+                
+                const response = res.request.response.source;
+                expect(response.meta).to.not.equal('meta');
+                expect(response.results).to.not.equal('results');
+                done();
+            });
+      });
+   });
+    
+    
 });
 
 describe('Empty result set', () => {
