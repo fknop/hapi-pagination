@@ -148,7 +148,7 @@ return reply.paginate({ results: [], otherKey: 'value', otherKey2: 'value2' }, 0
 
 The response will also contains `otherKey` and `otherKey2`. Nested keys for the paginated results are not allowed.
  
-If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same think if the key does not exist.
+If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same thing if the key does not exist.
 
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
