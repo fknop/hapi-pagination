@@ -1635,6 +1635,38 @@ describe('Results with other keys', () => {
       });
    });
    
+   it ('Should throw an error #2', (done) => {
+      
+        const server = register();
+        
+        
+        server.register(require(pluginName), (err) => {
+         
+            expect(err).to.be.undefined();
+            
+            server.route({
+                method: 'GET',
+                path: '/error',
+                handler: (request, reply) => {
+                    
+                    return reply.paginate({ results: [] }, 0, { key: 'res' });   
+                    
+                }
+            });
+                    
+            const request = {
+                method: 'GET',
+                url: '/error'
+            };
+            
+            expect(() => {
+                
+                server.inject(request, () => { });
+            }).to.throw();
+            done();
+      });
+   });
+   
    it ('Should not override meta and results', (done) => {
       
         const server = register();

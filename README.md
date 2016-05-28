@@ -121,7 +121,7 @@ config: {
 }
 ```
 
-#### reply.paginate(Array, [totalCount])
+#### reply.paginate(Array|Object, [totalCount], [options = {}])
 
 The method is an helper method. This is a shortcut for:
 
@@ -136,6 +136,19 @@ You can also reply the array and set the totalCount by adding the totalCount
 request.totalCount = 10;
 reply(results);
 ```
+
+The `paginate` method also offers a way to add custom properties to your response. You just have to
+pass an object as first parameter and pass a `options.key` parameter which is the name of the key of the paginated results.
+
+For example:
+
+```
+return reply.paginate({ results: [], otherKey: 'value', otherKey2: 'value2' }, 0, { key: 'results' });
+```
+
+The response will also contains `otherKey` and `otherKey2`. Nested keys for the paginated results are not allowed.
+ 
+If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same think if the key does not exist.
 
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
