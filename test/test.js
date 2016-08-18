@@ -99,12 +99,14 @@ const register = function () {
             const limit = request.query.limit;
             const page = request.query.page;
             const resultsKey = request.query.resultsKey;
+            const totalCountKey = request.query.totalCountKey;
 
             const offset = limit * (page - 1);
 
             const response = {};
 
             response[resultsKey] = [];
+            response[totalCountKey] = users.length;
 
             for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
                 response[resultsKey].push(users[i]);
@@ -630,6 +632,34 @@ describe('Override default values', () => {
         });
     });
 
+    it('Override totalCount name without pagiante method - only reply', (done) => {
+        
+        const totalCountKey = 'total';
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: {
+                meta:{
+                    totalCount:{
+                        name: 'total'
+                    }
+                }
+            }
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+            server.inject({
+                url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
+                method: 'GET'
+            }, (res) => {
+
+                expect(res.request.response.source.meta.total).to.equal(users.length);
+                done();
+            });
+
+        });
+    });
 
     it('Override defaults routes with regex without a match', (done) => {
 
