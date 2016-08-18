@@ -89,7 +89,7 @@ customize this object with the following options:
 * `name`: the name of the results array, results by default.
 * `reply`: Object with:
     + `paginate`: The name of the paginate method (see below), paginate by
-	  default.
+    default.
 
 #### The routes
 
@@ -107,17 +107,17 @@ useful when you're using regex for example.
 
 ```javascript
 config: {
-	plugins: {
-		pagination: {
-			// enabled: boolean - force enable or force disable 
-			defaults: {
-				// page: override page
-				// limit: override limit
-				// pagination: override if pagination is false or true by
-				// default
-			}
-		}
-	}
+  plugins: {
+    pagination: {
+      // enabled: boolean - force enable or force disable 
+      defaults: {
+        // page: override page
+        // limit: override limit
+        // pagination: override if pagination is false or true by
+        // default
+      }
+    }
+  }
 }
 ```
 
@@ -127,6 +127,18 @@ The method is an helper method. This is a shortcut for:
 
 ```javascript
 reply({results: results, totalCount: totalCount});
+```
+
+You can change names of fields (`results`, `totalCount`) using reply options.
+```
+reply: {
+  results: {
+    name: 'rows'
+  },
+  totalCount: {
+    name: 'count'
+  }
+}
 ```
 
 You can also reply the array and set the totalCount by adding the totalCount
@@ -178,8 +190,8 @@ const options = {
         },
         pagination: {
             name: 'pagination',
-			default: true
-		}
+      default: true
+    }
         invalid: 'defaults'
     },
 
@@ -228,11 +240,17 @@ const options = {
     },
 
     results: {
-		name: 'results'
+    name: 'results'
     },
-	reply: {
-        paginate: 'paginate'
-	},
+  reply: {
+        paginate: 'paginate',
+        results: {
+            name: 'results'
+          },
+        totalCount: {
+            name: 'totalCount
+          }
+  },
 
     routes: {
         include: ['*'],
@@ -323,23 +341,23 @@ You don't need this if you don't need to validate anything !
 
 ```javascript
 validate: {
-	query: {
-		// Your other parameters ...
-		limit: Joi.number.integer(),
-		page: Joi.number.integer(),
-		pagination: Joi.boolean()
-	}
+  query: {
+    // Your other parameters ...
+    limit: Joi.number.integer(),
+    page: Joi.number.integer(),
+    pagination: Joi.boolean()
+  }
 }
 
 // OR 
 
 validate: {
-	options: {
-		allowUnknown: true
-	}
-	query: {
-		// Your other parameters...
-	}
+  options: {
+    allowUnknown: true
+  }
+  query: {
+    // Your other parameters...
+  }
 }
 ```
 
