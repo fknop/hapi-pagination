@@ -613,8 +613,10 @@ describe('Override default values', () => {
             register: require(pluginName),
             options: {
                 reply: {
-                    results:{
-                        name: 'rows'
+                    parameters: {
+                        results:{
+                            name: 'rows'
+                        }
                     }
                 }
             }
@@ -643,8 +645,10 @@ describe('Override default values', () => {
             register: require(pluginName),
             options: {
                 reply: {
-                    totalCount:{
-                        name: 'total'
+                    parameters: {
+                        totalCount:{
+                            name: 'total'
+                        }
                     }
                 }
             }
