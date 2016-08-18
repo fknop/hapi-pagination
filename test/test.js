@@ -91,6 +91,31 @@ const register = function () {
         }
     });
 
+        server.route({
+        method: 'GET',
+        path: '/users3',
+        handler: (request, reply) => {
+
+            const limit = request.query.limit;
+            const page = request.query.page;
+            const resultsKey = request.query.resultsKey;
+            const totalCountKey = request.query.totalCountKey;
+
+            const offset = limit * (page - 1);
+
+            const response = {};
+
+            response[resultsKey] = [];
+            response[totalCountKey] = users.length;
+
+            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+                response[resultsKey].push(users[i]);
+            }
+
+            return reply(response);
+        }
+    });
+
     server.route({
         method: 'GET',
         path: '/enabled',
@@ -574,6 +599,68 @@ describe('Override default values', () => {
 
                 expect(res.request.response.source.rows).to.be.an.array();
                 expect(res.request.response.source.rows).to.have.length(12);
+                done();
+            });
+
+        });
+    });
+
+    it('Override reply parametr (results) name', (done) => {
+        
+        const resultsKey = 'rows';
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: {
+                reply: {
+                    parameters: {
+                        results:{
+                            name: 'rows'
+                        }
+                    }
+                }
+            }
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+            server.inject({
+                url: '/users3?limit=12&resultsKey=' + resultsKey,
+                method: 'GET'
+            }, (res) => {
+
+                expect(res.request.response.source.results).to.be.an.array();
+                expect(res.request.response.source.results).to.have.length(12);
+                done();
+            });
+
+        });
+    });
+
+    it('Override reply parametr (totalCount) name', (done) => {
+        
+        const totalCountKey = 'total';
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: {
+                reply: {
+                    parameters: {
+                        totalCount:{
+                            name: 'total'
+                        }
+                    }
+                }
+            }
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+            server.inject({
+                url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
+                method: 'GET'
+            }, (res) => {
+
+                expect(res.request.response.source.meta.totalCount).to.equal(users.length);
                 done();
             });
 
