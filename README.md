@@ -240,7 +240,7 @@ const options = {
     },
 
     results: {
-    name: 'results'
+      name: 'results'
     },
     reply: {
         paginate: 'paginate'
