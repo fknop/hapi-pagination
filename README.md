@@ -242,16 +242,16 @@ const options = {
     results: {
     name: 'results'
     },
-  reply: {
-        paginate: 'paginate',
+    reply: {
+        paginate: 'paginate'
         results: {
-            name: 'results'
-          },
-        totalCount: {
-            name: 'totalCount
-          }
-  },
-
+          name: 'results'
+        },
+        totalCount:{
+          name: 'totalCount'
+        }
+    },
+    
     routes: {
         include: ['*'],
         exclude: []
