@@ -605,15 +605,17 @@ describe('Override default values', () => {
         });
     });
 
-    it('Override results name without pagiante method - only reply', (done) => {
+    it('Override reply parametr (results) name', (done) => {
         
         const resultsKey = 'rows';
         const server = register();
         server.register({
             register: require(pluginName),
             options: {
-                results: {
-                    name: resultsKey
+                reply: {
+                    results:{
+                        name: 'rows'
+                    }
                 }
             }
         }, (err) => {
@@ -624,15 +626,15 @@ describe('Override default values', () => {
                 method: 'GET'
             }, (res) => {
 
-                expect(res.request.response.source.rows).to.be.an.array();
-                expect(res.request.response.source.rows).to.have.length(12);
+                expect(res.request.response.source.results).to.be.an.array();
+                expect(res.request.response.source.results).to.have.length(12);
                 done();
             });
 
         });
     });
 
-    it('Override totalCount name without pagiante method - only reply', (done) => {
+    it('Override reply parametr (totalCount) name', (done) => {
         
         const totalCountKey = 'total';
 
@@ -640,7 +642,7 @@ describe('Override default values', () => {
         server.register({
             register: require(pluginName),
             options: {
-                meta:{
+                reply: {
                     totalCount:{
                         name: 'total'
                     }
@@ -654,7 +656,7 @@ describe('Override default values', () => {
                 method: 'GET'
             }, (res) => {
 
-                expect(res.request.response.source.meta.total).to.equal(users.length);
+                expect(res.request.response.source.meta.totalCount).to.equal(users.length);
                 done();
             });
 
