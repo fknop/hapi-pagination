@@ -324,7 +324,41 @@ server.register({register: require('hapi-pagination'), options: options}, (err)
         throw err;
 });
 ```
+### Disable globally and activate pagination on specific routes
 
+Global configuration:
+
+```javascript
+const Hapi = require('hapi');
+
+let server = new Hapi.Server();
+
+// Add your connection
+
+const options = {
+    enabled: false,
+     routes: {
+         include: [],  // Emptying include list will disable pagination
+     }
+};
+
+server.register({register: require('hapi-pagination'), options: options}, (err)
+=> {
+    if (err)
+        throw err;
+});
+```
+Activate on route level:
+
+```javascript
+config: {
+    plugins: {
+        pagination: {
+            enabled: true
+        }
+    }
+}
+```
 If you want to provide more examples, I'll accept a PR.
 
 ### Usage with Joi (route data validation)
