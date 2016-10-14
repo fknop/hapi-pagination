@@ -19,7 +19,7 @@
     "url": "https://github.com/fknop/hapi-pagination.git"
   },
   "dependencies": {
-    "boom": "^3.2.2",
+    "boom": "^4.2.0",
     "hoek": "^4.0.2",
     "joi": "^9.0.4"
   },
