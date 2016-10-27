@@ -1259,7 +1259,6 @@ describe('Test /users route', () => {
 
                 const response = res.request.response.source;
                 const meta = response.meta;
-                console.log(meta);
                 expect(meta).to.be.an.object();
                 expect(meta.count).to.equal(5);
                 expect(meta.totalCount).to.equal(20);
@@ -1274,6 +1273,35 @@ describe('Test /users route', () => {
                 expect(response.results).to.have.length(5);
 
                 done();
+            });
+        });
+    });
+
+    it('Test hasPrev behave correctly', (done) => {
+        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
+
+        const server = register();
+        server.register({
+                register: require(pluginName),
+                options: {
+                    meta:{
+                        hasPrevious:{
+                            active: true
+                        }
+                    }
+                }
+            }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users?page=1&limit=5'
+            }, (res) => {
+                const response = res.request.response.source;
+                const meta = response.meta;
+                expect(meta.hasPrevious).to.equal(false);
+                done()
             });
         });
     });
