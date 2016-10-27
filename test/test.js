@@ -37,8 +37,8 @@ const register = function () {
         path: '/empty',
         handler: (request, reply) => reply.paginate([], 0)
     });
-    
-    
+
+
 
     server.route({
         method: 'GET',
@@ -64,7 +64,7 @@ const register = function () {
             return reply(users);
         }
     });
-    
+
     server.route({
         method: 'GET',
         path: '/users2',
@@ -82,7 +82,7 @@ const register = function () {
 
 
             if (pagination) {
-                return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' }, 
+                return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
                                         users.length,
                                         { key: 'results' });
             }
@@ -141,8 +141,8 @@ const register = function () {
             handler: (request, reply) => reply([])
         }
     });
-    
-    
+
+
 
     server.route({
         method: 'GET',
@@ -606,7 +606,7 @@ describe('Override default values', () => {
     });
 
     it('Override reply parametr (results) name', (done) => {
-        
+
         const resultsKey = 'rows';
         const server = register();
         server.register({
@@ -637,7 +637,7 @@ describe('Override default values', () => {
     });
 
     it('Override reply parametr (totalCount) name', (done) => {
-        
+
         const totalCountKey = 'total';
 
         const server = register();
@@ -727,6 +727,14 @@ describe('Override default values', () => {
                     active: true,
                     name: 'myNext'
                 },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrev'
+                },
                 first: {
                     active: true,
                     name: 'myFirst'
@@ -769,6 +777,8 @@ describe('Override default values', () => {
                 expect(meta[names.pageCount.name]).to.be.null();
                 expect(meta[names.previous.name]).to.be.null();
                 expect(meta[names.next.name]).to.be.null();
+                expect(meta[names.hasNext.name]).to.be.false();
+                expect(meta[names.hasPrevious.name]).to.be.false();
                 expect(meta[names.last.name]).to.be.null();
                 expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
                 expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
@@ -801,6 +811,12 @@ describe('Override default values', () => {
                     active: false
                 },
                 next: {
+                    active: false
+                },
+                hasNext: {
+                    active: false
+                },
+                hasPrevious: {
                     active: false
                 },
                 first: {
@@ -843,6 +859,8 @@ describe('Override default values', () => {
                 expect(meta.pageCount).to.be.undefined();
                 expect(meta.previous).to.be.undefined();
                 expect(meta.next).to.be.undefined();
+                expect(meta.hasNext).to.be.undefined();
+                expect(meta.hasPrevious).to.be.undefined();
                 expect(meta.last).to.be.undefined();
                 expect(meta.first).to.be.undefined();
                 expect(meta.self).to.be.undefined();
@@ -1241,7 +1259,7 @@ describe('Test /users route', () => {
 
                 const response = res.request.response.source;
                 const meta = response.meta;
-
+                console.log(meta);
                 expect(meta).to.be.an.object();
                 expect(meta.count).to.equal(5);
                 expect(meta.totalCount).to.equal(20);
@@ -1447,6 +1465,14 @@ describe('Changing pagination query parameter', () => {
                     active: true,
                     name: 'myNext'
                 },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrevious'
+                },
                 first: {
                     active: true,
                     name: 'myFirst'
@@ -1489,6 +1515,8 @@ describe('Changing pagination query parameter', () => {
                 expect(meta[names.pageCount.name]).to.be.null();
                 expect(meta[names.previous.name]).to.be.null();
                 expect(meta[names.next.name]).to.be.null();
+                expect(meta[names.hasNext.name]).to.be.false();
+                expect(meta[names.hasPrevious.name]).to.be.false();
                 expect(meta[names.last.name]).to.be.null();
                 expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
                 expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
@@ -1534,6 +1562,14 @@ describe('Changing pagination query parameter', () => {
                     active: true,
                     name: 'myNext'
                 },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrevious'
+                },
                 first: {
                     active: true,
                     name: 'myFirst'
@@ -1575,6 +1611,8 @@ describe('Changing pagination query parameter', () => {
                 expect(meta[names.pageCount.name]).to.be.null();
                 expect(meta[names.previous.name]).to.be.null();
                 expect(meta[names.next.name]).to.be.null();
+                expect(meta[names.hasNext.name]).to.be.false();
+                expect(meta[names.hasPrevious.name]).to.be.false();
                 expect(meta[names.last.name]).to.be.null();
                 expect(meta[names.first.name]).to.part.include(['pagination=true']);
                 expect(meta[names.self.name]).to.part.include(['pagination=true']);
@@ -1665,122 +1703,122 @@ describe('Wrong options', () => {
 });
 
 describe('Results with other keys', () => {
-   
+
     it ('Should returns the response with the original response keys', (done) => {
-      
+
         const server = register();
         server.register(require(pluginName), (err) => {
-         
+
             expect(err).to.be.undefined();
-            
+
             const request = {
                 method: 'GET',
                 url: '/users2'
             };
-            
+
             server.inject(request, (res) => {
-               
+
                const response = res.request.response.source;
-               expect(response.otherKey).to.equal('otherKey'); 
-               expect(response.otherKey2).to.equal('otherKey2'); 
+               expect(response.otherKey).to.equal('otherKey');
+               expect(response.otherKey2).to.equal('otherKey2');
                expect(response.meta).to.exists();
                expect(response.results).to.exists();
                done();
             });
       });
    });
-   
+
    it ('Should throw an error', (done) => {
-      
+
         const server = register();
-        
-        
+
+
         server.register(require(pluginName), (err) => {
-         
+
             expect(err).to.be.undefined();
-            
+
             server.route({
                 method: 'GET',
                 path: '/error',
                 handler: (request, reply) => {
-                    
-                    return reply.paginate({ results: [] }, 0);   
-                    
+
+                    return reply.paginate({ results: [] }, 0);
+
                 }
             });
-                    
+
             const request = {
                 method: 'GET',
                 url: '/error'
             };
-            
+
             expect(() => {
-                
+
                 server.inject(request, () => { });
             }).to.throw();
             done();
       });
    });
-   
+
    it ('Should throw an error #2', (done) => {
-      
+
         const server = register();
-        
-        
+
+
         server.register(require(pluginName), (err) => {
-         
+
             expect(err).to.be.undefined();
-            
+
             server.route({
                 method: 'GET',
                 path: '/error',
                 handler: (request, reply) => {
-                    
-                    return reply.paginate({ results: [] }, 0, { key: 'res' });   
-                    
+
+                    return reply.paginate({ results: [] }, 0, { key: 'res' });
+
                 }
             });
-                    
+
             const request = {
                 method: 'GET',
                 url: '/error'
             };
-            
+
             expect(() => {
-                
+
                 server.inject(request, () => { });
             }).to.throw();
             done();
       });
    });
-   
+
    it ('Should not override meta and results', (done) => {
-      
+
         const server = register();
-        
-        
+
+
         server.register(require(pluginName), (err) => {
-         
+
             expect(err).to.be.undefined();
-            
+
             server.route({
                 method: 'GET',
                 path: '/nooverride',
                 handler: (request, reply) => {
-                    
-                    return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });   
-                    
+
+                    return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
+
                 }
             });
-                    
+
             const request = {
                 method: 'GET',
                 url: '/nooverride'
             };
-            
-                
+
+
             server.inject(request, (res) => {
-                
+
                 const response = res.request.response.source;
                 expect(response.meta).to.not.equal('meta');
                 expect(response.results).to.not.equal('results');
@@ -1788,8 +1826,8 @@ describe('Results with other keys', () => {
             });
       });
    });
-    
-    
+
+
 });
 
 describe('Empty result set', () => {
