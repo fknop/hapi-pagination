@@ -79,6 +79,8 @@ customize this object with the following options:
 * `previous`: The link to the previous page. Default name is previous, enabled by
   default. null if no previous page is available.
 * `next`: Same than previous but with next page.
+* `hasNext`: A boolean indicating there is a next page. Disabled by default
+* `hasPrevious`: A boolean indicating there is a previous page. Disabled by default
 * `first`: Same than previous but with first page.
 * `last`: Same than previous but with last page.
 * `page`: The page number requested. Default name is page, disabled by default.
@@ -220,6 +222,14 @@ const options = {
         next: {
             active: true,
             name: 'next'
+        },
+        hasNext: {
+            active: false,
+            name: 'hasNext'
+        },
+        hasPrevious: {
+            active: false,
+            name: 'hasPrevious'
         },
         first: {
             active: true,
