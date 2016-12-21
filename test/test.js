@@ -1,1990 +1,1840 @@
-'use strict';
+'use strict'
 
-const Code = require('code');
-const Lab = require('lab');
-const lab = exports.lab = Lab.script();
-const Hapi = require('hapi');
+const Code = require('code')
+const Lab = require('lab')
+const lab = exports.lab = Lab.script()
+const Hapi = require('hapi')
 
-const describe = lab.describe;
-const it = lab.it;
-const expect = Code.expect;
+const describe = lab.describe
+const it = lab.it
+const expect = Code.expect
 
-const pluginName = '../lib';
+const pluginName = '../lib'
 
-const users = [];
+const users = []
 for (let i = 0; i < 20; ++i) {
-    users.push({
-        name: `name${i}`,
-        username: `username${i}`
-    });
+  users.push({
+    name: `name${i}`,
+    username: `username${i}`
+  })
 }
 
 const register = function () {
+  const server = new Hapi.Server()
+  server.connection({
+    host: 'localhost'
+  })
 
-    const server = new Hapi.Server();
-    server.connection({
-        host: 'localhost'
-    });
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: (request, reply) => reply([])
+  })
 
-    server.route({
-        method: 'GET',
-        path: '/',
-        handler: (request, reply) => reply([])
-    });
+  server.route({
+    method: 'GET',
+    path: '/empty',
+    handler: (request, reply) => reply.paginate([], 0)
+  })
 
-    server.route({
-        method: 'GET',
-        path: '/empty',
-        handler: (request, reply) => reply.paginate([], 0)
-    });
+  server.route({
+    method: 'GET',
+    path: '/users',
+    handler: (request, reply) => {
+      const limit = request.query.limit
+      const page = request.query.page
+      const pagination = request.query.pagination
 
+      const offset = limit * (page - 1)
+      const response = []
 
+      for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+        response.push(users[i])
+      }
 
-    server.route({
-        method: 'GET',
-        path: '/users',
-        handler: (request, reply) => {
+      if (pagination) {
+        return reply.paginate(response, users.length)
+      }
 
-            const limit = request.query.limit;
-            const page = request.query.page;
-            const pagination = request.query.pagination;
+      return reply(users)
+    }
+  })
 
-            const offset = limit * (page - 1);
-            const response = [];
+  server.route({
+    method: 'GET',
+    path: '/users2',
+    handler: (request, reply) => {
+      const limit = request.query.limit
+      const page = request.query.page
+      const pagination = request.query.pagination
 
-            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
-                response.push(users[i]);
-            }
+      const offset = limit * (page - 1)
+      const response = []
 
+      for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+        response.push(users[i])
+      }
 
-            if (pagination) {
-                return reply.paginate(response, users.length);
-            }
-
-            return reply(users);
-        }
-    });
-
-    server.route({
-        method: 'GET',
-        path: '/users2',
-        handler: (request, reply) => {
-            const limit = request.query.limit;
-            const page = request.query.page;
-            const pagination = request.query.pagination;
-
-            const offset = limit * (page - 1);
-            const response = [];
-
-            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
-                response.push(users[i]);
-            }
-
-
-            if (pagination) {
-                return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
+      if (pagination) {
+        return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
                                         users.length,
-                                        { key: 'results' });
-            }
+                                        { key: 'results' })
+      }
 
-            return reply(users);
+      return reply(users)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/users3',
+    handler: (request, reply) => {
+      const limit = request.query.limit
+      const page = request.query.page
+      const resultsKey = request.query.resultsKey
+      const totalCountKey = request.query.totalCountKey
+
+      const offset = limit * (page - 1)
+
+      const response = {}
+
+      response[resultsKey] = []
+      response[totalCountKey] = users.length
+
+      for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+        response[resultsKey].push(users[i])
+      }
+
+      return reply(response)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/enabled',
+    config: {
+      plugins: {
+        pagination: {
+          enabled: true
         }
-    });
+      },
+      handler: (request, reply) => reply([])
+    }
+  })
 
-        server.route({
-        method: 'GET',
-        path: '/users3',
-        handler: (request, reply) => {
-
-            const limit = request.query.limit;
-            const page = request.query.page;
-            const resultsKey = request.query.resultsKey;
-            const totalCountKey = request.query.totalCountKey;
-
-            const offset = limit * (page - 1);
-
-            const response = {};
-
-            response[resultsKey] = [];
-            response[totalCountKey] = users.length;
-
-            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
-                response[resultsKey].push(users[i]);
-            }
-
-            return reply(response);
+  server.route({
+    method: 'GET',
+    path: '/disabled',
+    config: {
+      plugins: {
+        pagination: {
+          enabled: false
         }
-    });
+      },
+      handler: (request, reply) => reply([])
+    }
+  })
 
-    server.route({
-        method: 'GET',
-        path: '/enabled',
-        config: {
-            plugins: {
-                pagination: {
-                    enabled: true
-                }
-            },
-            handler: (request, reply) => reply([])
+  server.route({
+    method: 'GET',
+    path: '/defaults',
+    config: {
+      plugins: {
+        pagination: {
+          defaults: {
+            pagination: false,
+            limit: 10,
+            page: 2
+          }
         }
-    });
+      }
+    },
+    handler: (request, reply) => {
+      const limit = request.query.limit
+      const page = request.query.page
+      const pagination = request.query.pagination
 
-    server.route({
-        method: 'GET',
-        path: '/disabled',
-        config: {
-            plugins: {
-                pagination: {
-                    enabled: false
-                }
-            },
-            handler: (request, reply) => reply([])
-        }
-    });
+      const offset = limit * (page - 1)
+      const response = []
 
+      for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
+        response.push(users[i])
+      }
 
+      if (pagination) {
+        return reply.paginate(response, users.length)
+      }
 
-    server.route({
-        method: 'GET',
-        path: '/defaults',
-        config: {
-            plugins: {
-                pagination: {
-                    defaults: {
-                        pagination: false,
-                        limit: 10,
-                        page: 2
-                    }
-                }
-            }
-        },
-        handler: (request, reply) => {
+      return reply(users)
+    }
+  })
 
-            const limit = request.query.limit;
-            const page = request.query.page;
-            const pagination = request.query.pagination;
+  server.route({
+    method: 'POST',
+    path: '/users',
+    handler: (request, reply) => reply('Works')
+  })
 
-            const offset = limit * (page - 1);
-            const response = [];
-
-            for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
-                response.push(users[i]);
-            }
-
-
-            if (pagination) {
-                return reply.paginate(response, users.length);
-            }
-
-            return reply(users);
-        }
-    });
-
-    server.route({
-        method: 'POST',
-        path: '/users',
-        handler: (request, reply) => reply('Works')
-    });
-
-    return server;
-};
+  return server
+}
 
 describe('Register', () => {
-
-    it('fails if too much connections', (done) => {
-
-        const server = register();
-        server.connection({ host: 'newhost' });
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.exist();
-            expect(err.name).to.equal('ValidationError');
-            expect(err.details.message).to.match(/You cannot register this plugin/);
-            expect(err.details.context).to.have.length(2);
-            done();
-        });
-    });
-
-});
-
+  it('fails if too much connections', (done) => {
+    const server = register()
+    server.connection({ host: 'newhost' })
+    server.register(require(pluginName), (err) => {
+      expect(err).to.exist()
+      expect(err.name).to.equal('ValidationError')
+      expect(err.details.message).to.match(/You cannot register this plugin/)
+      expect(err.details.context).to.have.length(2)
+      done()
+    })
+  })
+})
 
 describe('Test with defaults values', () => {
+  it('Test if limit default is added to request object', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-    it('Test if limit default is added to request object', (done) => {
+      const request = {
+        method: 'GET',
+        url: '/'
+      }
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+      server.inject(request, (res) => {
+        expect(res.request.query.limit).to.equal(25)
+        expect(res.request.query.page).to.equal(1)
+        expect(res.request.response.source.meta.totalCount).to.be.null()
 
-            expect(err).to.be.undefined();
+        done()
+      })
+    })
+  })
 
-            const request = {
-                method: 'GET',
-                url: '/'
-            };
+  it('Test with additional query string', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-            server.inject(request, (res) => {
+      server.inject({
+        method: 'GET',
+        url: '/?param=1&paramm=2'
+      }, (res) => {
+        expect(res.request.query.param).to.equal('1')
+        expect(res.request.query.paramm).to.equal('2')
 
-                expect(res.request.query.limit).to.equal(25);
-                expect(res.request.query.page).to.equal(1);
-                expect(res.request.response.source.meta.totalCount).to.be.null();
-
-                done();
-            });
-        });
-    });
-
-
-    it('Test with additional query string', (done) => {
-
-        const server = register();
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?param=1&paramm=2'
-            }, (res) => {
-
-                expect(res.request.query.param).to.equal('1');
-                expect(res.request.query.paramm).to.equal('2');
-
-                done();
-            });
-        });
-    });
-
-});
+        done()
+      })
+    })
+  })
+})
 
 describe('Override default values', () => {
+  it('Override default limit and page', (done) => {
+    const options = {
+      query: {
+        limit: {
+          default: 7,
+          name: 'myLimit'
+        },
+        page: {
+          default: 2,
+          name: 'myPage'
+        }
+      }
+    }
 
-    it('Override default limit and page', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-        const options = {
-            query: {
-                limit: {
-                    default: 7,
-                    name: 'myLimit'
-                },
-                page: {
-                    default: 2,
-                    name: 'myPage'
-                }
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        const limit = options.query.limit
+        const page = options.query.page
+        expect(query[limit.name]).to.equal(limit.default)
+        expect(query[page.name]).to.equal(page.default)
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with include', (done) => {
+    const options = {
+      routes: {
+        include: ['/']
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.equal(25)
+        expect(query.page).to.equal(1)
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with include 2', (done) => {
+    const options = {
+      routes: {
+        include: ['/']
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with regex in include', (done) => {
+    const options = {
+      routes: {
+        include: [/^\/u.*s$/]
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.equal(25)
+        expect(query.page).to.equal(1)
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with both regex and string in include', (done) => {
+    const options = {
+      routes: {
+        include: [/^\/hello$/, '/users']
+      }
+
+    }
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.equal(25)
+        expect(query.page).to.equal(1)
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with regex in include without a match', (done) => {
+    const options = {
+      routes: {
+        include: [/^\/hello.*$/]
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with exclude', (done) => {
+    const options = {
+      routes: {
+        include: ['*'],
+        exclude: ['/']
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with exclude 2', (done) => {
+    const options = {
+      routes: {
+        include: ['/users'],
+        exclude: ['/']
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with regex in exclude', (done) => {
+    const options = {
+      routes: {
+        include: ['*'],
+        exclude: [/^\/.*/]
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with both regex and string in exclude', (done) => {
+    const options = {
+      routes: {
+        include: ['*'],
+        exclude: [/^nothing/, '/']
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
+
+        done()
+      })
+    })
+  })
+
+  it('Override results name', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        results: {
+          name: 'rows'
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        url: '/users?limit=12',
+        method: 'GET'
+      }, (res) => {
+        expect(res.request.response.source.rows).to.be.an.array()
+        expect(res.request.response.source.rows).to.have.length(12)
+        done()
+      })
+    })
+  })
+
+  it('Override reply parametr (results) name', (done) => {
+    const resultsKey = 'rows'
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        reply: {
+          parameters: {
+            results: {
+              name: 'rows'
             }
-        };
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        url: '/users3?limit=12&resultsKey=' + resultsKey,
+        method: 'GET'
+      }, (res) => {
+        expect(res.request.response.source.results).to.be.an.array()
+        expect(res.request.response.source.results).to.have.length(12)
+        done()
+      })
+    })
+  })
 
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
+  it('Override reply parametr (totalCount) name', (done) => {
+    const totalCountKey = 'total'
 
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                const limit = options.query.limit;
-                const page = options.query.page;
-                expect(query[limit.name]).to.equal(limit.default);
-                expect(query[page.name]).to.equal(page.default);
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with include', (done) => {
-
-        const options = {
-            routes: {
-                include: ['/']
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        reply: {
+          parameters: {
+            totalCount: {
+              name: 'total'
             }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.equal(25);
-                expect(query.page).to.equal(1);
-
-                done();
-            });
-        });
-
-
-    });
-
-    it('Override defaults routes with include 2', (done) => {
-
-        const options = {
-            routes: {
-                include: ['/']
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/users'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-
-
-    });
-
-    it('Override defaults routes with regex in include', (done) => {
-
-        const options = {
-            routes: {
-                include: [/^\/u.*s$/]
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/users'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.equal(25);
-                expect(query.page).to.equal(1);
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with both regex and string in include', (done) => {
-
-        const options = {
-            routes: {
-                include: [/^\/hello$/, '/users']
-            }
-
-        };
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/users'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.equal(25);
-                expect(query.page).to.equal(1);
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with regex in include without a match', (done) => {
-
-        const options = {
-            routes: {
-                include: [/^\/hello.*$/]
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/users'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with exclude', (done) => {
-
-        const options = {
-            routes: {
-                include: ['*'],
-                exclude: ['/']
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-
-
-    });
-
-    it('Override defaults routes with exclude 2', (done) => {
-
-        const options = {
-            routes: {
-                include: ['/users'],
-                exclude: ['/']
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with regex in exclude', (done) => {
-
-        const options = {
-            routes: {
-                include: ['*'],
-                exclude: [/^\/.*/]
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-    });
-
-    it('Override defaults routes with both regex and string in exclude', (done) => {
-
-        const options = {
-            routes: {
-                include: ['*'],
-                exclude: [/^nothing/, '/']
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-    });
-
-    it('Override results name', (done) => {
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                results: {
-                    name: 'rows'
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                url: '/users?limit=12',
-                method: 'GET'
-            }, (res) => {
-
-                expect(res.request.response.source.rows).to.be.an.array();
-                expect(res.request.response.source.rows).to.have.length(12);
-                done();
-            });
-
-        });
-    });
-
-    it('Override reply parametr (results) name', (done) => {
-
-        const resultsKey = 'rows';
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                reply: {
-                    parameters: {
-                        results:{
-                            name: 'rows'
-                        }
-                    }
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                url: '/users3?limit=12&resultsKey=' + resultsKey,
-                method: 'GET'
-            }, (res) => {
-
-                expect(res.request.response.source.results).to.be.an.array();
-                expect(res.request.response.source.results).to.have.length(12);
-                done();
-            });
-
-        });
-    });
-
-    it('Override reply parametr (totalCount) name', (done) => {
-
-        const totalCountKey = 'total';
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                reply: {
-                    parameters: {
-                        totalCount:{
-                            name: 'total'
-                        }
-                    }
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
-                method: 'GET'
-            }, (res) => {
-
-                expect(res.request.response.source.meta.totalCount).to.equal(users.length);
-                done();
-            });
-
-        });
-    });
-
-    it('Override defaults routes with regex without a match', (done) => {
-
-        const options = {
-            routes: {
-                include: ['*'],
-                exclude: [/^nothing/]
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.equal(25);
-                expect(query.page).to.equal(1);
-
-                done();
-            });
-        });
-    });
-
-    it('Override names of meta', (done) => {
-
-        const options = {
-            meta: {
-                name: 'myMeta',
-                count: {
-                    active: true,
-                    name: 'myCount'
-                },
-                totalCount: {
-                    active: true,
-                    name: 'myTotalCount'
-                },
-                pageCount: {
-                    active: true,
-                    name: 'myPageCount'
-                },
-                self: {
-                    active: true,
-                    name: 'mySelf'
-                },
-                previous: {
-                    active: true,
-                    name: 'myPrevious'
-                },
-                next: {
-                    active: true,
-                    name: 'myNext'
-                },
-                hasNext: {
-                    active: true,
-                    name: 'myHasNext'
-                },
-                hasPrevious: {
-                    active: true,
-                    name: 'myHasPrev'
-                },
-                first: {
-                    active: true,
-                    name: 'myFirst'
-                },
-                last: {
-                    active: true,
-                    name: 'myLast'
-                },
-                limit: {
-                    active: true
-                },
-                page: {
-                    active: true
-                }
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const names = options.meta;
-
-                const meta = response[names.name];
-                expect(meta).to.be.an.object();
-                expect(meta.limit).to.equal(25);
-                expect(meta.page).to.equal(1);
-                expect(meta[names.count.name]).to.equal(0);
-                expect(meta[names.totalCount.name]).to.be.null();
-                expect(meta[names.pageCount.name]).to.be.null();
-                expect(meta[names.previous.name]).to.be.null();
-                expect(meta[names.next.name]).to.be.null();
-                expect(meta[names.hasNext.name]).to.be.false();
-                expect(meta[names.hasPrevious.name]).to.be.false();
-                expect(meta[names.last.name]).to.be.null();
-                expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
-                expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
-                expect(response.results).to.be.an.array();
-                expect(response.results).to.have.length(0);
-
-                done();
-            });
-        });
-    });
-
-    it('Override meta - set active to false', (done) => {
-
-        const options = {
-            meta: {
-                name: 'meta',
-                count: {
-                    active: false
-                },
-                totalCount: {
-                    active: false
-                },
-                pageCount: {
-                    active: false
-                },
-                self: {
-                    active: false
-                },
-                previous: {
-                    active: false
-                },
-                next: {
-                    active: false
-                },
-                hasNext: {
-                    active: false
-                },
-                hasPrevious: {
-                    active: false
-                },
-                first: {
-                    active: false
-                },
-                last: {
-                    active: false
-                },
-                limit: {
-                    active: false
-                },
-                page: {
-                    active: false
-                }
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const names = options.meta;
-
-                const meta = response[names.name];
-                expect(meta).to.be.an.object();
-                expect(meta.limit).to.be.undefined();
-                expect(meta.page).to.be.undefined();
-                expect(meta.count).to.be.undefined();
-                expect(meta.totalCount).to.be.undefined();
-                expect(meta.pageCount).to.be.undefined();
-                expect(meta.previous).to.be.undefined();
-                expect(meta.next).to.be.undefined();
-                expect(meta.hasNext).to.be.undefined();
-                expect(meta.hasPrevious).to.be.undefined();
-                expect(meta.last).to.be.undefined();
-                expect(meta.first).to.be.undefined();
-                expect(meta.self).to.be.undefined();
-                expect(response.results).to.be.an.array();
-                expect(response.results).to.have.length(0);
-
-                done();
-            });
-        });
-    });
-
-
-    it('use custom baseUri instead of server provided uri', (done) => {
-
-        const myCustomUri = 'https://127.0.0.1:81';
-        const options = {
-            meta: {
-                baseUri: myCustomUri,
-                name: 'meta',
-                count: {
-                    active: true
-                },
-                totalCount: {
-                    active: true
-                },
-                pageCount: {
-                    active: true
-                },
-                self: {
-                    active: true
-                },
-                first: {
-                    active: true
-                }
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const meta = response.meta;
-                expect(meta.first).to.include(myCustomUri);
-                expect(meta.self).to.include(myCustomUri);
-                done();
-            });
-        });
-    });
-
-});
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
+        method: 'GET'
+      }, (res) => {
+        expect(res.request.response.source.meta.totalCount).to.equal(users.length)
+        done()
+      })
+    })
+  })
+
+  it('Override defaults routes with regex without a match', (done) => {
+    const options = {
+      routes: {
+        include: ['*'],
+        exclude: [/^nothing/]
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.equal(25)
+        expect(query.page).to.equal(1)
+
+        done()
+      })
+    })
+  })
+
+  it('Override names of meta', (done) => {
+    const options = {
+      meta: {
+        name: 'myMeta',
+        count: {
+          active: true,
+          name: 'myCount'
+        },
+        totalCount: {
+          active: true,
+          name: 'myTotalCount'
+        },
+        pageCount: {
+          active: true,
+          name: 'myPageCount'
+        },
+        self: {
+          active: true,
+          name: 'mySelf'
+        },
+        previous: {
+          active: true,
+          name: 'myPrevious'
+        },
+        next: {
+          active: true,
+          name: 'myNext'
+        },
+        hasNext: {
+          active: true,
+          name: 'myHasNext'
+        },
+        hasPrevious: {
+          active: true,
+          name: 'myHasPrev'
+        },
+        first: {
+          active: true,
+          name: 'myFirst'
+        },
+        last: {
+          active: true,
+          name: 'myLast'
+        },
+        limit: {
+          active: true
+        },
+        page: {
+          active: true
+        }
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const response = res.request.response.source
+        const names = options.meta
+
+        const meta = response[names.name]
+        expect(meta).to.be.an.object()
+        expect(meta.limit).to.equal(25)
+        expect(meta.page).to.equal(1)
+        expect(meta[names.count.name]).to.equal(0)
+        expect(meta[names.totalCount.name]).to.be.null()
+        expect(meta[names.pageCount.name]).to.be.null()
+        expect(meta[names.previous.name]).to.be.null()
+        expect(meta[names.next.name]).to.be.null()
+        expect(meta[names.hasNext.name]).to.be.false()
+        expect(meta[names.hasPrevious.name]).to.be.false()
+        expect(meta[names.last.name]).to.be.null()
+        expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25'])
+        expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25'])
+        expect(response.results).to.be.an.array()
+        expect(response.results).to.have.length(0)
+
+        done()
+      })
+    })
+  })
+
+  it('Override meta - set active to false', (done) => {
+    const options = {
+      meta: {
+        name: 'meta',
+        count: {
+          active: false
+        },
+        totalCount: {
+          active: false
+        },
+        pageCount: {
+          active: false
+        },
+        self: {
+          active: false
+        },
+        previous: {
+          active: false
+        },
+        next: {
+          active: false
+        },
+        hasNext: {
+          active: false
+        },
+        hasPrevious: {
+          active: false
+        },
+        first: {
+          active: false
+        },
+        last: {
+          active: false
+        },
+        limit: {
+          active: false
+        },
+        page: {
+          active: false
+        }
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const response = res.request.response.source
+        const names = options.meta
+
+        const meta = response[names.name]
+        expect(meta).to.be.an.object()
+        expect(meta.limit).to.be.undefined()
+        expect(meta.page).to.be.undefined()
+        expect(meta.count).to.be.undefined()
+        expect(meta.totalCount).to.be.undefined()
+        expect(meta.pageCount).to.be.undefined()
+        expect(meta.previous).to.be.undefined()
+        expect(meta.next).to.be.undefined()
+        expect(meta.hasNext).to.be.undefined()
+        expect(meta.hasPrevious).to.be.undefined()
+        expect(meta.last).to.be.undefined()
+        expect(meta.first).to.be.undefined()
+        expect(meta.self).to.be.undefined()
+        expect(response.results).to.be.an.array()
+        expect(response.results).to.have.length(0)
+
+        done()
+      })
+    })
+  })
+
+  it('Override meta location - move metadata to http headers with multiple pages', (done) => {
+    const options = {
+      query: {
+        limit: {
+          default: 5
+        },
+        page: {
+          default: 2
+        }
+      },
+      meta: {
+        location: 'header'
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const headers = res.request.response.headers
+        const response = res.request.response.source
+        expect(headers['Content-Range']).to.equal('5-9/20')
+        expect(headers['Link']).to.be.an.array()
+        expect(headers['Link']).to.have.length(5)
+        expect(headers['Link'][0]).match(/rel=self$/)
+        expect(headers['Link'][1]).match(/rel=first$/)
+        expect(headers['Link'][2]).match(/rel=last$/)
+        expect(headers['Link'][3]).match(/rel=next$/)
+        expect(headers['Link'][4]).match(/rel=prev$/)
+        expect(response).to.be.an.array()
+        expect(response).to.have.length(5)
+
+        done()
+      })
+    })
+  })
+
+  it('Override meta location - move metadata to http headers with unique page', (done) => {
+    const options = {
+      meta: {
+        location: 'header'
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/users'
+      }, (res) => {
+        const headers = res.request.response.headers
+        const response = res.request.response.source
+        expect(headers['Content-Range']).to.equal('0-19/20')
+        expect(headers['Link']).to.be.an.array()
+        expect(headers['Link']).to.have.length(3)
+        expect(headers['Link'][0]).match(/rel=self$/)
+        expect(headers['Link'][1]).match(/rel=first$/)
+        expect(headers['Link'][2]).match(/rel=last$/)
+        expect(response).to.be.an.array()
+        expect(response).to.have.length(20)
+
+        done()
+      })
+    })
+  })
+
+  it('use custom baseUri instead of server provided uri', (done) => {
+    const myCustomUri = 'https://127.0.0.1:81'
+    const options = {
+      meta: {
+        baseUri: myCustomUri,
+        name: 'meta',
+        count: {
+          active: true
+        },
+        totalCount: {
+          active: true
+        },
+        pageCount: {
+          active: true
+        },
+        self: {
+          active: true
+        },
+        first: {
+          active: true
+        }
+      }
+    }
+
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
+        expect(meta.first).to.include(myCustomUri)
+        expect(meta.self).to.include(myCustomUri)
+        done()
+      })
+    })
+  })
+})
 
 describe('Custom route options', () => {
+  it('Force a route to include pagination', (done) => {
+    const options = {
+      routes: {
+        exclude: ['/enabled']
+      }
+    }
 
-    it('Force a route to include pagination', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-        const options = {
-            routes: {
-                exclude: ['/enabled']
-            }
-        };
+      server.inject({
+        method: 'GET',
+        url: '/enabled'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.equal(25)
+        expect(query.page).to.equal(1)
 
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
+        done()
+      })
+    })
+  })
 
-            expect(err).to.be.undefined();
+  it('Force a route to exclude pagination', (done) => {
+    const options = {
+      routes: {
+        include: ['/disabled']
+      }
+    }
 
-            server.inject({
-                method: 'GET',
-                url: '/enabled'
-            }, (res) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-                const query = res.request.query;
-                expect(query.limit).to.equal(25);
-                expect(query.page).to.equal(1);
+      server.inject({
+        method: 'GET',
+        url: '/disabled'
+      }, (res) => {
+        const query = res.request.query
+        expect(query.limit).to.be.undefined()
+        expect(query.page).to.be.undefined()
 
-                done();
-            });
-        });
-    });
-
-    it('Force a route to exclude pagination', (done) => {
-
-        const options = {
-            routes: {
-                include: ['/disabled']
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/disabled'
-            }, (res) => {
-
-                const query = res.request.query;
-                expect(query.limit).to.be.undefined();
-                expect(query.page).to.be.undefined();
-
-                done();
-            });
-        });
-
-
-    });
-});
-
+        done()
+      })
+    })
+  })
+})
 
 describe('Override on route level', () => {
+  it('Overriden defaults on route level with pagination to false', (done) => {
+    const server = register()
 
-    it('Overriden defaults on route level with pagination to false', (done) => {
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-        const server = register();
+      server.inject({
+        method: 'GET',
+        url: '/defaults'
+      }, (res) => {
+        expect(res.request.response.source).to.be.an.array()
+        expect(res.request.response.source).to.have.length(20)
+        done()
+      })
+    })
+  })
 
-        server.register(require(pluginName), (err) => {
+  it('Overriden defaults on route level with pagination to true', (done) => {
+    const server = register()
 
-            expect(err).to.be.undefined();
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-            server.inject({
-                method: 'GET',
-                url: '/defaults'
-            }, (res) => {
+      server.inject({
+        method: 'GET',
+        url: '/defaults?pagination=true'
+      }, (res) => {
+        const response = res.request.response.source
+        expect(response).to.be.an.object()
+        expect(response.results).to.have.length(10)
+        expect(response.meta.totalCount).to.equal(20)
+        expect(res.request.query.limit).to.equal(10)
+        expect(res.request.query.page).to.equal(2)
+        done()
+      })
+    })
+  })
 
-                expect(res.request.response.source).to.be.an.array();
-                expect(res.request.response.source).to.have.length(20);
-                done();
-            });
-        });
+  it('Overriden defaults on route level with limit and page to 5 and 1', (done) => {
+    const server = register()
 
-    });
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-    it('Overriden defaults on route level with pagination to true', (done) => {
-
-        const server = register();
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/defaults?pagination=true'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                expect(response).to.be.an.object();
-                expect(response.results).to.have.length(10);
-                expect(response.meta.totalCount).to.equal(20);
-                expect(res.request.query.limit).to.equal(10);
-                expect(res.request.query.page).to.equal(2);
-                done();
-            });
-        });
-
-    });
-
-    it('Overriden defaults on route level with limit and page to 5 and 1', (done) => {
-
-        const server = register();
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/defaults?pagination=true&page=1&limit=5'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                expect(response).to.be.an.object();
-                expect(response.results).to.have.length(5);
-                expect(response.meta.totalCount).to.equal(20);
-                expect(res.request.query.limit).to.equal(5);
-                expect(res.request.query.page).to.equal(1);
-                done();
-            });
-        });
-
-    });
-
-});
-
-
+      server.inject({
+        method: 'GET',
+        url: '/defaults?pagination=true&page=1&limit=5'
+      }, (res) => {
+        const response = res.request.response.source
+        expect(response).to.be.an.object()
+        expect(response.results).to.have.length(5)
+        expect(response.meta.totalCount).to.equal(20)
+        expect(res.request.query.limit).to.equal(5)
+        expect(res.request.query.page).to.equal(1)
+        done()
+      })
+    })
+  })
+})
 
 describe('Passing page and limit as query parameters', () => {
+  const options = {
+    query: {
+      limit: {
+        default: 5,
+        name: 'myLimit'
+      },
+      page: {
+        default: 2,
+        name: 'myPage'
+      }
+    }
+  }
 
-    const options = {
+  it('Passing limit', (done) => {
+    const server = register()
+
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/?limit=5'
+      }, (res) => {
+        expect(res.request.query.limit).to.equal(5)
+        expect(res.request.query.page).to.equal(1)
+        done()
+      })
+    })
+  })
+
+  it('Wrong limit and page should return the defaults', (done) => {
+    const server = register()
+
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+
+      server.inject({
+        method: 'GET',
+        url: '/?limit=abc10&page=c2'
+      }, (res) => {
+        expect(res.request.query.limit).to.equal(25)
+        expect(res.request.query.page).to.equal(1)
+        done()
+      })
+    })
+  })
+
+  it('Wrong limit with badRequest behavior should return 400 bad request', (done) => {
+    const server = register()
+
+    server.register({
+      register: require(pluginName),
+      options: {
         query: {
-            limit: {
-                default: 5,
-                name: 'myLimit'
-            },
-            page: {
-                default: 2,
-                name: 'myPage'
-            }
+          invalid: 'badRequest'
         }
-    };
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-    it('Passing limit', (done) => {
+      server.inject({
+        method: 'GET',
+        url: '/?limit=abc10'
+      }, (res) => {
+        expect(res.request.response.source.statusCode).to.equal(400)
+        expect(res.request.response.statusCode).to.equal(400)
+        done()
+      })
+    })
+  })
 
-        const server = register();
+  it('Wrong page with badRequest behavior should return 400 bad request', (done) => {
+    const server = register()
 
-        server.register(require(pluginName), (err) => {
+    server.register({
+      register: require(pluginName),
+      options: {
+        query: {
+          invalid: 'badRequest'
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-            expect(err).to.be.undefined();
+      server.inject({
+        method: 'GET',
+        url: '/?page=abc10'
+      }, (res) => {
+        expect(res.request.response.source.statusCode).to.equal(400)
+        expect(res.request.response.statusCode).to.equal(400)
+        done()
+      })
+    })
+  })
 
-            server.inject({
-                method: 'GET',
-                url: '/?limit=5'
-            }, (res) => {
+  it('Overriding and passing limit', (done) => {
+    const server = register()
 
-                expect(res.request.query.limit).to.equal(5);
-                expect(res.request.query.page).to.equal(1);
-                done();
-            });
-        });
-    });
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-    it('Wrong limit and page should return the defaults', (done) => {
+      server.inject({
+        method: 'GET',
+        url: '/?myLimit=7'
+      }, (res) => {
+        expect(res.request.query[options.query.limit.name]).to.equal(7)
+        expect(res.request.query[options.query.page.name]).to.equal(2)
+        done()
+      })
+    })
+  })
 
-        const server = register();
+  it('Passing page', (done) => {
+    const server = register()
 
-        server.register(require(pluginName), (err) => {
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-            expect(err).to.be.undefined();
+      server.inject({
+        method: 'GET',
+        url: '/?page=5'
+      }, (res) => {
+        expect(res.request.query.page).to.equal(5)
+        done()
+      })
+    })
+  })
 
-            server.inject({
-                method: 'GET',
-                url: '/?limit=abc10&page=c2'
-            }, (res) => {
+  it('Overriding and passing page', (done) => {
+    const server = register()
 
-                expect(res.request.query.limit).to.equal(25);
-                expect(res.request.query.page).to.equal(1);
-                done();
-            });
-        });
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-    });
-
-    it('Wrong limit with badRequest behavior should return 400 bad request', (done) => {
-
-        const server = register();
-
-        server.register({
-            register: require(pluginName),
-            options: {
-                query: {
-                    invalid: 'badRequest'
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?limit=abc10'
-            }, (res) => {
-
-                expect(res.request.response.source.statusCode).to.equal(400);
-                expect(res.request.response.statusCode).to.equal(400);
-                done();
-            });
-        });
-    });
-
-    it('Wrong page with badRequest behavior should return 400 bad request', (done) => {
-
-        const server = register();
-
-        server.register({
-            register: require(pluginName),
-            options: {
-                query: {
-                    invalid: 'badRequest'
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?page=abc10'
-            }, (res) => {
-
-                expect(res.request.response.source.statusCode).to.equal(400);
-                expect(res.request.response.statusCode).to.equal(400);
-                done();
-            });
-        });
-    });
-
-    it('Overriding and passing limit', (done) => {
-
-        const server = register();
-
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?myLimit=7'
-            }, (res) => {
-
-                expect(res.request.query[options.query.limit.name]).to.equal(7);
-                expect(res.request.query[options.query.page.name]).to.equal(2);
-                done();
-            });
-        });
-    });
-
-    it('Passing page', (done) => {
-
-        const server = register();
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?page=5'
-            }, (res) => {
-
-                expect(res.request.query.page).to.equal(5);
-                done();
-            });
-        });
-    });
-
-    it('Overriding and passing page', (done) => {
-
-        const server = register();
-
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?myPage=5'
-            }, (res) => {
-
-                expect(res.request.query[options.query.limit.name]).to.equal(5);
-                expect(res.request.query[options.query.page.name]).to.equal(5);
-                done();
-            });
-        });
-    });
-});
+      server.inject({
+        method: 'GET',
+        url: '/?myPage=5'
+      }, (res) => {
+        expect(res.request.query[options.query.limit.name]).to.equal(5)
+        expect(res.request.query[options.query.page.name]).to.equal(5)
+        done()
+      })
+    })
+  })
+})
 
 describe('Test /users route', () => {
+  it('Test default with totalCount added to request object', (done) => {
+    const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5']
 
-    it('Test default with totalCount added to request object', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
+      server.inject({
+        method: 'GET',
+        url: '/users?page=2&limit=5'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
+        expect(meta).to.be.an.object()
+        expect(meta.count).to.equal(5)
+        expect(meta.totalCount).to.equal(20)
+        expect(meta.pageCount).to.equal(4)
+        expect(meta.previous).to.part.include(urlForPage(1))
+        expect(meta.next).to.part.include(urlForPage(3))
+        expect(meta.last).to.part.include(urlForPage(4))
+        expect(meta.first).to.part.include(urlForPage(1))
+        expect(meta.self).to.part.include(urlForPage(2))
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+        expect(response.results).to.be.an.array()
+        expect(response.results).to.have.length(5)
 
-            expect(err).to.be.undefined();
+        done()
+      })
+    })
+  })
 
-            server.inject({
-                method: 'GET',
-                url: '/users?page=2&limit=5'
-            }, (res) => {
+  it('Test hasPrev behave correctly', (done) => {
+    const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5']
 
-                const response = res.request.response.source;
-                const meta = response.meta;
-                expect(meta).to.be.an.object();
-                expect(meta.count).to.equal(5);
-                expect(meta.totalCount).to.equal(20);
-                expect(meta.pageCount).to.equal(4);
-                expect(meta.previous).to.part.include(urlForPage(1));
-                expect(meta.next).to.part.include(urlForPage(3));
-                expect(meta.last).to.part.include(urlForPage(4));
-                expect(meta.first).to.part.include(urlForPage(1));
-                expect(meta.self).to.part.include(urlForPage(2));
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        meta: {
+          hasPrevious: {
+            active: true
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-                expect(response.results).to.be.an.array();
-                expect(response.results).to.have.length(5);
-
-                done();
-            });
-        });
-    });
-
-    it('Test hasPrev behave correctly', (done) => {
-        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
-
-        const server = register();
-        server.register({
-                register: require(pluginName),
-                options: {
-                    meta:{
-                        hasPrevious:{
-                            active: true
-                        }
-                    }
-                }
-            }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/users?page=1&limit=5'
-            }, (res) => {
-                const response = res.request.response.source;
-                const meta = response.meta;
-                expect(meta.hasPrevious).to.equal(false);
-                done()
-            });
-        });
-    });
-});
+      server.inject({
+        method: 'GET',
+        url: '/users?page=1&limit=5'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
+        expect(meta.hasPrevious).to.equal(false)
+        done()
+      })
+    })
+  })
+})
 
 describe('Testing pageCount', () => {
+  it('Limit is 3, page should be 7', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/users?limit=3'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
 
-    it('Limit is 3, page should be 7', (done) => {
+        expect(meta.pageCount).to.equal(7)
+        done()
+      })
+    })
+  })
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+  it('Limit is 4, page should be 5', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/users?limit=4'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
 
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/users?limit=3'
-            }, (res) => {
+        expect(meta.pageCount).to.equal(5)
+        done()
+      })
+    })
+  })
 
-                const response = res.request.response.source;
-                const meta = response.meta;
+  it('Limit is 1, page should be 20', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/users?limit=1'
+      }, (res) => {
+        const response = res.request.response.source
+        const meta = response.meta
 
-                expect(meta.pageCount).to.equal(7);
-                done();
-            });
-        });
-    });
-
-
-    it('Limit is 4, page should be 5', (done) => {
-
-        const server = register();
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/users?limit=4'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const meta = response.meta;
-
-                expect(meta.pageCount).to.equal(5);
-                done();
-            });
-        });
-    });
-
-
-    it('Limit is 1, page should be 20', (done) => {
-
-        const server = register();
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/users?limit=1'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const meta = response.meta;
-
-                expect(meta.pageCount).to.equal(20);
-                done();
-            });
-        });
-    });
-});
+        expect(meta.pageCount).to.equal(20)
+        done()
+      })
+    })
+  })
+})
 
 describe('Post request', () => {
+  it('Should work with a post request', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'POST',
+        url: '/users'
+      }, (res) => {
+        const response = res.request.response.source
 
-    it('Should work with a post request', (done) => {
-
-        const server = register();
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'POST',
-                url: '/users'
-            }, (res) => {
-
-                const response = res.request.response.source;
-
-                expect(response).to.equal('Works');
-                done();
-            });
-        });
-    });
-});
+        expect(response).to.equal('Works')
+        done()
+      })
+    })
+  })
+})
 
 describe('Changing pagination query parameter', () => {
+  it('Should return the results with no pagination', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/?pagination=false'
+      }, (res) => {
+        const response = res.request.response.source
+        expect(response).to.be.an.array()
+        done()
+      })
+    })
+  })
 
-    it('Should return the results with no pagination', (done) => {
+  it('Pagination to random value (default is true)', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/?pagination=abcd'
+      }, (res) => {
+        const response = res.request.response.source
+        expect(response.meta).to.be.an.object()
+        expect(response.results).to.be.an.array()
+        done()
+      })
+    })
+  })
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+  it('Pagination to random value (default is false)', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        query: {
+          pagination: {
+            default: false
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.be.undefined()
+      server.inject({
+        method: 'GET',
+        url: '/?pagination=abcd'
+      }, (res) => {
+        const response = res.request.response.source
+        expect(response).to.be.an.array()
+        done()
+      })
+    })
+  })
 
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/?pagination=false'
-            }, (res) => {
+  it('Pagination explicitely to true', (done) => {
+    const options = {
+      meta: {
+        name: 'myMeta',
+        count: {
+          active: true,
+          name: 'myCount'
+        },
+        totalCount: {
+          active: true,
+          name: 'myTotalCount'
+        },
+        pageCount: {
+          active: true,
+          name: 'myPageCount'
+        },
+        self: {
+          active: true,
+          name: 'mySelf'
+        },
+        previous: {
+          active: true,
+          name: 'myPrevious'
+        },
+        next: {
+          active: true,
+          name: 'myNext'
+        },
+        hasNext: {
+          active: true,
+          name: 'myHasNext'
+        },
+        hasPrevious: {
+          active: true,
+          name: 'myHasPrevious'
+        },
+        first: {
+          active: true,
+          name: 'myFirst'
+        },
+        last: {
+          active: true,
+          name: 'myLast'
+        },
+        limit: {
+          active: true
+        },
+        page: {
+          active: true
+        }
+      }
+    }
 
-                const response = res.request.response.source;
-                expect(response).to.be.an.array();
-                done();
-            });
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-        });
-    });
+      server.inject({
+        method: 'GET',
+        url: '/?pagination=true'
+      }, (res) => {
+        const response = res.request.response.source
+        const names = options.meta
 
+        const meta = response[names.name]
+        expect(meta).to.be.an.object()
+        expect(meta.limit).to.equal(25)
+        expect(meta.page).to.equal(1)
+        expect(meta[names.count.name]).to.equal(0)
+        expect(meta[names.totalCount.name]).to.be.null()
+        expect(meta[names.pageCount.name]).to.be.null()
+        expect(meta[names.previous.name]).to.be.null()
+        expect(meta[names.next.name]).to.be.null()
+        expect(meta[names.hasNext.name]).to.be.false()
+        expect(meta[names.hasPrevious.name]).to.be.false()
+        expect(meta[names.last.name]).to.be.null()
+        expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25'])
+        expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25'])
+        expect(response.results).to.be.an.array()
+        expect(response.results).to.have.length(0)
 
-    it('Pagination to random value (default is true)', (done) => {
+        done()
+      })
+    })
+  })
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+  it('Pagination default is false', (done) => {
+    const options = {
+      query: {
+        pagination: {
+          default: false
+        }
+      },
+      meta: {
+        name: 'myMeta',
+        count: {
+          active: true,
+          name: 'myCount'
+        },
+        totalCount: {
+          active: true,
+          name: 'myTotalCount'
+        },
+        pageCount: {
+          active: true,
+          name: 'myPageCount'
+        },
+        self: {
+          active: true,
+          name: 'mySelf'
+        },
+        previous: {
+          active: true,
+          name: 'myPrevious'
+        },
+        next: {
+          active: true,
+          name: 'myNext'
+        },
+        hasNext: {
+          active: true,
+          name: 'myHasNext'
+        },
+        hasPrevious: {
+          active: true,
+          name: 'myHasPrevious'
+        },
+        first: {
+          active: true,
+          name: 'myFirst'
+        },
+        last: {
+          active: true,
+          name: 'myLast'
+        },
+        limit: {
+          active: true
+        },
+        page: {
+          active: true
+        }
+      }
+    }
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: options
+    }, (err) => {
+      expect(err).to.be.undefined()
 
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/?pagination=abcd'
-            }, (res) => {
+      server.inject({
+        method: 'GET',
+        url: '/?pagination=true'
+      }, (res) => {
+        const response = res.request.response.source
+        const names = options.meta
 
-                const response = res.request.response.source;
-                expect(response.meta).to.be.an.object();
-                expect(response.results).to.be.an.array();
-                done();
-            });
+        const meta = response[names.name]
+        expect(meta).to.be.an.object()
+        expect(meta.limit).to.equal(25)
+        expect(meta.page).to.equal(1)
+        expect(meta[names.count.name]).to.equal(0)
+        expect(meta[names.totalCount.name]).to.be.null()
+        expect(meta[names.pageCount.name]).to.be.null()
+        expect(meta[names.previous.name]).to.be.null()
+        expect(meta[names.next.name]).to.be.null()
+        expect(meta[names.hasNext.name]).to.be.false()
+        expect(meta[names.hasPrevious.name]).to.be.false()
+        expect(meta[names.last.name]).to.be.null()
+        expect(meta[names.first.name]).to.part.include(['pagination=true'])
+        expect(meta[names.self.name]).to.part.include(['pagination=true'])
+        expect(response.results).to.be.an.array()
+        expect(response.results).to.have.length(0)
 
-        });
-    });
-
-    it('Pagination to random value (default is false)', (done) => {
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                query: {
-                    pagination: {
-                        default: false
-                    }
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-            server.inject({
-                method: 'GET',
-                url: '/?pagination=abcd'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                expect(response).to.be.an.array();
-                done();
-            });
-
-        });
-    });
-
-    it('Pagination explicitely to true', (done) => {
-
-        const options = {
-            meta: {
-                name: 'myMeta',
-                count: {
-                    active: true,
-                    name: 'myCount'
-                },
-                totalCount: {
-                    active: true,
-                    name: 'myTotalCount'
-                },
-                pageCount: {
-                    active: true,
-                    name: 'myPageCount'
-                },
-                self: {
-                    active: true,
-                    name: 'mySelf'
-                },
-                previous: {
-                    active: true,
-                    name: 'myPrevious'
-                },
-                next: {
-                    active: true,
-                    name: 'myNext'
-                },
-                hasNext: {
-                    active: true,
-                    name: 'myHasNext'
-                },
-                hasPrevious: {
-                    active: true,
-                    name: 'myHasPrevious'
-                },
-                first: {
-                    active: true,
-                    name: 'myFirst'
-                },
-                last: {
-                    active: true,
-                    name: 'myLast'
-                },
-                limit: {
-                    active: true
-                },
-                page: {
-                    active: true
-                }
-            }
-        };
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?pagination=true'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const names = options.meta;
-
-                const meta = response[names.name];
-                expect(meta).to.be.an.object();
-                expect(meta.limit).to.equal(25);
-                expect(meta.page).to.equal(1);
-                expect(meta[names.count.name]).to.equal(0);
-                expect(meta[names.totalCount.name]).to.be.null();
-                expect(meta[names.pageCount.name]).to.be.null();
-                expect(meta[names.previous.name]).to.be.null();
-                expect(meta[names.next.name]).to.be.null();
-                expect(meta[names.hasNext.name]).to.be.false();
-                expect(meta[names.hasPrevious.name]).to.be.false();
-                expect(meta[names.last.name]).to.be.null();
-                expect(meta[names.first.name]).to.part.include(['http://localhost/?',' page=1','&','limit=25']);
-                expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
-                expect(response.results).to.be.an.array();
-                expect(response.results).to.have.length(0);
-
-                done();
-            });
-        });
-    });
-
-    it('Pagination default is false', (done) => {
-
-        const options = {
-            query: {
-                pagination: {
-                    default: false
-                }
-            },
-            meta: {
-                name: 'myMeta',
-                count: {
-                    active: true,
-                    name: 'myCount'
-                },
-                totalCount: {
-                    active: true,
-                    name: 'myTotalCount'
-                },
-                pageCount: {
-                    active: true,
-                    name: 'myPageCount'
-                },
-                self: {
-                    active: true,
-                    name: 'mySelf'
-                },
-                previous: {
-                    active: true,
-                    name: 'myPrevious'
-                },
-                next: {
-                    active: true,
-                    name: 'myNext'
-                },
-                hasNext: {
-                    active: true,
-                    name: 'myHasNext'
-                },
-                hasPrevious: {
-                    active: true,
-                    name: 'myHasPrevious'
-                },
-                first: {
-                    active: true,
-                    name: 'myFirst'
-                },
-                last: {
-                    active: true,
-                    name: 'myLast'
-                },
-                limit: {
-                    active: true
-                },
-                page: {
-                    active: true
-                }
-            }
-        };
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: options
-        }, (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.inject({
-                method: 'GET',
-                url: '/?pagination=true'
-            }, (res) => {
-
-                const response = res.request.response.source;
-                const names = options.meta;
-
-                const meta = response[names.name];
-                expect(meta).to.be.an.object();
-                expect(meta.limit).to.equal(25);
-                expect(meta.page).to.equal(1);
-                expect(meta[names.count.name]).to.equal(0);
-                expect(meta[names.totalCount.name]).to.be.null();
-                expect(meta[names.pageCount.name]).to.be.null();
-                expect(meta[names.previous.name]).to.be.null();
-                expect(meta[names.next.name]).to.be.null();
-                expect(meta[names.hasNext.name]).to.be.false();
-                expect(meta[names.hasPrevious.name]).to.be.false();
-                expect(meta[names.last.name]).to.be.null();
-                expect(meta[names.first.name]).to.part.include(['pagination=true']);
-                expect(meta[names.self.name]).to.part.include(['pagination=true']);
-                expect(response.results).to.be.an.array();
-                expect(response.results).to.have.length(0);
-
-                done();
-            });
-        });
-    });
-});
+        done()
+      })
+    })
+  })
+})
 
 describe('Wrong options', () => {
+  it('Should return an error on register', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        query: {
+          limit: {
+            default: 'abcd'
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-    it('Should return an error on register', (done) => {
+  it('Should return an error on register', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        meta: {
+          name: 0
+        }
+      }
+    }, (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                query: {
-                    limit: {
-                        default: 'abcd'
-                    }
-                }
-            }
-        }, (err) => {
+  it('Should return an error on register', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        query: {
+          limit: {
+            default: 0
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-            expect(err).to.exists();
-            done();
-        });
-    });
-
-    it('Should return an error on register', (done) => {
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                meta: {
-                    name: 0
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.exists();
-            done();
-        });
-    });
-
-    it('Should return an error on register', (done) => {
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                query: {
-                    limit: {
-                        default: 0
-                    }
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.exists();
-            done();
-        });
-    });
-
-    it('Should return an error on register', (done) => {
-
-        const server = register();
-        server.register({
-            register: require(pluginName),
-            options: {
-                meta: {
-                    totalCount: {
-                        active: 'abc'
-                    }
-                }
-            }
-        }, (err) => {
-
-            expect(err).to.exists();
-            done();
-        });
-    });
-});
+  it('Should return an error on register', (done) => {
+    const server = register()
+    server.register({
+      register: require(pluginName),
+      options: {
+        meta: {
+          totalCount: {
+            active: 'abc'
+          }
+        }
+      }
+    }, (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
+})
 
 describe('Results with other keys', () => {
+  it('Should returns the response with the original response keys', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-    it ('Should returns the response with the original response keys', (done) => {
+      const request = {
+        method: 'GET',
+        url: '/users2'
+      }
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+      server.inject(request, (res) => {
+        const response = res.request.response.source
+        expect(response.otherKey).to.equal('otherKey')
+        expect(response.otherKey2).to.equal('otherKey2')
+        expect(response.meta).to.exists()
+        expect(response.results).to.exists()
+        done()
+      })
+    })
+  })
 
-            expect(err).to.be.undefined();
+  it('Should throw an error', (done) => {
+    const server = register()
 
-            const request = {
-                method: 'GET',
-                url: '/users2'
-            };
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-            server.inject(request, (res) => {
+      server.route({
+        method: 'GET',
+        path: '/error',
+        handler: (request, reply) => {
+          return reply.paginate({ results: [] }, 0)
+        }
+      })
 
-               const response = res.request.response.source;
-               expect(response.otherKey).to.equal('otherKey');
-               expect(response.otherKey2).to.equal('otherKey2');
-               expect(response.meta).to.exists();
-               expect(response.results).to.exists();
-               done();
-            });
-      });
-   });
+      const request = {
+        method: 'GET',
+        url: '/error'
+      }
 
-   it ('Should throw an error', (done) => {
+      expect(() => {
+        server.inject(request, () => { })
+      }).to.throw()
+      done()
+    })
+  })
 
-        const server = register();
+  it('Should throw an error #2', (done) => {
+    const server = register()
 
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-        server.register(require(pluginName), (err) => {
+      server.route({
+        method: 'GET',
+        path: '/error',
+        handler: (request, reply) => {
+          return reply.paginate({ results: [] }, 0, { key: 'res' })
+        }
+      })
 
-            expect(err).to.be.undefined();
+      const request = {
+        method: 'GET',
+        url: '/error'
+      }
 
-            server.route({
-                method: 'GET',
-                path: '/error',
-                handler: (request, reply) => {
+      expect(() => {
+        server.inject(request, () => { })
+      }).to.throw()
+      done()
+    })
+  })
 
-                    return reply.paginate({ results: [] }, 0);
+  it('Should not override meta and results', (done) => {
+    const server = register()
 
-                }
-            });
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-            const request = {
-                method: 'GET',
-                url: '/error'
-            };
+      server.route({
+        method: 'GET',
+        path: '/nooverride',
+        handler: (request, reply) => {
+          return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' })
+        }
+      })
 
-            expect(() => {
+      const request = {
+        method: 'GET',
+        url: '/nooverride'
+      }
 
-                server.inject(request, () => { });
-            }).to.throw();
-            done();
-      });
-   });
-
-   it ('Should throw an error #2', (done) => {
-
-        const server = register();
-
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.route({
-                method: 'GET',
-                path: '/error',
-                handler: (request, reply) => {
-
-                    return reply.paginate({ results: [] }, 0, { key: 'res' });
-
-                }
-            });
-
-            const request = {
-                method: 'GET',
-                url: '/error'
-            };
-
-            expect(() => {
-
-                server.inject(request, () => { });
-            }).to.throw();
-            done();
-      });
-   });
-
-   it ('Should not override meta and results', (done) => {
-
-        const server = register();
-
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.be.undefined();
-
-            server.route({
-                method: 'GET',
-                path: '/nooverride',
-                handler: (request, reply) => {
-
-                    return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
-
-                }
-            });
-
-            const request = {
-                method: 'GET',
-                url: '/nooverride'
-            };
-
-
-            server.inject(request, (res) => {
-
-                const response = res.request.response.source;
-                expect(response.meta).to.not.equal('meta');
-                expect(response.results).to.not.equal('results');
-                done();
-            });
-      });
-   });
-
-
-});
+      server.inject(request, (res) => {
+        const response = res.request.response.source
+        expect(response.meta).to.not.equal('meta')
+        expect(response.results).to.not.equal('results')
+        done()
+      })
+    })
+  })
+})
 
 describe('Empty result set', () => {
+  it('Counts should be 0', (done) => {
+    const server = register()
+    server.register(require(pluginName), (err) => {
+      expect(err).to.be.undefined()
 
-    it('Counts should be 0', (done) => {
+      const request = {
+        method: 'GET',
+        url: '/empty'
+      }
 
-        const server = register();
-        server.register(require(pluginName), (err) => {
+      server.inject(request, (res) => {
+        const response = res.request.response.source
+        expect(response.meta.totalCount).to.equal(0)
+        expect(response.meta.pageCount).to.equal(0)
+        expect(response.meta.count).to.equal(0)
 
-            expect(err).to.be.undefined();
-
-            const request = {
-                method: 'GET',
-                url: '/empty'
-            };
-
-            server.inject(request, (res) => {
-
-                const response = res.request.response.source;
-                expect(response.meta.totalCount).to.equal(0);
-                expect(response.meta.pageCount).to.equal(0);
-                expect(response.meta.count).to.equal(0);
-
-                done();
-            });
-        });
-    });
-});
+        done()
+      })
+    })
+  })
+})
 
 describe('Override on route level error', () => {
-
-    it('Should return an error', (done) => {
-
-        const server = register();
-        server.route({
-            path: '/error',
-            method: 'GET',
-            config: {
-                plugins: {
-                    pagination: {
-                        defaults: {
-                            limit: 'a'
-                        }
-                    }
-                },
-                handler: (request, reply) => reply()
+  it('Should return an error', (done) => {
+    const server = register()
+    server.route({
+      path: '/error',
+      method: 'GET',
+      config: {
+        plugins: {
+          pagination: {
+            defaults: {
+              limit: 'a'
             }
-        });
+          }
+        },
+        handler: (request, reply) => reply()
+      }
+    })
 
-        server.register(require(pluginName), (err) => {
+    server.register(require(pluginName), (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-            expect(err).to.exists();
-            done();
-        });
-    });
-
-    it('Should return an error', (done) => {
-
-        const server = register();
-        server.route({
-            path: '/error',
-            method: 'GET',
-            config: {
-                plugins: {
-                    pagination: {
-                        defaults: {
-                            page: 'a'
-                        }
-                    }
-                },
-                handler: (request, reply) => reply()
+  it('Should return an error', (done) => {
+    const server = register()
+    server.route({
+      path: '/error',
+      method: 'GET',
+      config: {
+        plugins: {
+          pagination: {
+            defaults: {
+              page: 'a'
             }
-        });
+          }
+        },
+        handler: (request, reply) => reply()
+      }
+    })
 
-        server.register(require(pluginName), (err) => {
+    server.register(require(pluginName), (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-            expect(err).to.exists();
-            done();
-        });
-    });
-
-    it('Should return an error', (done) => {
-
-        const server = register();
-        server.route({
-            path: '/error',
-            method: 'GET',
-            config: {
-                plugins: {
-                    pagination: {
-                        defaults: {
-                            pagination: 'a'
-                        }
-                    }
-                },
-                handler: (request, reply) => reply()
+  it('Should return an error', (done) => {
+    const server = register()
+    server.route({
+      path: '/error',
+      method: 'GET',
+      config: {
+        plugins: {
+          pagination: {
+            defaults: {
+              pagination: 'a'
             }
-        });
+          }
+        },
+        handler: (request, reply) => reply()
+      }
+    })
 
-        server.register(require(pluginName), (err) => {
+    server.register(require(pluginName), (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
 
-            expect(err).to.exists();
-            done();
-        });
-    });
+  it('Should return an error', (done) => {
+    const server = register()
+    server.route({
+      path: '/error',
+      method: 'GET',
+      config: {
+        plugins: {
+          pagination: {
+            enabled: 'a'
+          }
+        },
+        handler: (request, reply) => reply()
+      }
+    })
 
-    it('Should return an error', (done) => {
-
-        const server = register();
-        server.route({
-            path: '/error',
-            method: 'GET',
-            config: {
-                plugins: {
-                    pagination: {
-                        enabled: 'a'
-                    }
-                },
-                handler: (request, reply) => reply()
-            }
-        });
-
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.exists();
-            done();
-        });
-    });
-});
-
-
-
+    server.register(require(pluginName), (err) => {
+      expect(err).to.exists()
+      done()
+    })
+  })
+})
