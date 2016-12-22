@@ -63,8 +63,21 @@ Notes:
 
 #### The metadata
 
-The plugin will generate a metadata object alongside your resources, you can
-customize this object with the following options:
+By default the plugin will generate a metadata object alongside your resources in the response body.
+You can also decide to put the metadata in the response header, so the body remains clean.
+In this case, the plugin will use 2 kinds of headers:
+* `Content-Range`: `startIndex-endIndex/totalCount` (see https://tools.ietf.org/html/rfc7233#section-4.2)
+  This header gives the start and end indexes of the current page records, followed by the total number of records.
+* `Link`: `<url>; rel=relationship` (see https://tools.ietf.org/html/rfc2068#section-19.6.2.4)
+  This header gives the url to different resources related to the current page. The available relationships are :
+    + `rel=self`: the current page
+    + `rel=first`: the first page
+    + `rel=prev`: the previous page
+    + `rel=next`: the next page
+    + `rel=last`: the last page
+
+To choose where the metadata will be put, use the option meta.location (see below).
+You can customize the metadata with the following options:
 
 
 * `name`: The name of the metadata object. Default is 'meta'.
@@ -85,10 +98,11 @@ customize this object with the following options:
 * `last`: Same than previous but with last page.
 * `page`: The page number requested. Default name is page, disabled by default.
 * `limit`: The limit requested. Default name is limit, disabled by default.
+* `location`: 'body' put the metadata in the response body, 'header' put the metadata in the response header. Default is 'body'.
 
 #### The results
 
-* `name`: the name of the results array, results by default.
+* `name`: the name of the results array, results by default. Useful with location='body' only.
 * `reply`: Object with:
     + `paginate`: The name of the paginate method (see below), paginate by
     default.
@@ -96,7 +110,7 @@ customize this object with the following options:
 #### The routes
 
 * `include`: An array of routes that you want to include, support \* and regex.
-  Default to '\*'. 
+  Default to '\*'.
 * `exclude`: An array of routes that you want to exclude. Useful when include is
   '\*'. Default to empty array. Support regex.
 
@@ -111,7 +125,7 @@ useful when you're using regex for example.
 config: {
   plugins: {
     pagination: {
-      // enabled: boolean - force enable or force disable 
+      // enabled: boolean - force enable or force disable
       defaults: {
         // page: override page
         // limit: override limit
@@ -161,7 +175,7 @@ return reply.paginate({ results: [], otherKey: 'value', otherKey2: 'value2' }, 0
 ```
 
 The response will also contains `otherKey` and `otherKey2`. Nested keys for the paginated results are not allowed.
- 
+
 If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same thing if the key does not exist.
 
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
@@ -198,6 +212,7 @@ const options = {
     },
 
     meta: {
+        location: 'body',
         name: 'meta',
         count: {
             active: true,
@@ -261,7 +276,7 @@ const options = {
           name: 'totalCount'
         }
     },
-    
+
     routes: {
         include: ['*'],
         exclude: []
@@ -305,6 +320,7 @@ const options = {
       }
     },
      meta: {
+        location: 'body', // The metadata will be put in the response body
         name: 'metadata', // The meta object will be called metadata
         count: {
             active: true,
@@ -393,7 +409,7 @@ validate: {
   }
 }
 
-// OR 
+// OR
 
 validate: {
   options: {
@@ -412,4 +428,3 @@ Make sure you have `lab` and `code` installed and run :
 ```
 npm test
 ```
-
