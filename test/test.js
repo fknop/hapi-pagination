@@ -872,6 +872,83 @@ describe('Override default values', () => {
         });
     });
 
+      it('Override meta location - move metadata to http headers with multiple pages', (done) => {
+        const options = {
+          query: {
+            limit: {
+              default: 5
+            },
+            page: {
+              default: 2
+            }
+          },
+          meta: {
+            location: 'header'
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const headers = res.request.response.headers;
+            const response = res.request.response.source;
+            expect(headers['Content-Range']).to.equal('5-9/20');
+            expect(headers['Link']).to.be.an.array();
+            expect(headers['Link']).to.have.length(5);
+            expect(headers['Link'][0]).match(/rel=self$/);
+            expect(headers['Link'][1]).match(/rel=first$/);
+            expect(headers['Link'][2]).match(/rel=last$/);
+            expect(headers['Link'][3]).match(/rel=next$/);
+            expect(headers['Link'][4]).match(/rel=prev$/);
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(5);
+
+            done();
+          })
+        })
+      })
+
+      it('Override meta location - move metadata to http headers with unique page', (done) => {
+        const options = {
+          meta: {
+            location: 'header'
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const headers = res.request.response.headers;
+            const response = res.request.response.source;
+            expect(headers['Content-Range']).to.equal('0-19/20');
+            expect(headers['Link']).to.be.an.array();
+            expect(headers['Link']).to.have.length(3);
+            expect(headers['Link'][0]).match(/rel=self$/);
+            expect(headers['Link'][1]).match(/rel=first$/);
+            expect(headers['Link'][2]).match(/rel=last$/);
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(20);
+
+            done();
+          })
+        })
+      })
 
     it('use custom baseUri instead of server provided uri', (done) => {
 
@@ -1985,6 +2062,3 @@ describe('Override on route level error', () => {
         });
     });
 });
-
-
-
