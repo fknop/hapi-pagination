@@ -178,6 +178,8 @@ The response will also contains `otherKey` and `otherKey2`. Nested keys for the 
 
 If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same thing if the key does not exist.
 
+Please note that if you pass metadata in headers the custom properties don't work, because we don't want to change the response in this case. 
+
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
 If totalCount is not exposed through the request object
