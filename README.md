@@ -99,7 +99,7 @@ You can customize the metadata with the following options:
 * `page`: The page number requested. Default name is page, disabled by default.
 * `limit`: The limit requested. Default name is limit, disabled by default.
 * `location`: 'body' put the metadata in the response body, 'header' put the metadata in the response header. Default is 'body'.
-* `successStatusCode`: HTTP response status code when returning paginated data, 206 (partial content) by default.
+* `successStatusCode`: HTTP response status code when returning paginated data, undefined by default so the code set by the application prevails.
 
 #### The results
 

@@ -265,7 +265,7 @@ describe('Test with defaults values', () => {
                 method: 'GET',
                 url: '/users'
             }, (res) => {
-                expect(res.statusCode).to.equal(206);
+                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
@@ -1017,7 +1017,7 @@ describe('Override default values', () => {
 
         const options = {
             meta: {
-                successStatusCode: 200
+                successStatusCode: 204
             }
         };
 
@@ -1033,13 +1033,13 @@ describe('Override default values', () => {
                 method: 'GET',
                 url: '/users'
             }, (res) => {
-                expect(res.statusCode).to.equal(200);
+                expect(res.statusCode).to.equal(204);
                 done();
             });
         });
     });
 
-    it('Override the response status code with an unauthorize status code', (done) => {
+    it('Override the response status code with an unauthorized status code', (done) => {
 
         const options = {
             meta: {
