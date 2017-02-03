@@ -99,6 +99,7 @@ You can customize the metadata with the following options:
 * `page`: The page number requested. Default name is page, disabled by default.
 * `limit`: The limit requested. Default name is limit, disabled by default.
 * `location`: 'body' put the metadata in the response body, 'header' put the metadata in the response header. Default is 'body'.
+* `successStatusCode`: HTTP response status code when returning paginated data, undefined by default so the code set by the application prevails.
 
 #### The results
 
@@ -178,7 +179,7 @@ The response will also contains `otherKey` and `otherKey2`. Nested keys for the 
 
 If you pass an object but forgot to pass a key for your results, the paginate method will throw an error. Same thing if the key does not exist.
 
-Please note that if you pass metadata in headers the custom properties don't work, because we don't want to change the response in this case. 
+Please note that if you pass metadata in headers the custom properties don't work, because we don't want to change the response in this case.
 
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
@@ -215,6 +216,7 @@ const options = {
 
     meta: {
         location: 'body',
+        successStatusCode: 206,
         name: 'meta',
         count: {
             active: true,

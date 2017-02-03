@@ -254,6 +254,22 @@ describe('Test with defaults values', () => {
         });
     });
 
+    it('should set the default response status code when data paginated', (done) => {
+
+        const server = register();
+        server.register(require(pluginName), (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users'
+            }, (res) => {
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
 });
 
 describe('Override default values', () => {
@@ -997,6 +1013,85 @@ describe('Override default values', () => {
         });
     });
 
+    it('Override the response status code with a correct value', (done) => {
+
+        const options = {
+            meta: {
+                successStatusCode: 204
+            }
+        };
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users'
+            }, (res) => {
+                expect(res.statusCode).to.equal(204);
+                done();
+            });
+        });
+    });
+
+    it('Override the response status code with an unauthorized status code', (done) => {
+
+        const options = {
+            meta: {
+                successStatusCode: 500
+            }
+        };
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.an.error();
+            done();
+        });
+    });
+
+    it('Override the response status code with an incorrect value', (done) => {
+
+        const options = {
+            meta: {
+                successStatusCode: 'abc'
+            }
+        };
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+            expect(err).to.be.an.error();
+            done();
+        });
+    });
+
+    it('Do not override the response status code if no pagination', (done) => {
+
+        const server = register();
+        server.register({
+            register: require(pluginName)
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users?pagination=false'
+            }, (res) => {
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
 });
 
 describe('Custom route options', () => {
