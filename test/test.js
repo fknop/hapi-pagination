@@ -919,11 +919,11 @@ describe('Override default values', () => {
             expect(headers['Content-Range']).to.equal('5-9/20');
             expect(headers['Link']).to.be.an.array();
             expect(headers['Link']).to.have.length(5);
-            expect(headers['Link'][0]).match(/rel=self$/);
-            expect(headers['Link'][1]).match(/rel=first$/);
-            expect(headers['Link'][2]).match(/rel=last$/);
-            expect(headers['Link'][3]).match(/rel=next$/);
-            expect(headers['Link'][4]).match(/rel=prev$/);
+            expect(headers['Link'][0]).match(/rel="self"$/);
+            expect(headers['Link'][1]).match(/rel="first"$/);
+            expect(headers['Link'][2]).match(/rel="last"$/);
+            expect(headers['Link'][3]).match(/rel="next"$/);
+            expect(headers['Link'][4]).match(/rel="prev"$/);
             expect(response).to.be.an.array();
             expect(response).to.have.length(5);
 
@@ -955,9 +955,9 @@ describe('Override default values', () => {
             expect(headers['Content-Range']).to.equal('0-19/20');
             expect(headers['Link']).to.be.an.array();
             expect(headers['Link']).to.have.length(3);
-            expect(headers['Link'][0]).match(/rel=self$/);
-            expect(headers['Link'][1]).match(/rel=first$/);
-            expect(headers['Link'][2]).match(/rel=last$/);
+            expect(headers['Link'][0]).match(/rel="self"$/);
+            expect(headers['Link'][1]).match(/rel="first"$/);
+            expect(headers['Link'][2]).match(/rel="last"$/);
             expect(response).to.be.an.array();
             expect(response).to.have.length(20);
 
