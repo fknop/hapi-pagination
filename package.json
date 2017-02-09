@@ -21,12 +21,12 @@
   "dependencies": {
     "boom": "^4.2.0",
     "hoek": "^4.0.2",
-    "joi": "^9.0.4"
+    "joi": "^10.2.1"
   },
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^2.11.6",
     "hapi": "^16.1.0",
-    "lab": "^11.0.0"
+    "lab": "^12.1.0"
   }
 }
