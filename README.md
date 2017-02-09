@@ -5,8 +5,7 @@
 [![NPM Version](https://img.shields.io/npm/v/hapi-pagination.svg)](https://npmjs.org/package/hapi-pagination)
 [![Build Status](https://travis-ci.org/fknop/hapi-pagination.svg)](https://travis-ci.org/fknop/hapi-pagination)
 [![Coverage Status](https://coveralls.io/repos/fknop/hapi-pagination/badge.svg?branch=master&service=github)](https://coveralls.io/github/fknop/hapi-pagination?branch=master)
-[![Dependency Status](https://david-dm.org/fknop/hapi-pagination.svg)](https://david-dm.org/fknop/hapi-pagination)
-[![bitHound Overalll Score](https://www.bithound.io/github/fknop/hapi-pagination/badges/score.svg)](https://www.bithound.io/github/fknop/hapi-pagination)
+
 
 Hapi plugin to handle 'custom' resources pagination in json only.
 
