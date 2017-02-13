@@ -806,6 +806,41 @@ describe('Override default values', () => {
         });
     });
 
+    it('Override query parameter pagination - set active to false', (done) => {
+      const options = {
+        query: {
+          limit: {
+            default: 10
+          },
+          pagination: {
+            default: true,
+            active: false
+          }
+        }
+      };
+
+      const server = register();
+      server.register({
+          register: require(pluginName),
+          options: options
+      }, (err) => {
+
+          expect(err).to.be.undefined();
+
+          server.inject({
+              method: 'GET',
+              url: '/users?pagination=false'
+          }, (res) => {
+
+              const response = res.request.response.source;
+              expect(response.results).to.be.an.array();
+              expect(response.results).to.have.length(10);
+
+              done();
+          });
+      });
+    })
+
     it('Override meta - set active to false', (done) => {
 
         const options = {

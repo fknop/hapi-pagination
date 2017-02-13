@@ -50,7 +50,7 @@ these parameters with the following options:
 * `page`: The number of the page that will be returned. Default value is 1,
   default name is page.
 * `pagination`: Allows you to enable, disable pagination for one request. Default
-  value is true (enabled), default name is pagination.
+  value is true (enabled), default name is pagination, enabled by default.
 * `invalid`: This is `NOT` a query parameter, but it allows you to customize the
   behavior if the validation of limit and page fails. By default, it sets the
   defaults, you can set it to 'badRequest' that will send you a `400 - Bad
@@ -210,14 +210,15 @@ const options = {
         },
         pagination: {
             name: 'pagination',
-      default: true
+            default: true,
+            active: true
     }
         invalid: 'defaults'
     },
 
     meta: {
         location: 'body',
-        successStatusCode: 206,
+        successStatusCode: undefined,
         name: 'meta',
         count: {
             active: true,
