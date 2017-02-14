@@ -1095,6 +1095,49 @@ describe('Override default values', () => {
         })
       })
 
+      it('Override meta location - do not set metadata if requested page is out of range', (done) => {
+        const options = {
+          query: {
+            limit: {
+              default: 5
+            },
+            page: {
+              default: 5
+            }
+          },
+          meta: {
+            location: 'header',
+            successStatusCode: 206
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(200)
+
+            const headers = res.request.response.headers;
+            expect(headers['Content-Range']).to.not.exist;
+            expect(headers['Link']).to.not.exist;
+
+            const response = res.request.response.source;
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(0);
+
+            done();
+          })
+        })
+      })
+
     it('use custom baseUri instead of server provided uri', (done) => {
 
         const myCustomUri = 'https://127.0.0.1:81';
