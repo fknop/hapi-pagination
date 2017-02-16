@@ -806,6 +806,41 @@ describe('Override default values', () => {
         });
     });
 
+    it('Override query parameter pagination - set active to false', (done) => {
+      const options = {
+        query: {
+          limit: {
+            default: 10
+          },
+          pagination: {
+            default: true,
+            active: false
+          }
+        }
+      };
+
+      const server = register();
+      server.register({
+          register: require(pluginName),
+          options: options
+      }, (err) => {
+
+          expect(err).to.be.undefined();
+
+          server.inject({
+              method: 'GET',
+              url: '/users?pagination=false'
+          }, (res) => {
+
+              const response = res.request.response.source;
+              expect(response.results).to.be.an.array();
+              expect(response.results).to.have.length(10);
+
+              done();
+          });
+      });
+    })
+
     it('Override meta - set active to false', (done) => {
 
         const options = {
@@ -899,7 +934,8 @@ describe('Override default values', () => {
             }
           },
           meta: {
-            location: 'header'
+            location: 'header',
+            successStatusCode: 206
           }
         };
 
@@ -914,6 +950,8 @@ describe('Override default values', () => {
             method: 'GET',
             url: '/users'
           }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(206)
             const headers = res.request.response.headers;
             const response = res.request.response.source;
             expect(headers['Content-Range']).to.equal('5-9/20');
@@ -935,6 +973,47 @@ describe('Override default values', () => {
       it('Override meta location - move metadata to http headers with unique page', (done) => {
         const options = {
           meta: {
+            location: 'header',
+            successStatusCode: 206
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(200)
+            const headers = res.request.response.headers;
+            const response = res.request.response.source;
+            expect(headers['Content-Range']).to.not.exist;
+            expect(headers['Link']).to.not.exist;
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(20);
+
+            done();
+          })
+        })
+      })
+
+      it('Override meta location - move metadata to http headers with first page', (done) => {
+        const options = {
+          query: {
+            limit: {
+              default: 5
+            },
+            page: {
+              default: 1
+            }
+          },
+          meta: {
             location: 'header'
           }
         };
@@ -950,16 +1029,109 @@ describe('Override default values', () => {
             method: 'GET',
             url: '/users'
           }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(200)
             const headers = res.request.response.headers;
             const response = res.request.response.source;
-            expect(headers['Content-Range']).to.equal('0-19/20');
+            expect(headers['Content-Range']).to.equal('0-4/20');
             expect(headers['Link']).to.be.an.array();
-            expect(headers['Link']).to.have.length(3);
+            expect(headers['Link']).to.have.length(4);
             expect(headers['Link'][0]).match(/rel="self"$/);
             expect(headers['Link'][1]).match(/rel="first"$/);
             expect(headers['Link'][2]).match(/rel="last"$/);
+            expect(headers['Link'][3]).match(/rel="next"$/);
+
             expect(response).to.be.an.array();
-            expect(response).to.have.length(20);
+            expect(response).to.have.length(5);
+
+            done();
+          })
+        })
+      })
+
+      it('Override meta location - move metadata to http headers with last page', (done) => {
+        const options = {
+          query: {
+            limit: {
+              default: 5
+            },
+            page: {
+              default: 4
+            }
+          },
+          meta: {
+            location: 'header'
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(200)
+            const headers = res.request.response.headers;
+            const response = res.request.response.source;
+            expect(headers['Content-Range']).to.equal('15-19/20');
+            expect(headers['Link']).to.be.an.array();
+            expect(headers['Link']).to.have.length(4);
+            expect(headers['Link'][0]).match(/rel="self"$/);
+            expect(headers['Link'][1]).match(/rel="first"$/);
+            expect(headers['Link'][2]).match(/rel="last"$/);
+            expect(headers['Link'][3]).match(/rel="prev"$/);
+
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(5);
+
+            done();
+          })
+        })
+      })
+
+      it('Override meta location - do not set metadata if requested page is out of range', (done) => {
+        const options = {
+          query: {
+            limit: {
+              default: 5
+            },
+            page: {
+              default: 5
+            }
+          },
+          meta: {
+            location: 'header',
+            successStatusCode: 206
+          }
+        };
+
+        const server = register();
+        server.register({
+          register: require(pluginName),
+          options: options
+        }, (err) => {
+          expect(err).to.be.undefined();
+
+          server.inject({
+            method: 'GET',
+            url: '/users'
+          }, (res) => {
+            const statusCode = res.request.response.statusCode
+            expect(statusCode).to.equal(200)
+
+            const headers = res.request.response.headers;
+            expect(headers['Content-Range']).to.not.exist;
+            expect(headers['Link']).to.not.exist;
+
+            const response = res.request.response.source;
+            expect(response).to.be.an.array();
+            expect(response).to.have.length(0);
 
             done();
           })
