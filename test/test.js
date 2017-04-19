@@ -38,6 +38,11 @@ const register = function () {
         handler: (request, reply) => reply.paginate([], 0)
     });
 
+    server.route({
+      method: 'GET',
+      path: '/exception',
+      handler: (request, reply) => { throw new Exception('test'); reply.paginate([], 0); }
+    });
 
 
     server.route({
@@ -2227,6 +2232,23 @@ describe('Empty result set', () => {
             });
         });
     });
+});
+
+describe('Exception', () => {
+  it('Should not continue on exception', (done) => {
+    const server = register();
+    server.register(require(pluginName), (err) => {
+      const request = {
+        method: 'GET',
+        url: '/exception'
+      };
+
+      server.inject(request, (res) => {
+        expect(res.request.respones).to.be.undefined();
+        done();
+      });
+    });
+  });
 });
 
 describe('Override on route level error', () => {
