@@ -41,7 +41,7 @@ const register = function () {
     server.route({
       method: 'GET',
       path: '/exception',
-      handler: (request, reply) => { throw new Exception('test'); reply.paginate([], 0); }
+      handler: (request, reply) => { throw new Error('test'); reply.paginate([], 0); }
     });
 
 
@@ -2242,11 +2242,12 @@ describe('Exception', () => {
         method: 'GET',
         url: '/exception'
       };
-
+      
       server.inject(request, (res) => {
-        expect(res.request.respones).to.be.undefined();
+        expect(res.request.response.statusCode).to.equal(500);
         done();
       });
+    
     });
   });
 });
@@ -2351,3 +2352,39 @@ describe('Override on route level error', () => {
         });
     });
 });
+
+describe('Empty baseUri should give relative url', () => {
+  it('use custom baseUri instead of server provided uri', (done) => {
+
+        const options = {
+            meta: {
+                baseUri: '',
+            }
+        };
+
+        const urlForPage = (page) => ['/users?', 'page=' + page, '&', 'limit=5'];
+
+        const server = register();
+        server.register({
+            register: require(pluginName),
+            options: options
+        }, (err) => {
+
+            expect(err).to.be.undefined();
+
+            server.inject({
+                method: 'GET',
+                url: '/users?limit=5'
+            }, (res) => {
+
+                const response = res.request.response.source;
+                const meta = response.meta;
+                expect(meta.first).to.include(urlForPage(1));
+                expect(meta.first).to.not.include('localhost')
+                expect(meta.self).to.include(urlForPage(1));
+                expect(meta.next).to.include(urlForPage(2));
+                done();
+            });
+        });
+    });
+})

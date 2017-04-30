@@ -82,7 +82,7 @@ You can customize the metadata with the following options:
 
 
 * `name`: The name of the metadata object. Default is 'meta'.
-* `baseUri`: The base uri for the generated links. Default is ''.
+* `baseUri`: The base uri for the generated links. Default is undefined. Relative URI can be achieved with an empty string
 * `count`: The number of rows returned. Default name is count. Enabled by default.
 * `totalCount`: The total numbers of rows available. Default name is totalCount.
   Enabled by default.
