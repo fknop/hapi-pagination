@@ -19,8 +19,8 @@ for (let i = 0; i < 20; ++i) {
     });
 }
 
-const register = function (connections = [{ host: 'localhost' }]) {
-
+const register = function (connections) {
+    connections = connections || [{ host: 'localhost' }];
     const server = new Hapi.Server();
     connections.forEach((connection) => server.connection(connection));
 
