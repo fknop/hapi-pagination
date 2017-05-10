@@ -19,12 +19,10 @@ for (let i = 0; i < 20; ++i) {
     });
 }
 
-const register = function () {
+const register = function (connections = [{ host: 'localhost' }]) {
 
     const server = new Hapi.Server();
-    server.connection({
-        host: 'localhost'
-    });
+    connections.forEach((connection) => server.connection(connection));
 
     server.route({
         method: 'GET',
@@ -193,25 +191,6 @@ const register = function () {
 
     return server;
 };
-
-describe('Register', () => {
-
-    it('fails if too much connections', (done) => {
-
-        const server = register();
-        server.connection({ host: 'newhost' });
-        server.register(require(pluginName), (err) => {
-
-            expect(err).to.exist();
-            expect(err.name).to.equal('ValidationError');
-            expect(err.details.message).to.match(/You cannot register this plugin/);
-            expect(err.details.context).to.have.length(2);
-            done();
-        });
-    });
-
-});
-
 
 describe('Test with defaults values', () => {
 
@@ -2387,4 +2366,60 @@ describe('Empty baseUri should give relative url', () => {
             });
         });
     });
-})
+});
+
+describe('Register on server with multiple connections', () => {
+    it('fails if too many connections without baseUri configuration option', (done) => {
+
+         const server = register([
+            { host: 'localhost', port: 8000, labels: 'first' },
+            { host: 'localhost', port: 9000, labels: 'second' },
+        ]);
+        server.register(require(pluginName), (err) => {
+            expect(err).to.exist();
+            expect(err.name).to.equal('ValidationError');
+            expect(err.details.message).to.match(/You cannot register this plugin/);
+            expect(err.details.context).to.have.length(2);
+            done();
+        });
+    });
+
+    it('returns same result on both connections', (done) => {
+        const options = {
+            meta: {
+                baseUri: '',
+            }
+        };
+
+        const server = register([
+            { host: 'localhost', port: 8000, labels: 'first' },
+            { host: 'localhost', port: 9000, labels: 'second' },
+        ]);
+
+        server.register({
+            register: require(pluginName), 
+            options, 
+        }, (err) => {
+            expect(err).to.be.undefined();
+
+            Promise.all([
+                server.select('first').inject({
+                    method: 'GET',
+                    url: '/users?limit=5'
+                }),
+                server.select('second').inject({
+                    method: 'GET',
+                    url: '/users?limit=5'
+                })
+            ]).then((results) => {
+                const firstResponse = results[0].request.response.source;
+                const secondResponse = results[1].request.response.source;
+                
+                expect(firstResponse).to.include(secondResponse);
+                expect(secondResponse).to.include(firstResponse);
+
+                done();
+            });
+        });
+    });
+});
