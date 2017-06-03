@@ -409,8 +409,8 @@ You don't need this if you don't need to validate anything !
 validate: {
   query: {
     // Your other parameters ...
-    limit: Joi.number.integer(),
-    page: Joi.number.integer(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer(),
     pagination: Joi.boolean()
   }
 }
