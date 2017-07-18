@@ -189,6 +189,18 @@ const register = function (connections) {
         handler: (request, reply) => reply('Works')
     });
 
+    server.route({
+      method: 'GET',
+      path: '/array-exception',
+      handler: (request, reply) => { 
+        const response = reply({
+          message: "Custom Error Message"
+        });
+        response.code(500);
+        return;
+      }
+    });
+
     return server;
 };
 
@@ -2227,6 +2239,23 @@ describe('Exception', () => {
         done();
       });
     
+    });
+  });
+  
+  it('Should not process further if response code is other than 200', (done) => {
+    const server = register();
+    server.register(require(pluginName), (err) => {
+        const request = {
+          method: 'GET',
+          url: '/array-exception'
+        };
+        server.inject(request, (res, err) => {
+          const response = res.request.response.source;
+          const message = response.message;
+          expect(message).to.equal("Custom Error Message");
+          expect(res.request.response.statusCode).to.equal(500);
+          done();
+        });
     });
   });
 });
