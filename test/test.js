@@ -189,6 +189,32 @@ const register = function (connections) {
         handler: (request, reply) => reply('Works')
     });
 
+    server.route({
+      method: 'GET',
+      path: '/array-exception',
+      handler: (request, reply) => { 
+        const response = reply({
+          message: "Custom Error Message"
+        });
+        response.code(500);
+        return;
+      }
+    });
+
+    // Dummy Websocket upgrade request
+    server.route({
+      method: 'GET',
+      path: '/ws-upgrade',
+      handler: (request, reply) => { 
+        // Some WS WORKS for upgrade request
+        const response = reply({
+          message: "WS Upgrade request"
+        });
+        response.code(101);
+        return;
+      }
+    });
+
     return server;
 };
 
@@ -2211,6 +2237,28 @@ describe('Empty result set', () => {
             });
         });
     });
+
+    it('Staus code should be >=200 & <=299', (done) => {
+
+        const server = register();
+        server.register(require(pluginName), (err) => {
+
+            expect(err).to.be.undefined();
+
+            const request = {
+                method: 'GET',
+                url: '/empty'
+            };
+
+            server.inject(request, (res) => {
+
+                const response = res.request.response;
+                expect(response.statusCode).to.be.greaterThan(199);
+                expect(response.statusCode).to.be.lessThan(300);
+                done();
+            });
+        });
+    });
 });
 
 describe('Exception', () => {
@@ -2227,6 +2275,37 @@ describe('Exception', () => {
         done();
       });
     
+    });
+  });
+
+  it('Should not process further if response code is not in 200 - 299 range', (done) => {
+    const server = register();
+    server.register(require(pluginName), (err) => {
+        const request = {
+          method: 'GET',
+          url: '/array-exception'
+        };
+        server.inject(request, (res, err) => {
+          const response = res.request.response.source;
+          const message = response.message;
+          expect(message).to.equal("Custom Error Message");
+          expect(res.request.response.statusCode).to.equal(500);
+          done();
+        });
+    });
+  });
+
+  it('Should not process further if upgrade request is received', (done) => {
+    const server = register();
+    server.register(require(pluginName), (err) => {
+        const request = {
+          method: 'GET',
+          url: '/ws-upgrade'
+        };
+        server.inject(request, (res, err) => {
+          expect(res.request.response.statusCode).to.equal(101);
+          done();
+        });
     });
   });
 });
