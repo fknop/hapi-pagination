@@ -4,6 +4,7 @@ const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
+const Joi  = require('joi');
 
 const describe = lab.describe;
 const it = lab.it;
@@ -213,6 +214,25 @@ const register = function (connections) {
         response.code(101);
         return;
       }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/query-params',
+        config: {
+            validate: {
+                query: {
+                    testDate: Joi.date(),
+                    testArray: Joi.array(),
+                    testObject: Joi.object(),
+                    page: Joi.number(),
+                    limit: Joi.number()
+                },
+            },
+        },
+        handler: (request, reply) => {
+            reply.paginate([{}, {}, {}], 3);
+        }
     });
 
     return server;
@@ -2500,5 +2520,111 @@ describe('Register on server with multiple connections', () => {
                 done();
             });
         });
+    });
+
+    describe('Should include original values of query parameters in pagination urls when Joi validation creates objects', () => {
+        const urlPrefix = 'http://localhost/query-params?';
+        const urlPrefixLen = urlPrefix.length;
+        const expectedCount = 3;
+
+        function splitParams(url) {
+            expect(url).to.startWith(urlPrefix);
+            return url.substr(urlPrefixLen).split('&');
+        }
+
+        it('Should include dates in pagination urls', (done) => {
+            const dateQuery = 'testDate=1983-01-27';
+
+            const server = register();
+            server.register(require(pluginName), (err) => {
+
+                expect(err).to.be.undefined();
+
+                const request = {
+                    method: 'GET',
+                    url: `/query-params?${dateQuery}&page=2&limit=1`
+                };
+
+                server.inject(request, (res) => {
+                    expect(res.request.query.testDate).to.be.a.date();
+                    expect(res.request.query.testDate.toISOString()).to.equal('1983-01-27T00:00:00.000Z');
+
+                    const response = res.request.response.source;
+                    expect(response.meta.count).to.equal(expectedCount);
+                    expect(response.meta.pageCount).to.equal(expectedCount);
+                    expect(response.meta.totalCount).to.equal(expectedCount);
+                    expect(splitParams(response.meta.next)).to.include(dateQuery);
+                    expect(splitParams(response.meta.previous)).to.include(dateQuery);
+                    expect(splitParams(response.meta.self)).to.include(dateQuery);
+                    expect(splitParams(response.meta.first)).to.include(dateQuery);
+                    expect(splitParams(response.meta.last)).to.include(dateQuery);
+
+                    done();
+                });
+            });
+        });
+
+        it('Should include arrays in pagination urls', (done) => {
+            const arrayQuery = `testArray=${encodeURIComponent('[3,4]')}`;
+
+            const server = register();
+            server.register(require(pluginName), (err) => {
+
+                expect(err).to.be.undefined();
+
+                const request = {
+                    method: 'GET',
+                    url: `/query-params?${arrayQuery}&page=2&limit=1`
+                };
+
+                server.inject(request, (res) => {
+                    expect(res.request.query.testArray).to.be.an.array().and.only.include([3,4]);
+
+                    const response = res.request.response.source;
+                    expect(response.meta.count).to.equal(expectedCount);
+                    expect(response.meta.pageCount).to.equal(expectedCount);
+                    expect(response.meta.totalCount).to.equal(expectedCount);
+                    expect(splitParams(response.meta.next)).to.include(arrayQuery);
+                    expect(splitParams(response.meta.previous)).to.include(arrayQuery);
+                    expect(splitParams(response.meta.self)).to.include(arrayQuery);
+                    expect(splitParams(response.meta.first)).to.include(arrayQuery);
+                    expect(splitParams(response.meta.last)).to.include(arrayQuery);
+
+                    done();
+                });
+            });
+        });
+
+        it('Should include objects in pagination urls', (done) => {
+            const objectQuery = `testObject=${encodeURIComponent(JSON.stringify({a:1, b:2}))}`;
+
+            const server = register();
+            server.register(require(pluginName), (err) => {
+
+                expect(err).to.be.undefined();
+
+                const request = {
+                    method: 'GET',
+                    url: `/query-params?${objectQuery}&page=2&limit=1`
+                };
+
+                server.inject(request, (res) => {
+                    expect(res.request.query.testObject).to.be.an.object().and.only.include({a:1, b:2});
+
+                    const response = res.request.response.source;
+                    expect(response.meta.count).to.equal(expectedCount);
+                    expect(response.meta.pageCount).to.equal(expectedCount);
+                    expect(response.meta.totalCount).to.equal(expectedCount);
+                    expect(splitParams(response.meta.next)).to.include(objectQuery);
+                    expect(splitParams(response.meta.previous)).to.include(objectQuery);
+                    expect(splitParams(response.meta.self)).to.include(objectQuery);
+                    expect(splitParams(response.meta.first)).to.include(objectQuery);
+                    expect(splitParams(response.meta.last)).to.include(objectQuery);
+
+                    done();
+                });
+            });
+        });
+
     });
 });
