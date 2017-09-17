@@ -24,7 +24,7 @@
     "joi": "^10.2.1"
   },
   "devDependencies": {
-    "code": "^4.0.0",
+    "code": "^5.1.0",
     "coveralls": "^2.11.6",
     "hapi": "^16.4.3",
     "lab": "^13.1.0"
