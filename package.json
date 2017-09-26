@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "boom": "^5.0.0",
-    "hoek": "^4.0.2",
+    "hoek": "^5.0.0",
     "joi": "^10.2.1"
   },
   "devDependencies": {
