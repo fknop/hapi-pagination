@@ -21,7 +21,7 @@
   "dependencies": {
     "boom": "^5.0.0",
     "hoek": "^4.0.2",
-    "joi": "^10.2.1"
+    "joi": "^11.3.3"
   },
   "devDependencies": {
     "code": "^4.0.0",
