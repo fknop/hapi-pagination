@@ -62,7 +62,6 @@ const register = function () {
                 response.push(users[i]);
             }
 
-
             if (pagination) {
                 return reply.paginate(response, users.length);
             }
@@ -120,7 +119,7 @@ const register = function () {
                 response[resultsKey].push(users[i]);
             }
 
-            return reply(response);
+            return reply.response(response);
         }
     });
 
@@ -379,311 +378,262 @@ describe('Override default values', () => {
     });
 
 
-    // });
-
-    // it('Override defaults routes with regex in include', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: [/^\/u.*s$/]
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.equal(25);
-    //             expect(query.page).to.equal(1);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override defaults routes with both regex and string in include', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: [/^\/hello$/, '/users']
-    //         }
-
-    //     };
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.equal(25);
-    //             expect(query.page).to.equal(1);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override defaults routes with regex in include without a match', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: [/^\/hello.*$/]
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.be.undefined();
-    //             expect(query.page).to.be.undefined();
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override defaults routes with exclude', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: ['*'],
-    //             exclude: ['/']
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.be.undefined();
-    //             expect(query.page).to.be.undefined();
-
-    //             
-    //         });
-    //     });
-
-
-    // });
-
-    // it('Override defaults routes with exclude 2', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: ['/users'],
-    //             exclude: ['/']
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.be.undefined();
-    //             expect(query.page).to.be.undefined();
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override defaults routes with regex in exclude', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: ['*'],
-    //             exclude: [/^\/.*/]
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.be.undefined();
-    //             expect(query.page).to.be.undefined();
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override defaults routes with both regex and string in exclude', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: ['*'],
-    //             exclude: [/^nothing/, '/']
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.be.undefined();
-    //             expect(query.page).to.be.undefined();
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override results name', async () => {
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options: {
-    //             results: {
-    //                 name: 'rows'
-    //             }
-    //         }
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-    //         server.inject({
-    //             url: '/users?limit=12',
-    //             method: 'GET'
-    //         }, (res) => {
-
-    //             expect(res.request.response.source.rows).to.be.an.array();
-    //             expect(res.request.response.source.rows).to.have.length(12);
-    //             
-    //         });
-
-    //     });
-    // });
-
-    // it('Override reply parametr (results) name', async () => {
-
-    //     const resultsKey = 'rows';
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options: {
-    //             reply: {
-    //                 parameters: {
-    //                     results: {
-    //                         name: 'rows'
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-    //         server.inject({
-    //             url: '/users3?limit=12&resultsKey=' + resultsKey,
-    //             method: 'GET'
-    //         }, (res) => {
-
-    //             expect(res.request.response.source.results).to.be.an.array();
-    //             expect(res.request.response.source.results).to.have.length(12);
-    //             
-    //         });
-
-    //     });
-    // });
-
-    // it('Override reply parametr (totalCount) name', async () => {
-
-    //     const totalCountKey = 'total';
-
-    //     const server = register();
-    //     server.register({
-    //         register: require(pluginName),
-    //         options: {
-    //             reply: {
-    //                 parameters: {
-    //                     totalCount: {
-    //                         name: 'total'
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-    //         server.inject({
-    //             url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
-    //             method: 'GET'
-    //         }, (res) => {
-
-    //             expect(res.request.response.source.meta.totalCount).to.equal(users.length);
-    //             
-    //         });
-
-    //     });
-    // });
+    it('Override defaults routes with regex in include', async () => {
+
+        const options = {
+            routes: {
+                include: [/^\/u.*s$/]
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.equal(25);
+        expect(query.page).to.equal(1);
+    });
+
+    it('Override defaults routes with both regex and string in include', async () => {
+
+        const options = {
+            routes: {
+                include: [/^\/hello$/, '/users']
+            }
+
+        };
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+        const query = res.request.query;
+        expect(query.limit).to.equal(25);
+        expect(query.page).to.equal(1);
+
+
+    });
+
+    it('Override defaults routes with regex in include without a match', async () => {
+
+        const options = {
+            routes: {
+                include: [/^\/hello.*$/]
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
+
+    });
+
+    it('Override defaults routes with exclude', async () => {
+
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: ['/']
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        })
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
+
+    });
+
+    it('Override defaults routes with exclude 2', async () => {
+
+        const options = {
+            routes: {
+                include: ['/users'],
+                exclude: ['/']
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
+
+    });
+
+    it('Override defaults routes with regex in exclude', async () => {
+
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^\/.*/]
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
+    });
+
+    it('Override defaults routes with both regex and string in exclude', async () => {
+
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^nothing/, '/']
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
+
+
+    });
+
+    it('Override results name', async () => {
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                results: {
+                    name: 'rows'
+                }
+            }
+        });
+
+        const res = await server.inject({
+            url: '/users?limit=12',
+            method: 'GET'
+        });
+
+
+        expect(res.request.response.source.rows).to.be.an.array();
+        expect(res.request.response.source.rows).to.have.length(12);
+
+    });
+
+    it('Override reply parametr (results) name', async () => {
+
+        const resultsKey = 'rows';
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                reply: {
+                    parameters: {
+                        results: {
+                            name: 'rows'
+                        }
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            url: '/users3?limit=12&resultsKey=' + resultsKey,
+            method: 'GET'
+        });
+
+        expect(res.request.response.source.results).to.be.an.array();
+        expect(res.request.response.source.results).to.have.length(12);
+
+
+    });
+
+    it('Override reply parametr (totalCount) name', async () => {
+
+        const totalCountKey = 'total';
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                reply: {
+                    parameters: {
+                        totalCount: {
+                            name: 'total'
+                        }
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            url: '/users3?limit=12&resultsKey=results&totalCountKey=' + totalCountKey,
+            method: 'GET'
+        });
+
+        expect(res.request.response.source.meta.totalCount).to.equal(users.length);
+    });
 
     // it('Override defaults routes with regex without a match', async () => {
 
@@ -696,7 +646,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -772,7 +722,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -823,7 +773,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -889,7 +839,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -943,7 +893,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.undefined();
@@ -982,7 +932,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.undefined();
@@ -1022,7 +972,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.undefined();
@@ -1068,7 +1018,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.undefined();
@@ -1115,7 +1065,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.undefined();
@@ -1167,7 +1117,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -1197,7 +1147,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
 
@@ -1223,7 +1173,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.an.error();
@@ -1241,7 +1191,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName),
+    //         plugin: require(pluginName),
     //         options
     //     }, (err) => {
     //         expect(err).to.be.an.error();
@@ -1253,7 +1203,7 @@ describe('Override default values', () => {
 
     //     const server = register();
     //     server.register({
-    //         register: require(pluginName)
+    //         plugin: require(pluginName)
     //     }, (err) => {
     //         expect(err).to.be.undefined();
 
@@ -1280,7 +1230,7 @@ describe('Override default values', () => {
 
 //         const server = register();
 //         server.register({
-//             register: require(pluginName),
+//             plugin: require(pluginName),
 //             options
 //         }, (err) => {
 
@@ -1310,7 +1260,7 @@ describe('Override default values', () => {
 
 //         const server = register();
 //         server.register({
-//             register: require(pluginName),
+//             plugin: require(pluginName),
 //             options
 //         }, (err) => {
 
@@ -1472,7 +1422,7 @@ describe('Override default values', () => {
     //         const server = register();
 
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 query: {
     //                     invalid: 'badRequest'
@@ -1499,7 +1449,7 @@ describe('Override default values', () => {
     //         const server = register();
 
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 query: {
     //                     invalid: 'badRequest'
@@ -1526,7 +1476,7 @@ describe('Override default values', () => {
     //         const server = register();
 
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
@@ -1568,7 +1518,7 @@ describe('Override default values', () => {
     //         const server = register();
 
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
@@ -1628,7 +1578,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
     //                     hasPrevious: {
@@ -1786,7 +1736,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 query: {
     //                     pagination: {
@@ -1866,7 +1816,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
@@ -1962,7 +1912,7 @@ describe('Override default values', () => {
     //         };
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
@@ -2005,7 +1955,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 query: {
     //                     limit: {
@@ -2024,7 +1974,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
     //                     name: 0
@@ -2041,7 +1991,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 query: {
     //                     limit: {
@@ -2060,7 +2010,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
     //                     totalCount: {
@@ -2416,7 +2366,7 @@ describe('Override default values', () => {
 
     //         const server = register();
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
@@ -2468,7 +2418,7 @@ describe('Override default values', () => {
     //         ]);
 
     //         server.register({
-    //             register: require(pluginName),
+    //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
     //             expect(err).to.be.undefined();
