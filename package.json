@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/lab -v -t 100",
-    "lint": "node_modules/.bin/lab -L",
+    "lint": "node_modules/.bin/lab -L --lint-fix",
     "cover": "node_modules/.bin/lab -s -r lcov | coveralls"
   },
   "keywords": [
@@ -20,13 +20,13 @@
   },
   "dependencies": {
     "boom": "^5.0.0",
+    "hapi": "^17.1.1",
     "hoek": "^4.0.2",
     "joi": "^10.2.1"
   },
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^2.11.6",
-    "hapi": "^16.4.3",
     "lab": "^13.1.0"
   }
 }
