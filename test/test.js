@@ -132,7 +132,7 @@ const register = function () {
                     enabled: true
                 }
             },
-            handler: (request, reply) => reply([])
+            handler: (request, reply) => []
         }
     });
 
@@ -145,7 +145,7 @@ const register = function () {
                     enabled: false
                 }
             },
-            handler: (request, reply) => reply([])
+            handler: (request, reply) => []
         }
     });
 
@@ -183,7 +183,7 @@ const register = function () {
                 return reply.paginate(response, users.length);
             }
 
-            return reply(users);
+            return reply.response(users);
         }
     });
 
@@ -1175,324 +1175,270 @@ describe('Override default values', () => {
     });
 });
 
-// describe('Custom route options', () => {
+describe('Custom route options', () => {
 
-//     it('Force a route to include pagination', async () => {
+    it('Force a route to include pagination', async () => {
 
-//         const options = {
-//             routes: {
-//                 exclude: ['/enabled']
-//             }
-//         };
+        const options = {
+            routes: {
+                exclude: ['/enabled']
+            }
+        };
 
-//         const server = register();
-//         await server.register({
-//             plugin: require(pluginName),
-//             options
-//         }, (err) => {
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
 
-//             expect(err).to.be.undefined();
+        const res = await server.inject({
+            method: 'GET',
+            url: '/enabled'
+        });
 
-//             await server.inject({
-//                 method: 'GET',
-//                 url: '/enabled'
-//             }, (res) => {
+        const query = res.request.query;
+        expect(query.limit).to.equal(25);
+        expect(query.page).to.equal(1);
 
-//                 const query = res.request.query;
-//                 expect(query.limit).to.equal(25);
-//                 expect(query.page).to.equal(1);
+    });
 
-//                 
-//             });
-//         });
-//     });
+    it('Force a route to exclude pagination', async () => {
 
-//     it('Force a route to exclude pagination', async () => {
+        const options = {
+            routes: {
+                include: ['/disabled']
+            }
+        };
 
-//         const options = {
-//             routes: {
-//                 include: ['/disabled']
-//             }
-//         };
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
 
-//         const server = register();
-//         await server.register({
-//             plugin: require(pluginName),
-//             options
-//         }, (err) => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/disabled'
+        });
 
-//             expect(err).to.be.undefined();
+        const query = res.request.query;
+        expect(query.limit).to.be.undefined();
+        expect(query.page).to.be.undefined();
 
-//             await server.inject({
-//                 method: 'GET',
-//                 url: '/disabled'
-//             }, (res) => {
+    });
 
-//                 const query = res.request.query;
-//                 expect(query.limit).to.be.undefined();
-//                 expect(query.page).to.be.undefined();
+});
 
-//                 
-//             });
-//         });
 
+describe('Override on route level', () => {
 
-//     });
-// });
+    it('Overriden defaults on route level with pagination to false', async () => {
 
+        const server = register();
 
-    // describe('Override on route level', () => {
+        await server.register(require(pluginName));
 
-    //     it('Overriden defaults on route level with pagination to false', async () => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/defaults'
+        });
 
-    //         const server = register();
+        expect(res.request.response.source).to.be.an.array();
+        expect(res.request.response.source).to.have.length(20);
 
-    //         server.register(require(pluginName), (err) => {
+    });
 
-    //             expect(err).to.be.undefined();
+    it('Overriden defaults on route level with pagination to true', async () => {
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/defaults'
-    //             }, (res) => {
+        const server = register();
 
-    //                 expect(res.request.response.source).to.be.an.array();
-    //                 expect(res.request.response.source).to.have.length(20);
-    //                 
-    //             });
-    //         });
+        await server.register(require(pluginName));
 
-    //     });
+        const res = await server.inject({
+            method: 'GET',
+            url: '/defaults?pagination=true'
+        });
 
-    //     it('Overriden defaults on route level with pagination to true', async () => {
+        const response = res.request.response.source;
+        expect(response).to.be.an.object();
+        expect(response.results).to.have.length(10);
+        expect(response.meta.totalCount).to.equal(20);
+        expect(res.request.query.limit).to.equal(10);
+        expect(res.request.query.page).to.equal(2);
 
-    //         const server = register();
+    });
 
-    //         server.register(require(pluginName), (err) => {
+    it('Overriden defaults on route level with limit and page to 5 and 1', async () => {
 
-    //             expect(err).to.be.undefined();
+        const server = register();
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/defaults?pagination=true'
-    //             }, (res) => {
+        await server.register(require(pluginName));
 
-    //                 const response = res.request.response.source;
-    //                 expect(response).to.be.an.object();
-    //                 expect(response.results).to.have.length(10);
-    //                 expect(response.meta.totalCount).to.equal(20);
-    //                 expect(res.request.query.limit).to.equal(10);
-    //                 expect(res.request.query.page).to.equal(2);
-    //                 
-    //             });
-    //         });
 
-    //     });
+        const res = await server.inject({
+            method: 'GET',
+            url: '/defaults?pagination=true&page=1&limit=5'
+        });
 
-    //     it('Overriden defaults on route level with limit and page to 5 and 1', async () => {
+        const response = res.request.response.source;
+        expect(response).to.be.an.object();
+        expect(response.results).to.have.length(5);
+        expect(response.meta.totalCount).to.equal(20);
+        expect(res.request.query.limit).to.equal(5);
+        expect(res.request.query.page).to.equal(1);
+    });
 
-    //         const server = register();
+});
 
-    //         server.register(require(pluginName), (err) => {
 
-    //             expect(err).to.be.undefined();
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/defaults?pagination=true&page=1&limit=5'
-    //             }, (res) => {
+describe('Passing page and limit as query parameters', () => {
 
-    //                 const response = res.request.response.source;
-    //                 expect(response).to.be.an.object();
-    //                 expect(response.results).to.have.length(5);
-    //                 expect(response.meta.totalCount).to.equal(20);
-    //                 expect(res.request.query.limit).to.equal(5);
-    //                 expect(res.request.query.page).to.equal(1);
-    //                 
-    //             });
-    //         });
+    const options = {
+        query: {
+            limit: {
+                default: 5,
+                name: 'myLimit'
+            },
+            page: {
+                default: 2,
+                name: 'myPage'
+            }
+        }
+    };
 
-    //     });
+    it('Passing limit', async () => {
 
-    // });
+        const server = register();
 
+        server.register(require(pluginName));
 
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?limit=5'
+        });
 
-    // describe('Passing page and limit as query parameters', () => {
+        expect(res.request.query.limit).to.equal(5);
+        expect(res.request.query.page).to.equal(1);
 
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 5,
-    //                 name: 'myLimit'
-    //             },
-    //             page: {
-    //                 default: 2,
-    //                 name: 'myPage'
-    //             }
-    //         }
-    //     };
 
-    //     it('Passing limit', async () => {
+    });
 
-    //         const server = register();
+    it('Wrong limit and page should return the defaults', async () => {
 
-    //         server.register(require(pluginName), (err) => {
+        const server = register();
 
-    //             expect(err).to.be.undefined();
+        await server.register(require(pluginName));
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?limit=5'
-    //             }, (res) => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?limit=abc10&page=c2'
+        });
 
-    //                 expect(res.request.query.limit).to.equal(5);
-    //                 expect(res.request.query.page).to.equal(1);
-    //                 
-    //             });
-    //         });
-    //     });
+        expect(res.request.query.limit).to.equal(25);
+        expect(res.request.query.page).to.equal(1);
 
-    //     it('Wrong limit and page should return the defaults', async () => {
+    });
 
-    //         const server = register();
+    it('Wrong limit with badRequest behavior should return 400 bad request', async () => {
 
-    //         server.register(require(pluginName), (err) => {
+        const server = register();
 
-    //             expect(err).to.be.undefined();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                query: {
+                    invalid: 'badRequest'
+                }
+            }
+        });
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?limit=abc10&page=c2'
-    //             }, (res) => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?limit=abc10'
+        });
 
-    //                 expect(res.request.query.limit).to.equal(25);
-    //                 expect(res.request.query.page).to.equal(1);
-    //                 
-    //             });
-    //         });
+        expect(res.request.response.source.statusCode).to.equal(400);
+        expect(res.request.response.statusCode).to.equal(400);
+    });
 
-    //     });
+    it('Wrong page with badRequest behavior should return 400 bad request', async () => {
 
-    //     it('Wrong limit with badRequest behavior should return 400 bad request', async () => {
+        const server = register();
 
-    //         const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                query: {
+                    invalid: 'badRequest'
+                }
+            }
+        });
 
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 query: {
-    //                     invalid: 'badRequest'
-    //                 }
-    //             }
-    //         }, (err) => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?page=abc10'
+        });
 
-    //             expect(err).to.be.undefined();
+        expect(res.request.response.source.statusCode).to.equal(400);
+        expect(res.request.response.statusCode).to.equal(400);
+    });
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?limit=abc10'
-    //             }, (res) => {
+    it('Overriding and passing limit', async () => {
 
-    //                 expect(res.request.response.source.statusCode).to.equal(400);
-    //                 expect(res.request.response.statusCode).to.equal(400);
-    //                 
-    //             });
-    //         });
-    //     });
+        const server = register();
 
-    //     it('Wrong page with badRequest behavior should return 400 bad request', async () => {
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
 
-    //         const server = register();
 
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 query: {
-    //                     invalid: 'badRequest'
-    //                 }
-    //             }
-    //         }, (err) => {
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?myLimit=7'
+        });
 
-    //             expect(err).to.be.undefined();
+        expect(res.request.query[options.query.limit.name]).to.equal(7);
+        expect(res.request.query[options.query.page.name]).to.equal(2);
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?page=abc10'
-    //             }, (res) => {
+    });
 
-    //                 expect(res.request.response.source.statusCode).to.equal(400);
-    //                 expect(res.request.response.statusCode).to.equal(400);
-    //                 
-    //             });
-    //         });
-    //     });
+    it('Passing page', async () => {
 
-    //     it('Overriding and passing limit', async () => {
+        const server = register();
 
-    //         const server = register();
+        await server.register(require(pluginName));
 
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
 
-    //             expect(err).to.be.undefined();
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?page=5'
+        });
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?myLimit=7'
-    //             }, (res) => {
+        expect(res.request.query.page).to.equal(5);
 
-    //                 expect(res.request.query[options.query.limit.name]).to.equal(7);
-    //                 expect(res.request.query[options.query.page.name]).to.equal(2);
-    //                 
-    //             });
-    //         });
-    //     });
+    });
 
-    //     it('Passing page', async () => {
+    it('Overriding and passing page', async () => {
 
-    //         const server = register();
+        const server = register();
 
-    //         server.register(require(pluginName), (err) => {
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
 
-    //             expect(err).to.be.undefined();
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?myPage=5'
+        });
 
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?page=5'
-    //             }, (res) => {
+        expect(res.request.query[options.query.limit.name]).to.equal(5);
+        expect(res.request.query[options.query.page.name]).to.equal(5);
 
-    //                 expect(res.request.query.page).to.equal(5);
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     it('Overriding and passing page', async () => {
-
-    //         const server = register();
-
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?myPage=5'
-    //             }, (res) => {
-
-    //                 expect(res.request.query[options.query.limit.name]).to.equal(5);
-    //                 expect(res.request.query[options.query.page.name]).to.equal(5);
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
+    });
+});
 
     // describe('Test /users route', () => {
 
