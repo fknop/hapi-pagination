@@ -94,7 +94,7 @@ const register = function () {
                     { key: 'results' });
             }
 
-            return reply(users);
+            return reply.response(users);
         }
     });
 
@@ -197,11 +197,9 @@ const register = function () {
         method: 'GET',
         path: '/array-exception',
         handler: (request, reply) => {
-            const response = reply({
+            return reply.response({
                 message: 'Custom Error Message'
-            });
-            response.code(500);
-            return;
+            }).code(500);
         }
     });
 
@@ -211,11 +209,9 @@ const register = function () {
         path: '/ws-upgrade',
         handler: (request, reply) => {
             // Some WS WORKS for upgrade request
-            const response = reply({
+            return reply.response({
                 message: 'WS Upgrade request'
-            });
-            response.code(101);
-            return;
+            }).code(101);
         }
     });
 
@@ -234,7 +230,7 @@ const register = function () {
             }
         },
         handler: (request, reply) => {
-            reply.paginate([{}, {}, {}], 3);
+            return reply.paginate([{}, {}, {}], 3);
         }
     });
 
@@ -1891,527 +1887,420 @@ describe('Wrong options', () => {
     });
 });
 
-    // describe('Results with other keys', () => {
+describe('Results with other keys', () => {
 
-    //     it('Should returns the response with the original response keys', async () => {
+    it('Should return the response with the original response keys', async () => {
 
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
+        const server = register();
+        await server.register(require(pluginName));
 
-    //             expect(err).to.be.undefined();
+        const request = {
+            method: 'GET',
+            url: '/users2'
+        };
 
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/users2'
-    //             };
+        const res = await server.inject(request);
 
-    //             server.inject(request, (res) => {
+        const response = res.request.response.source;
+        expect(response.otherKey).to.equal('otherKey');
+        expect(response.otherKey2).to.equal('otherKey2');
+        expect(response.meta).to.exists();
+        expect(response.results).to.exists();
 
-    //                 const response = res.request.response.source;
-    //                 expect(response.otherKey).to.equal('otherKey');
-    //                 expect(response.otherKey2).to.equal('otherKey2');
-    //                 expect(response.meta).to.exists();
-    //                 expect(response.results).to.exists();
-    //                 
-    //             });
-    //         });
-    //     });
+    });
 
-    //     it('Should throw an error', async () => {
+    it('Should return an internal server error', async () => {
 
-    //         const server = register();
+        const server = register();
 
 
-    //         server.register(require(pluginName), (err) => {
+        await server.register(require(pluginName));
 
-    //             expect(err).to.be.undefined();
 
-    //             server.route({
-    //                 method: 'GET',
-    //                 path: '/error',
-    //                 handler: (request, reply) => {
+        server.route({
+            method: 'GET',
+            path: '/error',
+            handler: async (request, reply) => {
+                return reply.paginate({ results: [] }, 0);
+            }
+        });
 
-    //                     return reply.paginate({ results: [] }, 0);
+        const request = {
+            method: 'GET',
+            url: '/error'
+        };
 
-    //                 }
-    //             });
+        const res = await server.inject(request);
 
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/error'
-    //             };
+        expect(res.request.response.statusCode).to.equal(500);
 
-    //             expect(() => {
+    });
 
-    //                 server.inject(request, () => { });
-    //             }).to.throw();
-    //             
-    //         });
-    //     });
+    it('Should return an internal server error #2', async () => {
 
-    //     it('Should throw an error #2', async () => {
+        const server = register();
 
-    //         const server = register();
 
+        await server.register(require(pluginName));
 
-    //         server.register(require(pluginName), (err) => {
 
-    //             expect(err).to.be.undefined();
+        server.route({
+            method: 'GET',
+            path: '/error',
+            handler: (request, reply) => {
+                return reply.paginate({ results: [] }, 0, { key: 'res' });
+            }
+        });
 
-    //             server.route({
-    //                 method: 'GET',
-    //                 path: '/error',
-    //                 handler: (request, reply) => {
+        const request = {
+            method: 'GET',
+            url: '/error'
+        };
 
-    //                     return reply.paginate({ results: [] }, 0, { key: 'res' });
+        const res = await server.inject(request);
 
-    //                 }
-    //             });
+        expect(res.request.response.statusCode).to.equal(500);
+    });
 
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/error'
-    //             };
+    it('Should not override meta and results', async () => {
 
-    //             expect(() => {
+        const server = register();
 
-    //                 server.inject(request, () => { });
-    //             }).to.throw();
-    //             
-    //         });
-    //     });
+        await server.register(require(pluginName));
 
-    //     it('Should not override meta and results', async () => {
+        server.route({
+            method: 'GET',
+            path: '/nooverride',
+            handler: (request, reply) => {
+                return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
+            }
+        });
 
-    //         const server = register();
+        const request = {
+            method: 'GET',
+            url: '/nooverride'
+        };
 
+        const res = await server.inject(request);
 
-    //         server.register(require(pluginName), (err) => {
+        const response = res.request.response.source;
+        expect(response.meta).to.not.equal('meta');
+        expect(response.results).to.not.equal('results');
 
-    //             expect(err).to.be.undefined();
+    });
+});
 
-    //             server.route({
-    //                 method: 'GET',
-    //                 path: '/nooverride',
-    //                 handler: (request, reply) => {
+describe('Empty result set', () => {
 
-    //                     return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
-
-    //                 }
-    //             });
-
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/nooverride'
-    //             };
-
-
-    //             server.inject(request, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 expect(response.meta).to.not.equal('meta');
-    //                 expect(response.results).to.not.equal('results');
-    //                 
-    //             });
-    //         });
-    //     });
-
-
-    // });
-
-    // describe('Empty result set', () => {
-
-    //     it('Counts should be 0', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/empty'
-    //             };
-
-    //             server.inject(request, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 expect(response.meta.totalCount).to.equal(0);
-    //                 expect(response.meta.pageCount).to.equal(0);
-    //                 expect(response.meta.count).to.equal(0);
-
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     it('Staus code should be >=200 & <=299', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/empty'
-    //             };
-
-    //             server.inject(request, (res) => {
-
-    //                 const response = res.request.response;
-    //                 expect(response.statusCode).to.be.greaterThan(199);
-    //                 expect(response.statusCode).to.be.lessThan(300);
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Exception', () => {
-    //     it('Should not continue on exception', async () => {
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/exception'
-    //             };
-
-    //             server.inject(request, (res) => {
-    //                 expect(res.request.response.statusCode).to.equal(500);
-    //                 
-    //             });
-
-    //         });
-    //     });
-
-    //     it('Should not process further if response code is not in 200 - 299 range', async () => {
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/array-exception'
-    //             };
-    //             server.inject(request, (res, err) => {
-    //                 const response = res.request.response.source;
-    //                 const message = response.message;
-    //                 expect(message).to.equal('Custom Error Message');
-    //                 expect(res.request.response.statusCode).to.equal(500);
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     it('Should not process further if upgrade request is received', async () => {
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-    //             const request = {
-    //                 method: 'GET',
-    //                 url: '/ws-upgrade'
-    //             };
-    //             server.inject(request, (res, err) => {
-    //                 expect(res.request.response.statusCode).to.equal(101);
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Override on route level error', () => {
-
-    //     it('Should return an error', async () => {
-
-    //         const server = register();
-    //         server.route({
-    //             path: '/error',
-    //             method: 'GET',
-    //             config: {
-    //                 plugins: {
-    //                     pagination: {
-    //                         defaults: {
-    //                             limit: 'a'
-    //                         }
-    //                     }
-    //                 },
-    //                 handler: (request, reply) => reply()
-    //             }
-    //         });
-
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error', async () => {
-
-    //         const server = register();
-    //         server.route({
-    //             path: '/error',
-    //             method: 'GET',
-    //             config: {
-    //                 plugins: {
-    //                     pagination: {
-    //                         defaults: {
-    //                             page: 'a'
-    //                         }
-    //                     }
-    //                 },
-    //                 handler: (request, reply) => reply()
-    //             }
-    //         });
-
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error', async () => {
-
-    //         const server = register();
-    //         server.route({
-    //             path: '/error',
-    //             method: 'GET',
-    //             config: {
-    //                 plugins: {
-    //                     pagination: {
-    //                         defaults: {
-    //                             pagination: 'a'
-    //                         }
-    //                     }
-    //                 },
-    //                 handler: (request, reply) => reply()
-    //             }
-    //         });
-
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error', async () => {
-
-    //         const server = register();
-    //         server.route({
-    //             path: '/error',
-    //             method: 'GET',
-    //             config: {
-    //                 plugins: {
-    //                     pagination: {
-    //                         enabled: 'a'
-    //                     }
-    //                 },
-    //                 handler: (request, reply) => reply()
-    //             }
-    //         });
-
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-    // });
-
-    // describe('Empty baseUri should give relative url', () => {
-    //     it('use custom baseUri instead of server provided uri', async () => {
-
-    //         const options = {
-    //             meta: {
-    //                 baseUri: ''
-    //             }
-    //         };
-
-    //         const urlForPage = (page) => ['/users?', 'page=' + page, '&', 'limit=5'];
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?limit=5'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
-    //                 expect(meta.first).to.include(urlForPage(1));
-    //                 expect(meta.first).to.not.include('localhost');
-    //                 expect(meta.self).to.include(urlForPage(1));
-    //                 expect(meta.next).to.include(urlForPage(2));
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Register on server with multiple connections', () => {
-    //     it('fails if too many connections without baseUri configuration option', async () => {
-
-    //         const server = register([
-    //             { host: 'localhost', port: 8000, labels: 'first' },
-    //             { host: 'localhost', port: 9000, labels: 'second' }
-    //         ]);
-    //         server.register(require(pluginName), (err) => {
-    //             expect(err).to.exist();
-    //             expect(err.name).to.equal('ValidationError');
-    //             expect(err.details.message).to.match(/You cannot register this plugin/);
-    //             expect(err.details.context).to.have.length(2);
-    //             
-    //         });
-    //     });
-
-    //     it('returns same result on both connections', async () => {
-    //         const options = {
-    //             meta: {
-    //                 baseUri: ''
-    //             }
-    //         };
-
-    //         const server = register([
-    //             { host: 'localhost', port: 8000, labels: 'first' },
-    //             { host: 'localhost', port: 9000, labels: 'second' }
-    //         ]);
-
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
-    //             expect(err).to.be.undefined();
-
-    //             Promise.all([
-    //                 server.select('first').inject({
-    //                     method: 'GET',
-    //                     url: '/users?limit=5'
-    //                 }),
-    //                 server.select('second').inject({
-    //                     method: 'GET',
-    //                     url: '/users?limit=5'
-    //                 })
-    //             ]).then((results) => {
-    //                 const firstResponse = results[0].request.response.source;
-    //                 const secondResponse = results[1].request.response.source;
-
-    //                 expect(firstResponse).to.include(secondResponse);
-    //                 expect(secondResponse).to.include(firstResponse);
-
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     describe('Should include original values of query parameters in pagination urls when Joi validation creates objects', () => {
-    //         const urlPrefix = 'http://localhost/query-params?';
-    //         const urlPrefixLen = urlPrefix.length;
-    //         const expectedCount = 3;
-
-    //         function splitParams(url) {
-    //             expect(url).to.startWith(urlPrefix);
-    //             return url.substr(urlPrefixLen).split('&');
-    //         }
-
-    //         it('Should include dates in pagination urls', async () => {
-    //             const dateQuery = 'testDate=1983-01-27';
-
-    //             const server = register();
-    //             server.register(require(pluginName), (err) => {
-
-    //                 expect(err).to.be.undefined();
-
-    //                 const request = {
-    //                     method: 'GET',
-    //                     url: `/query-params?${dateQuery}&page=2&limit=1`
-    //                 };
-
-    //                 server.inject(request, (res) => {
-    //                     expect(res.request.query.testDate).to.be.a.date();
-    //                     expect(res.request.query.testDate.toISOString()).to.equal('1983-01-27T00:00:00.000Z');
-
-    //                     const response = res.request.response.source;
-    //                     expect(response.meta.count).to.equal(expectedCount);
-    //                     expect(response.meta.pageCount).to.equal(expectedCount);
-    //                     expect(response.meta.totalCount).to.equal(expectedCount);
-    //                     expect(splitParams(response.meta.next)).to.include(dateQuery);
-    //                     expect(splitParams(response.meta.previous)).to.include(dateQuery);
-    //                     expect(splitParams(response.meta.self)).to.include(dateQuery);
-    //                     expect(splitParams(response.meta.first)).to.include(dateQuery);
-    //                     expect(splitParams(response.meta.last)).to.include(dateQuery);
-
-    //                     
-    //                 });
-    //             });
-    //         });
-
-    //         it('Should include arrays in pagination urls', async () => {
-    //             const arrayQuery = `testArray=${encodeURIComponent('[3,4]')}`;
-
-    //             const server = register();
-    //             server.register(require(pluginName), (err) => {
-
-    //                 expect(err).to.be.undefined();
-
-    //                 const request = {
-    //                     method: 'GET',
-    //                     url: `/query-params?${arrayQuery}&page=2&limit=1`
-    //                 };
-
-    //                 server.inject(request, (res) => {
-    //                     expect(res.request.query.testArray).to.be.an.array().and.only.include([3, 4]);
-
-    //                     const response = res.request.response.source;
-    //                     expect(response.meta.count).to.equal(expectedCount);
-    //                     expect(response.meta.pageCount).to.equal(expectedCount);
-    //                     expect(response.meta.totalCount).to.equal(expectedCount);
-    //                     expect(splitParams(response.meta.next)).to.include(arrayQuery);
-    //                     expect(splitParams(response.meta.previous)).to.include(arrayQuery);
-    //                     expect(splitParams(response.meta.self)).to.include(arrayQuery);
-    //                     expect(splitParams(response.meta.first)).to.include(arrayQuery);
-    //                     expect(splitParams(response.meta.last)).to.include(arrayQuery);
-
-    //                     
-    //                 });
-    //             });
-    //         });
-
-    //         it('Should include objects in pagination urls', async () => {
-    //             const objectQuery = `testObject=${encodeURIComponent(JSON.stringify({ a: 1, b: 2 }))}`;
-
-    //             const server = register();
-    //             server.register(require(pluginName), (err) => {
-
-    //                 expect(err).to.be.undefined();
-
-    //                 const request = {
-    //                     method: 'GET',
-    //                     url: `/query-params?${objectQuery}&page=2&limit=1`
-    //                 };
-
-    //                 server.inject(request, (res) => {
-    //                     expect(res.request.query.testObject).to.be.an.object().and.only.include({ a: 1, b: 2 });
-
-    //                     const response = res.request.response.source;
-    //                     expect(response.meta.count).to.equal(expectedCount);
-    //                     expect(response.meta.pageCount).to.equal(expectedCount);
-    //                     expect(response.meta.totalCount).to.equal(expectedCount);
-    //                     expect(splitParams(response.meta.next)).to.include(objectQuery);
-    //                     expect(splitParams(response.meta.previous)).to.include(objectQuery);
-    //                     expect(splitParams(response.meta.self)).to.include(objectQuery);
-    //                     expect(splitParams(response.meta.first)).to.include(objectQuery);
-    //                     expect(splitParams(response.meta.last)).to.include(objectQuery);
-
-    //                     
-    //                 });
-    //             });
-    //         });
-
-    //     });
-//  });
+    it('Counts should be 0', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const request = {
+            method: 'GET',
+            url: '/empty'
+        };
+
+        const res = await server.inject(request);
+
+        const response = res.request.response.source;
+        expect(response.meta.totalCount).to.equal(0);
+        expect(response.meta.pageCount).to.equal(0);
+        expect(response.meta.count).to.equal(0);
+
+    });
+
+    it('Staus code should be >=200 & <=299', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const request = {
+            method: 'GET',
+            url: '/empty'
+        };
+
+        const res = await server.inject(request);
+
+        const response = res.request.response;
+        expect(response.statusCode).to.be.greaterThan(199);
+        expect(response.statusCode).to.be.lessThan(300);
+    });
+});
+
+describe('Exception', () => {
+
+    it('Should not continue on exception', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+        const request = {
+            method: 'GET',
+            url: '/exception'
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.response.statusCode).to.equal(500);
+
+    });
+
+    it('Should not process further if response code is not in 200 - 299 range', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+        const request = {
+            method: 'GET',
+            url: '/array-exception'
+        };
+
+        const res = await server.inject(request);
+
+        const response = res.request.response.source;
+        const message = response.message;
+        expect(message).to.equal('Custom Error Message');
+        expect(res.request.response.statusCode).to.equal(500);
+
+    });
+
+    it('Should not process further if upgrade request is received', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const request = {
+            method: 'GET',
+            url: '/ws-upgrade'
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.response.statusCode).to.equal(101);
+
+    });
+});
+
+describe('Override on route level error', () => {
+
+    it('Should return an error', async () => {
+
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            limit: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => { return }
+            }
+        });
+
+        const serverRegister = async () => {
+            await server.register(require(pluginName));
+        }
+
+        await expect(serverRegister()).to.reject();
+    });
+
+    it('Should return an error', async () => {
+
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            page: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        const serverRegister = async () => {
+            await server.register(require(pluginName));
+        }
+
+        await expect(serverRegister()).to.reject();
+    });
+
+    it('Should return an error', async () => {
+
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        defaults: {
+                            pagination: 'a'
+                        }
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        const serverRegister = async () => {
+            await server.register(require(pluginName));
+        }
+
+        await expect(serverRegister()).to.reject();
+    });
+
+    it('Should return an error', async () => {
+
+        const server = register();
+        server.route({
+            path: '/error',
+            method: 'GET',
+            config: {
+                plugins: {
+                    pagination: {
+                        enabled: 'a'
+                    }
+                },
+                handler: (request, reply) => reply()
+            }
+        });
+
+        const serverRegister = async () => {
+            await server.register(require(pluginName));
+        }
+
+        await expect(serverRegister()).to.reject();
+    });
+});
+
+describe('Empty baseUri should give relative url', () => {
+    it('use custom baseUri instead of server provided uri', async () => {
+
+        const options = {
+            meta: {
+                baseUri: ''
+            }
+        };
+
+        const urlForPage = (page) => ['/users?', 'page=' + page, '&', 'limit=5'];
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?limit=5'
+        });
+
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.first).to.include(urlForPage(1));
+        expect(meta.first).to.not.include('localhost');
+        expect(meta.self).to.include(urlForPage(1));
+        expect(meta.next).to.include(urlForPage(2));
+
+    });
+});
+
+
+describe('Should include original values of query parameters in pagination urls when Joi validation creates objects', () => {
+    const urlPrefix = 'http://localhost/query-params?';
+    const urlPrefixLen = urlPrefix.length;
+    const expectedCount = 3;
+
+    function splitParams(url) {
+        expect(url).to.startWith(urlPrefix);
+        return url.substr(urlPrefixLen).split('&');
+    }
+
+    it('Should include dates in pagination urls', async () => {
+        const dateQuery = 'testDate=1983-01-27';
+
+        const server = register();
+        await server.register(require(pluginName));
+
+
+        const request = {
+            method: 'GET',
+            url: `/query-params?${dateQuery}&page=2&limit=1`
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.query.testDate).to.be.a.date();
+        expect(res.request.query.testDate.toISOString()).to.equal('1983-01-27T00:00:00.000Z');
+
+        const response = res.request.response.source;
+        expect(response.meta.count).to.equal(expectedCount);
+        expect(response.meta.pageCount).to.equal(expectedCount);
+        expect(response.meta.totalCount).to.equal(expectedCount);
+        expect(splitParams(response.meta.next)).to.include(dateQuery);
+        expect(splitParams(response.meta.previous)).to.include(dateQuery);
+        expect(splitParams(response.meta.self)).to.include(dateQuery);
+        expect(splitParams(response.meta.first)).to.include(dateQuery);
+        expect(splitParams(response.meta.last)).to.include(dateQuery);
+
+    });
+
+    it('Should include arrays in pagination urls', async () => {
+        const arrayQuery = `testArray=${encodeURIComponent('[3,4]')}`;
+
+        const server = register();
+        await server.register(require(pluginName));
+
+
+        const request = {
+            method: 'GET',
+            url: `/query-params?${arrayQuery}&page=2&limit=1`
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.query.testArray).to.be.an.array().and.only.include([3, 4]);
+
+        const response = res.request.response.source;
+        expect(response.meta.count).to.equal(expectedCount);
+        expect(response.meta.pageCount).to.equal(expectedCount);
+        expect(response.meta.totalCount).to.equal(expectedCount);
+        expect(splitParams(response.meta.next)).to.include(arrayQuery);
+        expect(splitParams(response.meta.previous)).to.include(arrayQuery);
+        expect(splitParams(response.meta.self)).to.include(arrayQuery);
+        expect(splitParams(response.meta.first)).to.include(arrayQuery);
+        expect(splitParams(response.meta.last)).to.include(arrayQuery);
+
+    });
+
+    it('Should include objects in pagination urls', async () => {
+        const objectQuery = `testObject=${encodeURIComponent(JSON.stringify({ a: 1, b: 2 }))}`;
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const request = {
+            method: 'GET',
+            url: `/query-params?${objectQuery}&page=2&limit=1`
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.query.testObject).to.be.an.object().and.only.include({ a: 1, b: 2 });
+
+        const response = res.request.response.source;
+        expect(response.meta.count).to.equal(expectedCount);
+        expect(response.meta.pageCount).to.equal(expectedCount);
+        expect(response.meta.totalCount).to.equal(expectedCount);
+        expect(splitParams(response.meta.next)).to.include(objectQuery);
+        expect(splitParams(response.meta.previous)).to.include(objectQuery);
+        expect(splitParams(response.meta.self)).to.include(objectQuery);
+        expect(splitParams(response.meta.first)).to.include(objectQuery);
+        expect(splitParams(response.meta.last)).to.include(objectQuery);
+
+    });
+});
