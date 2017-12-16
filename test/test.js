@@ -305,7 +305,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
         const res = await server.inject({
@@ -335,7 +335,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
 
@@ -360,7 +360,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
         const res = await server.inject({
@@ -385,7 +385,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
 
@@ -410,7 +410,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
         const res = await server.inject({
@@ -435,7 +435,7 @@ describe('Override default values', () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
-            options: options
+            options
         });
 
         const res = await server.inject({
@@ -462,7 +462,7 @@ describe('Override default values', () => {
         await server.register({
             plugin: require(pluginName),
             options
-        })
+        });
 
         const res = await server.inject({
             method: 'GET',
@@ -1108,7 +1108,7 @@ describe('Override default values', () => {
         const res = await server.inject({
             method: 'GET',
             url: '/users'
-        })
+        });
         expect(res.statusCode).to.equal(204);
 
 
@@ -1126,7 +1126,7 @@ describe('Override default values', () => {
         const serverRegister = async () => {
             await server.register({
                 plugin: require(pluginName),
-                options: options
+                options
             });
         };
 
@@ -1147,8 +1147,8 @@ describe('Override default values', () => {
         const serverRegister = async () => {
             await server.register({
                 plugin: require(pluginName),
-                options: options
-            })
+                options
+            });
         };
 
         await expect(serverRegister()).to.reject();
@@ -1820,7 +1820,7 @@ describe('Wrong options', () => {
                     }
                 }
             });
-        }
+        };
 
         await expect(serverRegister()).to.reject();
     });
@@ -1838,7 +1838,7 @@ describe('Wrong options', () => {
                     }
                 }
             });
-        }
+        };
 
         await expect(serverRegister()).to.reject();
 
@@ -1859,7 +1859,7 @@ describe('Wrong options', () => {
                     }
                 }
             });
-        }
+        };
 
         await expect(serverRegister()).to.reject();
 
@@ -1880,7 +1880,7 @@ describe('Wrong options', () => {
                     }
                 }
             });
-        }
+        };
 
         await expect(serverRegister()).to.reject();
 
@@ -1921,6 +1921,7 @@ describe('Results with other keys', () => {
             method: 'GET',
             path: '/error',
             handler: async (request, reply) => {
+
                 return reply.paginate({ results: [] }, 0);
             }
         });
@@ -1948,6 +1949,7 @@ describe('Results with other keys', () => {
             method: 'GET',
             path: '/error',
             handler: (request, reply) => {
+
                 return reply.paginate({ results: [] }, 0, { key: 'res' });
             }
         });
@@ -1972,6 +1974,7 @@ describe('Results with other keys', () => {
             method: 'GET',
             path: '/nooverride',
             handler: (request, reply) => {
+
                 return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
             }
         });
@@ -2095,13 +2098,16 @@ describe('Override on route level error', () => {
                         }
                     }
                 },
-                handler: (request, reply) => { return }
+                handler: (request, reply) => {
+                    return;
+                }
             }
         });
 
         const serverRegister = async () => {
+
             await server.register(require(pluginName));
-        }
+        };
 
         await expect(serverRegister()).to.reject();
     });
@@ -2125,8 +2131,9 @@ describe('Override on route level error', () => {
         });
 
         const serverRegister = async () => {
+
             await server.register(require(pluginName));
-        }
+        };
 
         await expect(serverRegister()).to.reject();
     });
@@ -2150,8 +2157,9 @@ describe('Override on route level error', () => {
         });
 
         const serverRegister = async () => {
+
             await server.register(require(pluginName));
-        }
+        };
 
         await expect(serverRegister()).to.reject();
     });
@@ -2173,8 +2181,9 @@ describe('Override on route level error', () => {
         });
 
         const serverRegister = async () => {
+
             await server.register(require(pluginName));
-        }
+        };
 
         await expect(serverRegister()).to.reject();
     });
