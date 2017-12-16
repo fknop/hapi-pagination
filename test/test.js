@@ -190,7 +190,7 @@ const register = function () {
     server.route({
         method: 'POST',
         path: '/users',
-        handler: (request, reply) => reply('Works')
+        handler: (request, reply) => 'Works'
     });
 
     server.route({
@@ -1440,494 +1440,456 @@ describe('Passing page and limit as query parameters', () => {
     });
 });
 
-    // describe('Test /users route', () => {
-
-    //     it('Test default with totalCount added to request object', async () => {
-
-    //         const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?page=2&limit=5'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
-    //                 expect(meta).to.be.an.object();
-    //                 expect(meta.count).to.equal(5);
-    //                 expect(meta.totalCount).to.equal(20);
-    //                 expect(meta.pageCount).to.equal(4);
-    //                 expect(meta.previous).to.part.include(urlForPage(1));
-    //                 expect(meta.next).to.part.include(urlForPage(3));
-    //                 expect(meta.last).to.part.include(urlForPage(4));
-    //                 expect(meta.first).to.part.include(urlForPage(1));
-    //                 expect(meta.self).to.part.include(urlForPage(2));
-
-    //                 expect(response.results).to.be.an.array();
-    //                 expect(response.results).to.have.length(5);
-
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     it('Test hasPrev behave correctly', async () => {
-    //         const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 meta: {
-    //                     hasPrevious: {
-    //                         active: true
-    //                     }
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?page=1&limit=5'
-    //             }, (res) => {
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
-    //                 expect(meta.hasPrevious).to.equal(false);
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Testing pageCount', () => {
-
-    //     it('Limit is 3, page should be 7', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?limit=3'
-    //             }, (res) => {
+describe('Test /users route', () => {
 
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
+    it('Test default with totalCount added to request object', async () => {
 
-    //                 expect(meta.pageCount).to.equal(7);
-    //                 
-    //             });
-    //         });
-    //     });
+        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
 
+        const server = register();
+        await server.register(require(pluginName));
 
-    //     it('Limit is 4, page should be 5', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?limit=4'
-    //             }, (res) => {
 
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?page=2&limit=5'
+        });
 
-    //                 expect(meta.pageCount).to.equal(5);
-    //                 
-    //             });
-    //         });
-    //     });
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta).to.be.an.object();
+        expect(meta.count).to.equal(5);
+        expect(meta.totalCount).to.equal(20);
+        expect(meta.pageCount).to.equal(4);
+        expect(meta.previous).to.part.include(urlForPage(1));
+        expect(meta.next).to.part.include(urlForPage(3));
+        expect(meta.last).to.part.include(urlForPage(4));
+        expect(meta.first).to.part.include(urlForPage(1));
+        expect(meta.self).to.part.include(urlForPage(2));
 
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(5);
 
-    //     it('Limit is 1, page should be 20', async () => {
+    });
 
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/users?limit=1'
-    //             }, (res) => {
+    it('Test hasPrev behave correctly', async () => {
+        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
 
-    //                 const response = res.request.response.source;
-    //                 const meta = response.meta;
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                meta: {
+                    hasPrevious: {
+                        active: true
+                    }
+                }
+            }
+        });
 
-    //                 expect(meta.pageCount).to.equal(20);
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Post request', () => {
-
-    //     it('Should work with a post request', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'POST',
-    //                 url: '/users'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-
-    //                 expect(response).to.equal('Works');
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Changing pagination query parameter', () => {
-
-    //     it('Should return the results with no pagination', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?pagination=false'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 expect(response).to.be.an.array();
-    //                 
-    //             });
-
-    //         });
-    //     });
-
-
-    //     it('Pagination to random value (default is true)', async () => {
-
-    //         const server = register();
-    //         server.register(require(pluginName), (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?pagination=abcd'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 expect(response.meta).to.be.an.object();
-    //                 expect(response.results).to.be.an.array();
-    //                 
-    //             });
-
-    //         });
-    //     });
-
-    //     it('Pagination to random value (default is false)', async () => {
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 query: {
-    //                     pagination: {
-    //                         default: false
-    //                     }
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?pagination=abcd'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 expect(response).to.be.an.array();
-    //                 
-    //             });
-
-    //         });
-    //     });
-
-    //     it('Pagination explicitely to true', async () => {
-
-    //         const options = {
-    //             meta: {
-    //                 name: 'myMeta',
-    //                 count: {
-    //                     active: true,
-    //                     name: 'myCount'
-    //                 },
-    //                 totalCount: {
-    //                     active: true,
-    //                     name: 'myTotalCount'
-    //                 },
-    //                 pageCount: {
-    //                     active: true,
-    //                     name: 'myPageCount'
-    //                 },
-    //                 self: {
-    //                     active: true,
-    //                     name: 'mySelf'
-    //                 },
-    //                 previous: {
-    //                     active: true,
-    //                     name: 'myPrevious'
-    //                 },
-    //                 next: {
-    //                     active: true,
-    //                     name: 'myNext'
-    //                 },
-    //                 hasNext: {
-    //                     active: true,
-    //                     name: 'myHasNext'
-    //                 },
-    //                 hasPrevious: {
-    //                     active: true,
-    //                     name: 'myHasPrevious'
-    //                 },
-    //                 first: {
-    //                     active: true,
-    //                     name: 'myFirst'
-    //                 },
-    //                 last: {
-    //                     active: true,
-    //                     name: 'myLast'
-    //                 },
-    //                 limit: {
-    //                     active: true
-    //                 },
-    //                 page: {
-    //                     active: true
-    //                 }
-    //             }
-    //         };
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?pagination=true'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 const names = options.meta;
-
-    //                 const meta = response[names.name];
-    //                 expect(meta).to.be.an.object();
-    //                 expect(meta.limit).to.equal(25);
-    //                 expect(meta.page).to.equal(1);
-    //                 expect(meta[names.count.name]).to.equal(0);
-    //                 expect(meta[names.totalCount.name]).to.be.null();
-    //                 expect(meta[names.pageCount.name]).to.be.null();
-    //                 expect(meta[names.previous.name]).to.be.null();
-    //                 expect(meta[names.next.name]).to.be.null();
-    //                 expect(meta[names.hasNext.name]).to.be.false();
-    //                 expect(meta[names.hasPrevious.name]).to.be.false();
-    //                 expect(meta[names.last.name]).to.be.null();
-    //                 expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25']);
-    //                 expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
-    //                 expect(response.results).to.be.an.array();
-    //                 expect(response.results).to.have.length(0);
-
-    //                 
-    //             });
-    //         });
-    //     });
-
-    //     it('Pagination default is false', async () => {
-
-    //         const options = {
-    //             query: {
-    //                 pagination: {
-    //                     default: false
-    //                 }
-    //             },
-    //             meta: {
-    //                 name: 'myMeta',
-    //                 count: {
-    //                     active: true,
-    //                     name: 'myCount'
-    //                 },
-    //                 totalCount: {
-    //                     active: true,
-    //                     name: 'myTotalCount'
-    //                 },
-    //                 pageCount: {
-    //                     active: true,
-    //                     name: 'myPageCount'
-    //                 },
-    //                 self: {
-    //                     active: true,
-    //                     name: 'mySelf'
-    //                 },
-    //                 previous: {
-    //                     active: true,
-    //                     name: 'myPrevious'
-    //                 },
-    //                 next: {
-    //                     active: true,
-    //                     name: 'myNext'
-    //                 },
-    //                 hasNext: {
-    //                     active: true,
-    //                     name: 'myHasNext'
-    //                 },
-    //                 hasPrevious: {
-    //                     active: true,
-    //                     name: 'myHasPrevious'
-    //                 },
-    //                 first: {
-    //                     active: true,
-    //                     name: 'myFirst'
-    //                 },
-    //                 last: {
-    //                     active: true,
-    //                     name: 'myLast'
-    //                 },
-    //                 limit: {
-    //                     active: true
-    //                 },
-    //                 page: {
-    //                     active: true
-    //                 }
-    //             }
-    //         };
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options
-    //         }, (err) => {
-
-    //             expect(err).to.be.undefined();
-
-    //             await server.inject({
-    //                 method: 'GET',
-    //                 url: '/?pagination=true'
-    //             }, (res) => {
-
-    //                 const response = res.request.response.source;
-    //                 const names = options.meta;
-
-    //                 const meta = response[names.name];
-    //                 expect(meta).to.be.an.object();
-    //                 expect(meta.limit).to.equal(25);
-    //                 expect(meta.page).to.equal(1);
-    //                 expect(meta[names.count.name]).to.equal(0);
-    //                 expect(meta[names.totalCount.name]).to.be.null();
-    //                 expect(meta[names.pageCount.name]).to.be.null();
-    //                 expect(meta[names.previous.name]).to.be.null();
-    //                 expect(meta[names.next.name]).to.be.null();
-    //                 expect(meta[names.hasNext.name]).to.be.false();
-    //                 expect(meta[names.hasPrevious.name]).to.be.false();
-    //                 expect(meta[names.last.name]).to.be.null();
-    //                 expect(meta[names.first.name]).to.part.include(['pagination=true']);
-    //                 expect(meta[names.self.name]).to.part.include(['pagination=true']);
-    //                 expect(response.results).to.be.an.array();
-    //                 expect(response.results).to.have.length(0);
-
-    //                 
-    //             });
-    //         });
-    //     });
-    // });
-
-    // describe('Wrong options', () => {
-
-    //     it('Should return an error on register', async () => {
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 query: {
-    //                     limit: {
-    //                         default: 'abcd'
-    //                     }
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error on register', async () => {
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 meta: {
-    //                     name: 0
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error on register', async () => {
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 query: {
-    //                     limit: {
-    //                         default: 0
-    //                     }
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-
-    //     it('Should return an error on register', async () => {
-
-    //         const server = register();
-    //         await server.register({
-    //             plugin: require(pluginName),
-    //             options: {
-    //                 meta: {
-    //                     totalCount: {
-    //                         active: 'abc'
-    //                     }
-    //                 }
-    //             }
-    //         }, (err) => {
-
-    //             expect(err).to.exists();
-    //             
-    //         });
-    //     });
-    // });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?page=1&limit=5'
+        });
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.hasPrevious).to.equal(false);
+    });
+});
+
+describe('Testing pageCount', () => {
+
+    it('Limit is 3, page should be 7', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?limit=3'
+        });
+
+        const response = res.request.response.source;
+        const meta = response.meta;
+
+        expect(meta.pageCount).to.equal(7);
+
+    });
+
+
+    it('Limit is 4, page should be 5', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?limit=4'
+        });
+
+        const response = res.request.response.source;
+        const meta = response.meta;
+
+        expect(meta.pageCount).to.equal(5);
+    });
+
+
+    it('Limit is 1, page should be 20', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?limit=1'
+        });
+
+        const response = res.request.response.source;
+        const meta = response.meta;
+
+        expect(meta.pageCount).to.equal(20);
+    });
+});
+
+describe('Post request', () => {
+
+    it('Should work with a post request', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'POST',
+            url: '/users'
+        });
+
+        const response = res.request.response.source;
+
+        expect(response).to.equal('Works');
+
+    });
+});
+
+describe('Changing pagination query parameter', () => {
+
+    it('Should return the results with no pagination', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?pagination=false'
+        });
+
+        const response = res.request.response.source;
+        expect(response).to.be.an.array();
+
+    });
+
+
+    it('Pagination to random value (default is true)', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?pagination=abcd'
+        });
+
+        const response = res.request.response.source;
+        expect(response.meta).to.be.an.object();
+        expect(response.results).to.be.an.array();
+
+    });
+
+    it('Pagination to random value (default is false)', async () => {
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                query: {
+                    pagination: {
+                        default: false
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?pagination=abcd'
+        });
+
+        const response = res.request.response.source;
+        expect(response).to.be.an.array();
+
+    });
+
+    it('Pagination explicitely to true', async () => {
+
+        const options = {
+            meta: {
+                name: 'myMeta',
+                count: {
+                    active: true,
+                    name: 'myCount'
+                },
+                totalCount: {
+                    active: true,
+                    name: 'myTotalCount'
+                },
+                pageCount: {
+                    active: true,
+                    name: 'myPageCount'
+                },
+                self: {
+                    active: true,
+                    name: 'mySelf'
+                },
+                previous: {
+                    active: true,
+                    name: 'myPrevious'
+                },
+                next: {
+                    active: true,
+                    name: 'myNext'
+                },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrevious'
+                },
+                first: {
+                    active: true,
+                    name: 'myFirst'
+                },
+                last: {
+                    active: true,
+                    name: 'myLast'
+                },
+                limit: {
+                    active: true
+                },
+                page: {
+                    active: true
+                }
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?pagination=true'
+        });
+
+        const response = res.request.response.source;
+        const names = options.meta;
+
+        const meta = response[names.name];
+        expect(meta).to.be.an.object();
+        expect(meta.limit).to.equal(25);
+        expect(meta.page).to.equal(1);
+        expect(meta[names.count.name]).to.equal(0);
+        expect(meta[names.totalCount.name]).to.be.null();
+        expect(meta[names.pageCount.name]).to.be.null();
+        expect(meta[names.previous.name]).to.be.null();
+        expect(meta[names.next.name]).to.be.null();
+        expect(meta[names.hasNext.name]).to.be.false();
+        expect(meta[names.hasPrevious.name]).to.be.false();
+        expect(meta[names.last.name]).to.be.null();
+        expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25']);
+        expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(0);
+
+    });
+
+    it('Pagination default is false', async () => {
+
+        const options = {
+            query: {
+                pagination: {
+                    default: false
+                }
+            },
+            meta: {
+                name: 'myMeta',
+                count: {
+                    active: true,
+                    name: 'myCount'
+                },
+                totalCount: {
+                    active: true,
+                    name: 'myTotalCount'
+                },
+                pageCount: {
+                    active: true,
+                    name: 'myPageCount'
+                },
+                self: {
+                    active: true,
+                    name: 'mySelf'
+                },
+                previous: {
+                    active: true,
+                    name: 'myPrevious'
+                },
+                next: {
+                    active: true,
+                    name: 'myNext'
+                },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrevious'
+                },
+                first: {
+                    active: true,
+                    name: 'myFirst'
+                },
+                last: {
+                    active: true,
+                    name: 'myLast'
+                },
+                limit: {
+                    active: true
+                },
+                page: {
+                    active: true
+                }
+            }
+        };
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/?pagination=true'
+        });
+
+        const response = res.request.response.source;
+        const names = options.meta;
+
+        const meta = response[names.name];
+        expect(meta).to.be.an.object();
+        expect(meta.limit).to.equal(25);
+        expect(meta.page).to.equal(1);
+        expect(meta[names.count.name]).to.equal(0);
+        expect(meta[names.totalCount.name]).to.be.null();
+        expect(meta[names.pageCount.name]).to.be.null();
+        expect(meta[names.previous.name]).to.be.null();
+        expect(meta[names.next.name]).to.be.null();
+        expect(meta[names.hasNext.name]).to.be.false();
+        expect(meta[names.hasPrevious.name]).to.be.false();
+        expect(meta[names.last.name]).to.be.null();
+        expect(meta[names.first.name]).to.part.include(['pagination=true']);
+        expect(meta[names.self.name]).to.part.include(['pagination=true']);
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(0);
+
+    });
+});
+
+describe('Wrong options', () => {
+
+    it('Should return an error on register', async () => {
+
+        const server = register();
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: {
+                    query: {
+                        limit: {
+                            default: 'abcd'
+                        }
+                    }
+                }
+            });
+        }
+
+        await expect(serverRegister()).to.reject();
+    });
+
+    it('Should return an error on register', async () => {
+
+        const server = register();
+
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: {
+                    meta: {
+                        name: 0
+                    }
+                }
+            });
+        }
+
+        await expect(serverRegister()).to.reject();
+
+    });
+
+    it('Should return an error on register', async () => {
+
+        const server = register();
+
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: {
+                    query: {
+                        limit: {
+                            default: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        await expect(serverRegister()).to.reject();
+
+    });
+
+    it('Should return an error on register', async () => {
+
+        const server = register();
+
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: {
+                    meta: {
+                        totalCount: {
+                            active: 'abc'
+                        }
+                    }
+                }
+            });
+        }
+
+        await expect(serverRegister()).to.reject();
+
+    });
+});
 
     // describe('Results with other keys', () => {
 
