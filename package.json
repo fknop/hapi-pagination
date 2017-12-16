@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/lab -v -t 100",
-    "lint": "node_modules/.bin/lab -L --lint-fix",
+    "lint": "node_modules/.bin/lab -L",
     "cover": "node_modules/.bin/lab -s -r lcov | coveralls"
   },
   "keywords": [
