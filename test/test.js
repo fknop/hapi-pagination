@@ -635,587 +635,544 @@ describe('Override default values', () => {
         expect(res.request.response.source.meta.totalCount).to.equal(users.length);
     });
 
-    // it('Override defaults routes with regex without a match', async () => {
-
-    //     const options = {
-    //         routes: {
-    //             include: ['*'],
-    //             exclude: [/^nothing/]
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const query = res.request.query;
-    //             expect(query.limit).to.equal(25);
-    //             expect(query.page).to.equal(1);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override names of meta', async () => {
-
-    //     const options = {
-    //         meta: {
-    //             name: 'myMeta',
-    //             count: {
-    //                 active: true,
-    //                 name: 'myCount'
-    //             },
-    //             totalCount: {
-    //                 active: true,
-    //                 name: 'myTotalCount'
-    //             },
-    //             pageCount: {
-    //                 active: true,
-    //                 name: 'myPageCount'
-    //             },
-    //             self: {
-    //                 active: true,
-    //                 name: 'mySelf'
-    //             },
-    //             previous: {
-    //                 active: true,
-    //                 name: 'myPrevious'
-    //             },
-    //             next: {
-    //                 active: true,
-    //                 name: 'myNext'
-    //             },
-    //             hasNext: {
-    //                 active: true,
-    //                 name: 'myHasNext'
-    //             },
-    //             hasPrevious: {
-    //                 active: true,
-    //                 name: 'myHasPrev'
-    //             },
-    //             first: {
-    //                 active: true,
-    //                 name: 'myFirst'
-    //             },
-    //             last: {
-    //                 active: true,
-    //                 name: 'myLast'
-    //             },
-    //             limit: {
-    //                 active: true
-    //             },
-    //             page: {
-    //                 active: true
-    //             }
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const response = res.request.response.source;
-    //             const names = options.meta;
-
-    //             const meta = response[names.name];
-    //             expect(meta).to.be.an.object();
-    //             expect(meta.limit).to.equal(25);
-    //             expect(meta.page).to.equal(1);
-    //             expect(meta[names.count.name]).to.equal(0);
-    //             expect(meta[names.totalCount.name]).to.be.null();
-    //             expect(meta[names.pageCount.name]).to.be.null();
-    //             expect(meta[names.previous.name]).to.be.null();
-    //             expect(meta[names.next.name]).to.be.null();
-    //             expect(meta[names.hasNext.name]).to.be.false();
-    //             expect(meta[names.hasPrevious.name]).to.be.false();
-    //             expect(meta[names.last.name]).to.be.null();
-    //             expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25']);
-    //             expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
-    //             expect(response.results).to.be.an.array();
-    //             expect(response.results).to.have.length(0);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override query parameter pagination - set active to false', async () => {
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 10
-    //             },
-    //             pagination: {
-    //                 default: true,
-    //                 active: false
-    //             }
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users?pagination=false'
-    //         }, (res) => {
-
-    //             const response = res.request.response.source;
-    //             expect(response.results).to.be.an.array();
-    //             expect(response.results).to.have.length(10);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta - set active to false', async () => {
-
-    //     const options = {
-    //         meta: {
-    //             name: 'meta',
-    //             count: {
-    //                 active: false
-    //             },
-    //             totalCount: {
-    //                 active: false
-    //             },
-    //             pageCount: {
-    //                 active: false
-    //             },
-    //             self: {
-    //                 active: false
-    //             },
-    //             previous: {
-    //                 active: false
-    //             },
-    //             next: {
-    //                 active: false
-    //             },
-    //             hasNext: {
-    //                 active: false
-    //             },
-    //             hasPrevious: {
-    //                 active: false
-    //             },
-    //             first: {
-    //                 active: false
-    //             },
-    //             last: {
-    //                 active: false
-    //             },
-    //             limit: {
-    //                 active: false
-    //             },
-    //             page: {
-    //                 active: false
-    //             }
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const response = res.request.response.source;
-    //             const names = options.meta;
-
-    //             const meta = response[names.name];
-    //             expect(meta).to.be.an.object();
-    //             expect(meta.limit).to.be.undefined();
-    //             expect(meta.page).to.be.undefined();
-    //             expect(meta.count).to.be.undefined();
-    //             expect(meta.totalCount).to.be.undefined();
-    //             expect(meta.pageCount).to.be.undefined();
-    //             expect(meta.previous).to.be.undefined();
-    //             expect(meta.next).to.be.undefined();
-    //             expect(meta.hasNext).to.be.undefined();
-    //             expect(meta.hasPrevious).to.be.undefined();
-    //             expect(meta.last).to.be.undefined();
-    //             expect(meta.first).to.be.undefined();
-    //             expect(meta.self).to.be.undefined();
-    //             expect(response.results).to.be.an.array();
-    //             expect(response.results).to.have.length(0);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta location - move metadata to http headers with multiple pages', async () => {
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 5
-    //             },
-    //             page: {
-    //                 default: 2
-    //             }
-    //         },
-    //         meta: {
-    //             location: 'header',
-    //             successStatusCode: 206
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             const statusCode = res.request.response.statusCode;
-    //             expect(statusCode).to.equal(206);
-    //             const headers = res.request.response.headers;
-    //             const response = res.request.response.source;
-    //             expect(headers['Content-Range']).to.equal('5-9/20');
-    //             expect(headers.Link).to.be.an.array();
-    //             expect(headers.Link).to.have.length(5);
-    //             expect(headers.Link[0]).match(/rel="self"$/);
-    //             expect(headers.Link[1]).match(/rel="first"$/);
-    //             expect(headers.Link[2]).match(/rel="last"$/);
-    //             expect(headers.Link[3]).match(/rel="next"$/);
-    //             expect(headers.Link[4]).match(/rel="prev"$/);
-    //             expect(response).to.be.an.array();
-    //             expect(response).to.have.length(5);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta location - move metadata to http headers with unique page', async () => {
-    //     const options = {
-    //         meta: {
-    //             location: 'header',
-    //             successStatusCode: 206
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             const statusCode = res.request.response.statusCode;
-    //             expect(statusCode).to.equal(200);
-    //             const headers = res.request.response.headers;
-    //             const response = res.request.response.source;
-    //             expect(headers['Content-Range']).to.not.exist;
-    //             expect(headers.Link).to.not.exist;
-    //             expect(response).to.be.an.array();
-    //             expect(response).to.have.length(20);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta location - move metadata to http headers with first page', async () => {
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 5
-    //             },
-    //             page: {
-    //                 default: 1
-    //             }
-    //         },
-    //         meta: {
-    //             location: 'header'
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             const statusCode = res.request.response.statusCode;
-    //             expect(statusCode).to.equal(200);
-    //             const headers = res.request.response.headers;
-    //             const response = res.request.response.source;
-    //             expect(headers['Content-Range']).to.equal('0-4/20');
-    //             expect(headers.Link).to.be.an.array();
-    //             expect(headers.Link).to.have.length(4);
-    //             expect(headers.Link[0]).match(/rel="self"$/);
-    //             expect(headers.Link[1]).match(/rel="first"$/);
-    //             expect(headers.Link[2]).match(/rel="last"$/);
-    //             expect(headers.Link[3]).match(/rel="next"$/);
-
-    //             expect(response).to.be.an.array();
-    //             expect(response).to.have.length(5);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta location - move metadata to http headers with last page', async () => {
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 5
-    //             },
-    //             page: {
-    //                 default: 4
-    //             }
-    //         },
-    //         meta: {
-    //             location: 'header'
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             const statusCode = res.request.response.statusCode;
-    //             expect(statusCode).to.equal(200);
-    //             const headers = res.request.response.headers;
-    //             const response = res.request.response.source;
-    //             expect(headers['Content-Range']).to.equal('15-19/20');
-    //             expect(headers.Link).to.be.an.array();
-    //             expect(headers.Link).to.have.length(4);
-    //             expect(headers.Link[0]).match(/rel="self"$/);
-    //             expect(headers.Link[1]).match(/rel="first"$/);
-    //             expect(headers.Link[2]).match(/rel="last"$/);
-    //             expect(headers.Link[3]).match(/rel="prev"$/);
-
-    //             expect(response).to.be.an.array();
-    //             expect(response).to.have.length(5);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override meta location - do not set metadata if requested page is out of range', async () => {
-    //     const options = {
-    //         query: {
-    //             limit: {
-    //                 default: 5
-    //             },
-    //             page: {
-    //                 default: 5
-    //             }
-    //         },
-    //         meta: {
-    //             location: 'header',
-    //             successStatusCode: 206
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             const statusCode = res.request.response.statusCode;
-    //             expect(statusCode).to.equal(200);
-
-    //             const headers = res.request.response.headers;
-    //             expect(headers['Content-Range']).to.not.exist;
-    //             expect(headers.Link).to.not.exist;
-
-    //             const response = res.request.response.source;
-    //             expect(response).to.be.an.array();
-    //             expect(response).to.have.length(0);
-
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('use custom baseUri instead of server provided uri', async () => {
-
-    //     const myCustomUri = 'https://127.0.0.1:81';
-    //     const options = {
-    //         meta: {
-    //             baseUri: myCustomUri,
-    //             name: 'meta',
-    //             count: {
-    //                 active: true
-    //             },
-    //             totalCount: {
-    //                 active: true
-    //             },
-    //             pageCount: {
-    //                 active: true
-    //             },
-    //             self: {
-    //                 active: true
-    //             },
-    //             first: {
-    //                 active: true
-    //             }
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/'
-    //         }, (res) => {
-
-    //             const response = res.request.response.source;
-    //             const meta = response.meta;
-    //             expect(meta.first).to.include(myCustomUri);
-    //             expect(meta.self).to.include(myCustomUri);
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override the response status code with a correct value', async () => {
-
-    //     const options = {
-    //         meta: {
-    //             successStatusCode: 204
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users'
-    //         }, (res) => {
-    //             expect(res.statusCode).to.equal(204);
-    //             
-    //         });
-    //     });
-    // });
-
-    // it('Override the response status code with an unauthorized status code', async () => {
-
-    //     const options = {
-    //         meta: {
-    //             successStatusCode: 500
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.an.error();
-    //         
-    //     });
-    // });
-
-    // it('Override the response status code with an incorrect value', async () => {
-
-    //     const options = {
-    //         meta: {
-    //             successStatusCode: 'abc'
-    //         }
-    //     };
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName),
-    //         options
-    //     }, (err) => {
-    //         expect(err).to.be.an.error();
-    //         
-    //     });
-    // });
-
-    // it('Do not override the response status code if no pagination', async () => {
-
-    //     const server = register();
-    //     server.register({
-    //         plugin: require(pluginName)
-    //     }, (err) => {
-    //         expect(err).to.be.undefined();
-
-    //         server.inject({
-    //             method: 'GET',
-    //             url: '/users?pagination=false'
-    //         }, (res) => {
-    //             expect(res.statusCode).to.equal(200);
-    //             
-    //         });
-    //     });
-    // });
+    it('Override defaults routes with regex without a match', async () => {
+
+        const options = {
+            routes: {
+                include: ['*'],
+                exclude: [/^nothing/]
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const query = res.request.query;
+        expect(query.limit).to.equal(25);
+        expect(query.page).to.equal(1);
+    });
+
+    it('Override names of meta', async () => {
+
+        const options = {
+            meta: {
+                name: 'myMeta',
+                count: {
+                    active: true,
+                    name: 'myCount'
+                },
+                totalCount: {
+                    active: true,
+                    name: 'myTotalCount'
+                },
+                pageCount: {
+                    active: true,
+                    name: 'myPageCount'
+                },
+                self: {
+                    active: true,
+                    name: 'mySelf'
+                },
+                previous: {
+                    active: true,
+                    name: 'myPrevious'
+                },
+                next: {
+                    active: true,
+                    name: 'myNext'
+                },
+                hasNext: {
+                    active: true,
+                    name: 'myHasNext'
+                },
+                hasPrevious: {
+                    active: true,
+                    name: 'myHasPrev'
+                },
+                first: {
+                    active: true,
+                    name: 'myFirst'
+                },
+                last: {
+                    active: true,
+                    name: 'myLast'
+                },
+                limit: {
+                    active: true
+                },
+                page: {
+                    active: true
+                }
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const response = res.request.response.source;
+        const names = options.meta;
+
+        const meta = response[names.name];
+        expect(meta).to.be.an.object();
+        expect(meta.limit).to.equal(25);
+        expect(meta.page).to.equal(1);
+        expect(meta[names.count.name]).to.equal(0);
+        expect(meta[names.totalCount.name]).to.be.null();
+        expect(meta[names.pageCount.name]).to.be.null();
+        expect(meta[names.previous.name]).to.be.null();
+        expect(meta[names.next.name]).to.be.null();
+        expect(meta[names.hasNext.name]).to.be.false();
+        expect(meta[names.hasPrevious.name]).to.be.false();
+        expect(meta[names.last.name]).to.be.null();
+        expect(meta[names.first.name]).to.part.include(['http://localhost/?', ' page=1', '&', 'limit=25']);
+        expect(meta[names.self.name]).to.part.include(['http://localhost/?', 'page=1', '&', 'limit=25']);
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(0);
+
+
+    });
+
+    it('Override query parameter pagination - set active to false', async () => {
+        const options = {
+            query: {
+                limit: {
+                    default: 10
+                },
+                pagination: {
+                    default: true,
+                    active: false
+                }
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?pagination=false'
+        });
+
+        const response = res.request.response.source;
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(10);
+
+    });
+
+    it('Override meta - set active to false', async () => {
+
+        const options = {
+            meta: {
+                name: 'meta',
+                count: {
+                    active: false
+                },
+                totalCount: {
+                    active: false
+                },
+                pageCount: {
+                    active: false
+                },
+                self: {
+                    active: false
+                },
+                previous: {
+                    active: false
+                },
+                next: {
+                    active: false
+                },
+                hasNext: {
+                    active: false
+                },
+                hasPrevious: {
+                    active: false
+                },
+                first: {
+                    active: false
+                },
+                last: {
+                    active: false
+                },
+                limit: {
+                    active: false
+                },
+                page: {
+                    active: false
+                }
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const response = res.request.response.source;
+        const names = options.meta;
+
+        const meta = response[names.name];
+        expect(meta).to.be.an.object();
+        expect(meta.limit).to.be.undefined();
+        expect(meta.page).to.be.undefined();
+        expect(meta.count).to.be.undefined();
+        expect(meta.totalCount).to.be.undefined();
+        expect(meta.pageCount).to.be.undefined();
+        expect(meta.previous).to.be.undefined();
+        expect(meta.next).to.be.undefined();
+        expect(meta.hasNext).to.be.undefined();
+        expect(meta.hasPrevious).to.be.undefined();
+        expect(meta.last).to.be.undefined();
+        expect(meta.first).to.be.undefined();
+        expect(meta.self).to.be.undefined();
+        expect(response.results).to.be.an.array();
+        expect(response.results).to.have.length(0);
+    });
+
+    it('Override meta location - move metadata to http headers with multiple pages', async () => {
+        const options = {
+            query: {
+                limit: {
+                    default: 5
+                },
+                page: {
+                    default: 2
+                }
+            },
+            meta: {
+                location: 'header',
+                successStatusCode: 206
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+        const statusCode = res.request.response.statusCode;
+        expect(statusCode).to.equal(206);
+        const headers = res.request.response.headers;
+        const response = res.request.response.source;
+        expect(headers['Content-Range']).to.equal('5-9/20');
+        expect(headers.Link).to.be.an.array();
+        expect(headers.Link).to.have.length(5);
+        expect(headers.Link[0]).match(/rel="self"$/);
+        expect(headers.Link[1]).match(/rel="first"$/);
+        expect(headers.Link[2]).match(/rel="last"$/);
+        expect(headers.Link[3]).match(/rel="next"$/);
+        expect(headers.Link[4]).match(/rel="prev"$/);
+        expect(response).to.be.an.array();
+        expect(response).to.have.length(5);
+
+    });
+
+    it('Override meta location - move metadata to http headers with unique page', async () => {
+        const options = {
+            meta: {
+                location: 'header',
+                successStatusCode: 206
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+        const statusCode = res.request.response.statusCode;
+        expect(statusCode).to.equal(200);
+        const headers = res.request.response.headers;
+        const response = res.request.response.source;
+        expect(headers['Content-Range']).to.not.exist;
+        expect(headers.Link).to.not.exist;
+        expect(response).to.be.an.array();
+        expect(response).to.have.length(20);
+
+    });
+
+    it('Override meta location - move metadata to http headers with first page', async () => {
+        const options = {
+            query: {
+                limit: {
+                    default: 5
+                },
+                page: {
+                    default: 1
+                }
+            },
+            meta: {
+                location: 'header'
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+        const statusCode = res.request.response.statusCode;
+        expect(statusCode).to.equal(200);
+        const headers = res.request.response.headers;
+        const response = res.request.response.source;
+        expect(headers['Content-Range']).to.equal('0-4/20');
+        expect(headers.Link).to.be.an.array();
+        expect(headers.Link).to.have.length(4);
+        expect(headers.Link[0]).match(/rel="self"$/);
+        expect(headers.Link[1]).match(/rel="first"$/);
+        expect(headers.Link[2]).match(/rel="last"$/);
+        expect(headers.Link[3]).match(/rel="next"$/);
+
+        expect(response).to.be.an.array();
+        expect(response).to.have.length(5);
+    });
+
+    it('Override meta location - move metadata to http headers with last page', async () => {
+        const options = {
+            query: {
+                limit: {
+                    default: 5
+                },
+                page: {
+                    default: 4
+                }
+            },
+            meta: {
+                location: 'header'
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+
+        const statusCode = res.request.response.statusCode;
+        expect(statusCode).to.equal(200);
+        const headers = res.request.response.headers;
+        const response = res.request.response.source;
+        expect(headers['Content-Range']).to.equal('15-19/20');
+        expect(headers.Link).to.be.an.array();
+        expect(headers.Link).to.have.length(4);
+        expect(headers.Link[0]).match(/rel="self"$/);
+        expect(headers.Link[1]).match(/rel="first"$/);
+        expect(headers.Link[2]).match(/rel="last"$/);
+        expect(headers.Link[3]).match(/rel="prev"$/);
+
+        expect(response).to.be.an.array();
+        expect(response).to.have.length(5);
+
+    });
+
+    it('Override meta location - do not set metadata if requested page is out of range', async () => {
+        const options = {
+            query: {
+                limit: {
+                    default: 5
+                },
+                page: {
+                    default: 5
+                }
+            },
+            meta: {
+                location: 'header',
+                successStatusCode: 206
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        });
+        const statusCode = res.request.response.statusCode;
+        expect(statusCode).to.equal(200);
+
+        const headers = res.request.response.headers;
+        expect(headers['Content-Range']).to.not.exist;
+        expect(headers.Link).to.not.exist;
+
+        const response = res.request.response.source;
+        expect(response).to.be.an.array();
+        expect(response).to.have.length(0);
+
+    });
+
+    it('use custom baseUri instead of server provided uri', async () => {
+
+        const myCustomUri = 'https://127.0.0.1:81';
+        const options = {
+            meta: {
+                baseUri: myCustomUri,
+                name: 'meta',
+                count: {
+                    active: true
+                },
+                totalCount: {
+                    active: true
+                },
+                pageCount: {
+                    active: true
+                },
+                self: {
+                    active: true
+                },
+                first: {
+                    active: true
+                }
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/'
+        });
+
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.first).to.include(myCustomUri);
+        expect(meta.self).to.include(myCustomUri);
+
+    });
+
+    it('Override the response status code with a correct value', async () => {
+
+        const options = {
+            meta: {
+                successStatusCode: 204
+            }
+        };
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options
+        });
+
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users'
+        })
+        expect(res.statusCode).to.equal(204);
+
+
+    });
+
+    it('Override the response status code with an unauthorized status code', async () => {
+
+        const options = {
+            meta: {
+                successStatusCode: 500
+            }
+        };
+
+        const server = register();
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: options
+            });
+        };
+
+        await expect(serverRegister()).to.reject();
+
+    });
+
+    it('Override the response status code with an incorrect value', async () => {
+
+        const options = {
+            meta: {
+                successStatusCode: 500
+            }
+        };
+
+        const server = register();
+
+        const serverRegister = async () => {
+            await server.register({
+                plugin: require(pluginName),
+                options: options
+            })
+        };
+
+        await expect(serverRegister()).to.reject();
+
+    });
+
+    it('Do not override the response status code if no pagination', async () => {
+
+        const server = register();
+        await server.register({
+            plugin: require(pluginName)
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?pagination=false'
+        });
+        expect(res.statusCode).to.equal(200);
+
+    });
 });
 
 // describe('Custom route options', () => {
@@ -1229,14 +1186,14 @@ describe('Override default values', () => {
 //         };
 
 //         const server = register();
-//         server.register({
+//         await server.register({
 //             plugin: require(pluginName),
 //             options
 //         }, (err) => {
 
 //             expect(err).to.be.undefined();
 
-//             server.inject({
+//             await server.inject({
 //                 method: 'GET',
 //                 url: '/enabled'
 //             }, (res) => {
@@ -1259,14 +1216,14 @@ describe('Override default values', () => {
 //         };
 
 //         const server = register();
-//         server.register({
+//         await server.register({
 //             plugin: require(pluginName),
 //             options
 //         }, (err) => {
 
 //             expect(err).to.be.undefined();
 
-//             server.inject({
+//             await server.inject({
 //                 method: 'GET',
 //                 url: '/disabled'
 //             }, (res) => {
@@ -1294,7 +1251,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/defaults'
     //             }, (res) => {
@@ -1315,7 +1272,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/defaults?pagination=true'
     //             }, (res) => {
@@ -1340,7 +1297,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/defaults?pagination=true&page=1&limit=5'
     //             }, (res) => {
@@ -1384,7 +1341,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?limit=5'
     //             }, (res) => {
@@ -1404,7 +1361,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?limit=abc10&page=c2'
     //             }, (res) => {
@@ -1421,7 +1378,7 @@ describe('Override default values', () => {
 
     //         const server = register();
 
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 query: {
@@ -1432,7 +1389,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?limit=abc10'
     //             }, (res) => {
@@ -1448,7 +1405,7 @@ describe('Override default values', () => {
 
     //         const server = register();
 
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 query: {
@@ -1459,7 +1416,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?page=abc10'
     //             }, (res) => {
@@ -1475,14 +1432,14 @@ describe('Override default values', () => {
 
     //         const server = register();
 
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?myLimit=7'
     //             }, (res) => {
@@ -1502,7 +1459,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?page=5'
     //             }, (res) => {
@@ -1517,14 +1474,14 @@ describe('Override default values', () => {
 
     //         const server = register();
 
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?myPage=5'
     //             }, (res) => {
@@ -1548,7 +1505,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?page=2&limit=5'
     //             }, (res) => {
@@ -1577,7 +1534,7 @@ describe('Override default values', () => {
     //         const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
@@ -1590,7 +1547,7 @@ describe('Override default values', () => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?page=1&limit=5'
     //             }, (res) => {
@@ -1611,7 +1568,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?limit=3'
     //             }, (res) => {
@@ -1632,7 +1589,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?limit=4'
     //             }, (res) => {
@@ -1653,7 +1610,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?limit=1'
     //             }, (res) => {
@@ -1676,7 +1633,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'POST',
     //                 url: '/users'
     //             }, (res) => {
@@ -1698,7 +1655,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?pagination=false'
     //             }, (res) => {
@@ -1718,7 +1675,7 @@ describe('Override default values', () => {
     //         server.register(require(pluginName), (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?pagination=abcd'
     //             }, (res) => {
@@ -1735,7 +1692,7 @@ describe('Override default values', () => {
     //     it('Pagination to random value (default is false)', async () => {
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 query: {
@@ -1747,7 +1704,7 @@ describe('Override default values', () => {
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?pagination=abcd'
     //             }, (res) => {
@@ -1815,14 +1772,14 @@ describe('Override default values', () => {
     //         };
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?pagination=true'
     //             }, (res) => {
@@ -1911,14 +1868,14 @@ describe('Override default values', () => {
     //             }
     //         };
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/?pagination=true'
     //             }, (res) => {
@@ -1954,7 +1911,7 @@ describe('Override default values', () => {
     //     it('Should return an error on register', async () => {
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 query: {
@@ -1973,7 +1930,7 @@ describe('Override default values', () => {
     //     it('Should return an error on register', async () => {
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
@@ -1990,7 +1947,7 @@ describe('Override default values', () => {
     //     it('Should return an error on register', async () => {
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 query: {
@@ -2009,7 +1966,7 @@ describe('Override default values', () => {
     //     it('Should return an error on register', async () => {
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options: {
     //                 meta: {
@@ -2365,14 +2322,14 @@ describe('Override default values', () => {
     //         const urlForPage = (page) => ['/users?', 'page=' + page, '&', 'limit=5'];
 
     //         const server = register();
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
 
     //             expect(err).to.be.undefined();
 
-    //             server.inject({
+    //             await server.inject({
     //                 method: 'GET',
     //                 url: '/users?limit=5'
     //             }, (res) => {
@@ -2417,7 +2374,7 @@ describe('Override default values', () => {
     //             { host: 'localhost', port: 9000, labels: 'second' }
     //         ]);
 
-    //         server.register({
+    //         await server.register({
     //             plugin: require(pluginName),
     //             options
     //         }, (err) => {
