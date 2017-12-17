@@ -1,7 +1,5 @@
 # hapi-pagination
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/fknop/hapi-pagination.svg)](https://greenkeeper.io/)
-
 [![NPM Version](https://img.shields.io/npm/v/hapi-pagination.svg)](https://npmjs.org/package/hapi-pagination)
 [![Build Status](https://travis-ci.org/fknop/hapi-pagination.svg)](https://travis-ci.org/fknop/hapi-pagination)
 [![Coverage Status](https://coveralls.io/repos/fknop/hapi-pagination/badge.svg?branch=master&service=github)](https://coveralls.io/github/fknop/hapi-pagination?branch=master)
@@ -14,6 +12,10 @@ Hapi plugin to handle 'custom' resources pagination in json only.
 ```
 npm install hapi-pagination --save
 ```
+
+## Version 2.0.0 
+
+Version 2.0.0 is intended for use with Hapi 1.17.x and above, do not use this version for version below 1.17.x of hapi.
 
 ## Contribute
 
@@ -139,15 +141,16 @@ config: {
 }
 ```
 
-#### reply.paginate(Array|Object, [totalCount], [options = {}])
+#### h.paginate(Array|Object, [totalCount], [options = {}])
 
 The method is an helper method. This is a shortcut for:
 
 ```javascript
-reply({results: results, totalCount: totalCount});
+h.response({results: results, totalCount: totalCount});
 ```
 
 You can change names of fields (`results`, `totalCount`) using reply options.
+
 ```
 reply: {
   results: {
@@ -164,7 +167,7 @@ You can also reply the array and set the totalCount by adding the totalCount
 
 ```
 request.totalCount = 10;
-reply(results);
+h.response(results);
 ```
 
 The `paginate` method also offers a way to add custom properties to your response. You just have to
@@ -173,7 +176,7 @@ pass an object as first parameter and pass a `options.key` parameter which is th
 For example:
 
 ```
-return reply.paginate({ results: [], otherKey: 'value', otherKey2: 'value2' }, 0, { key: 'results' });
+return h.paginate({ results: [], otherKey: 'value', otherKey2: 'value2' }, 0, { key: 'results' });
 ```
 
 The response will also contains `otherKey` and `otherKey2`. Nested keys for the paginated results are not allowed.
@@ -185,7 +188,7 @@ Please note that if you pass metadata in headers the custom properties don't wor
 ##### WARNING: If the results is not an array, the program will throw an implementation error.
 
 If totalCount is not exposed through the request object
-or the reply.paginate method, the following attributes will be
+or the h.paginate method, the following attributes will be
 set to null if they are active.
  * `last`
  * `pageCount`
@@ -296,14 +299,11 @@ const options = {
 ```javascript
 const Hapi = require('hapi');
 
-let server = new Hapi.Server();
+const server = new Hapi.Server();
 
 // Add your connection
 
-server.register(require('hapi-pagination'), (err) => {
-    if (err)
-        throw err;
-});
+await server.register(require('hapi-pagination'))
 ```
 
 ### Example with options
@@ -311,7 +311,7 @@ server.register(require('hapi-pagination'), (err) => {
 ```javascript
 const Hapi = require('hapi');
 
-let server = new Hapi.Server();
+const server = new Hapi.Server();
 
 // Add your connection
 
@@ -350,11 +350,7 @@ const options = {
      }
 };
 
-server.register({register: require('hapi-pagination'), options: options}, (err)
-=> {
-    if (err)
-        throw err;
-});
+await server.register({plugin: require('hapi-pagination'), options: options})
 ```
 ### Disable globally and activate pagination on specific routes
 
@@ -363,7 +359,7 @@ Global configuration:
 ```javascript
 const Hapi = require('hapi');
 
-let server = new Hapi.Server();
+const server = new Hapi.Server();
 
 // Add your connection
 
@@ -374,11 +370,7 @@ const options = {
      }
 };
 
-server.register({register: require('hapi-pagination'), options: options}, (err)
-=> {
-    if (err)
-        throw err;
-});
+await server.register({plugin: require('hapi-pagination'), options: options})
 ```
 Activate on route level:
 
