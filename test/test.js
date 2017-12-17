@@ -41,6 +41,7 @@ const register = function () {
         method: 'GET',
         path: '/exception',
         handler: (request, h) => {
+
             throw new Error('test');
             return h.paginate([], 0);
         }
@@ -87,7 +88,6 @@ const register = function () {
             for (let i = offset; i < (offset + limit) && i < users.length; ++i) {
                 response.push(users[i]);
             }
-
 
             if (pagination) {
                 return h.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
@@ -198,6 +198,7 @@ const register = function () {
         method: 'GET',
         path: '/array-exception',
         handler: (request, h) => {
+
             return h.response({
                 message: 'Custom Error Message'
             }).code(500);
@@ -231,6 +232,7 @@ const register = function () {
             }
         },
         handler: (request, h) => {
+
             return h.paginate([{}, {}, {}], 3);
         }
     });
@@ -748,6 +750,7 @@ describe('Override default values', () => {
     });
 
     it('Override query parameter pagination - set active to false', async () => {
+
         const options = {
             query: {
                 limit: {
@@ -854,6 +857,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta location - move metadata to http headers with multiple pages', async () => {
+
         const options = {
             query: {
                 limit: {
@@ -897,6 +901,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta location - move metadata to http headers with unique page', async () => {
+
         const options = {
             meta: {
                 location: 'header',
@@ -926,6 +931,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta location - move metadata to http headers with first page', async () => {
+
         const options = {
             query: {
                 limit: {
@@ -967,6 +973,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta location - move metadata to http headers with last page', async () => {
+
         const options = {
             query: {
                 limit: {
@@ -1010,6 +1017,7 @@ describe('Override default values', () => {
     });
 
     it('Override meta location - do not set metadata if requested page is out of range', async () => {
+
         const options = {
             query: {
                 limit: {
@@ -1125,6 +1133,7 @@ describe('Override default values', () => {
 
         const server = register();
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options
@@ -1146,6 +1155,7 @@ describe('Override default values', () => {
         const server = register();
 
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options
@@ -1470,7 +1480,6 @@ describe('Test /users route', () => {
     });
 
     it('Test hasPrev behave correctly', async () => {
-        const urlForPage = (page) => ['http://localhost/users?', 'page=' + page, '&', 'limit=5'];
 
         const server = register();
         await server.register({
@@ -1811,6 +1820,7 @@ describe('Wrong options', () => {
 
         const server = register();
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options: {
@@ -1831,6 +1841,7 @@ describe('Wrong options', () => {
         const server = register();
 
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options: {
@@ -1850,6 +1861,7 @@ describe('Wrong options', () => {
         const server = register();
 
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options: {
@@ -1871,6 +1883,7 @@ describe('Wrong options', () => {
         const server = register();
 
         const serverRegister = async () => {
+
             await server.register({
                 plugin: require(pluginName),
                 options: {
@@ -1921,7 +1934,7 @@ describe('Results with other keys', () => {
         server.route({
             method: 'GET',
             path: '/error',
-            handler: async (request, h) => {
+            handler: (request, h) => {
 
                 return h.paginate({ results: [] }, 0);
             }
@@ -2100,6 +2113,7 @@ describe('Override on route level error', () => {
                     }
                 },
                 handler: (request, h) => {
+
                     return;
                 }
             }
@@ -2191,6 +2205,7 @@ describe('Override on route level error', () => {
 });
 
 describe('Empty baseUri should give relative url', () => {
+
     it('use custom baseUri instead of server provided uri', async () => {
 
         const options = {
@@ -2224,16 +2239,19 @@ describe('Empty baseUri should give relative url', () => {
 
 
 describe('Should include original values of query parameters in pagination urls when Joi validation creates objects', () => {
+
     const urlPrefix = 'http://localhost/query-params?';
     const urlPrefixLen = urlPrefix.length;
     const expectedCount = 3;
 
-    function splitParams(url) {
+    const splitParams = function (url) {
+
         expect(url).to.startWith(urlPrefix);
         return url.substr(urlPrefixLen).split('&');
-    }
+    };
 
     it('Should include dates in pagination urls', async () => {
+
         const dateQuery = 'testDate=1983-01-27';
 
         const server = register();
@@ -2262,6 +2280,7 @@ describe('Should include original values of query parameters in pagination urls 
     });
 
     it('Should include arrays in pagination urls', async () => {
+
         const arrayQuery = `testArray=${encodeURIComponent('[3,4]')}`;
 
         const server = register();
@@ -2289,6 +2308,7 @@ describe('Should include original values of query parameters in pagination urls 
     });
 
     it('Should include objects in pagination urls', async () => {
+
         const objectQuery = `testObject=${encodeURIComponent(JSON.stringify({ a: 1, b: 2 }))}`;
 
         const server = register();
