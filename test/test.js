@@ -28,20 +28,20 @@ const register = function () {
     server.route({
         method: 'GET',
         path: '/',
-        handler: (request, reply) => []
+        handler: (request, h) => []
     });
 
     server.route({
         method: 'GET',
         path: '/empty',
-        handler: (request, reply) => reply.paginate([], 0)
+        handler: (request, h) => h.paginate([], 0)
     });
 
     server.route({
         method: 'GET',
         path: '/exception',
-        handler: (request, reply) => {
-            throw new Error('test'); reply.paginate([], 0);
+        handler: (request, h) => {
+            throw new Error('test'); h.paginate([], 0);
         }
     });
 
@@ -49,7 +49,7 @@ const register = function () {
     server.route({
         method: 'GET',
         path: '/users',
-        handler: (request, reply) => {
+        handler: (request, h) => {
 
             const limit = request.query.limit;
             const page = request.query.page;
@@ -63,10 +63,10 @@ const register = function () {
             }
 
             if (pagination) {
-                return reply.paginate(response, users.length);
+                return h.paginate(response, users.length);
             }
 
-            return reply.response(users);
+            return h.response(users);
         }
     });
 
@@ -74,7 +74,7 @@ const register = function () {
     server.route({
         method: 'GET',
         path: '/users2',
-        handler: (request, reply) => {
+        handler: (request, h) => {
 
             const limit = request.query.limit;
             const page = request.query.page;
@@ -89,19 +89,19 @@ const register = function () {
 
 
             if (pagination) {
-                return reply.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
+                return h.paginate({ results: response, otherKey: 'otherKey', otherKey2: 'otherKey2' },
                     users.length,
                     { key: 'results' });
             }
 
-            return reply.response(users);
+            return h.response(users);
         }
     });
 
     server.route({
         method: 'GET',
         path: '/users3',
-        handler: (request, reply) => {
+        handler: (request, h) => {
 
             const limit = request.query.limit;
             const page = request.query.page;
@@ -119,7 +119,7 @@ const register = function () {
                 response[resultsKey].push(users[i]);
             }
 
-            return reply.response(response);
+            return h.response(response);
         }
     });
 
@@ -132,7 +132,7 @@ const register = function () {
                     enabled: true
                 }
             },
-            handler: (request, reply) => []
+            handler: (request, h) => []
         }
     });
 
@@ -145,7 +145,7 @@ const register = function () {
                     enabled: false
                 }
             },
-            handler: (request, reply) => []
+            handler: (request, h) => []
         }
     });
 
@@ -165,7 +165,7 @@ const register = function () {
                 }
             }
         },
-        handler: (request, reply) => {
+        handler: (request, h) => {
 
             const limit = request.query.limit;
             const page = request.query.page;
@@ -180,24 +180,24 @@ const register = function () {
 
 
             if (pagination) {
-                return reply.paginate(response, users.length);
+                return h.paginate(response, users.length);
             }
 
-            return reply.response(users);
+            return h.response(users);
         }
     });
 
     server.route({
         method: 'POST',
         path: '/users',
-        handler: (request, reply) => 'Works'
+        handler: (request, h) => 'Works'
     });
 
     server.route({
         method: 'GET',
         path: '/array-exception',
-        handler: (request, reply) => {
-            return reply.response({
+        handler: (request, h) => {
+            return h.response({
                 message: 'Custom Error Message'
             }).code(500);
         }
@@ -207,9 +207,9 @@ const register = function () {
     server.route({
         method: 'GET',
         path: '/ws-upgrade',
-        handler: (request, reply) => {
+        handler: (request, h) => {
             // Some WS WORKS for upgrade request
-            return reply.response({
+            return h.response({
                 message: 'WS Upgrade request'
             }).code(101);
         }
@@ -229,8 +229,8 @@ const register = function () {
                 }
             }
         },
-        handler: (request, reply) => {
-            return reply.paginate([{}, {}, {}], 3);
+        handler: (request, h) => {
+            return h.paginate([{}, {}, {}], 3);
         }
     });
 
@@ -1920,9 +1920,9 @@ describe('Results with other keys', () => {
         server.route({
             method: 'GET',
             path: '/error',
-            handler: async (request, reply) => {
+            handler: async (request, h) => {
 
-                return reply.paginate({ results: [] }, 0);
+                return h.paginate({ results: [] }, 0);
             }
         });
 
@@ -1948,9 +1948,9 @@ describe('Results with other keys', () => {
         server.route({
             method: 'GET',
             path: '/error',
-            handler: (request, reply) => {
+            handler: (request, h) => {
 
-                return reply.paginate({ results: [] }, 0, { key: 'res' });
+                return h.paginate({ results: [] }, 0, { key: 'res' });
             }
         });
 
@@ -1973,9 +1973,9 @@ describe('Results with other keys', () => {
         server.route({
             method: 'GET',
             path: '/nooverride',
-            handler: (request, reply) => {
+            handler: (request, h) => {
 
-                return reply.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
+                return h.paginate({ res: [], results: 'results', meta: 'meta' }, 0, { key: 'res' });
             }
         });
 
@@ -2098,7 +2098,7 @@ describe('Override on route level error', () => {
                         }
                     }
                 },
-                handler: (request, reply) => {
+                handler: (request, h) => {
                     return;
                 }
             }
@@ -2126,7 +2126,7 @@ describe('Override on route level error', () => {
                         }
                     }
                 },
-                handler: (request, reply) => reply()
+                handler: (request, h) => h()
             }
         });
 
@@ -2152,7 +2152,7 @@ describe('Override on route level error', () => {
                         }
                     }
                 },
-                handler: (request, reply) => reply()
+                handler: (request, h) => h()
             }
         });
 
@@ -2176,7 +2176,7 @@ describe('Override on route level error', () => {
                         enabled: 'a'
                     }
                 },
-                handler: (request, reply) => reply()
+                handler: (request, h) => h()
             }
         });
 
