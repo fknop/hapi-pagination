@@ -41,7 +41,8 @@ const register = function () {
         method: 'GET',
         path: '/exception',
         handler: (request, h) => {
-            throw new Error('test'); h.paginate([], 0);
+            throw new Error('test');
+            return h.paginate([], 0);
         }
     });
 
