@@ -15,7 +15,7 @@ npm install hapi-pagination --save
 
 ## Version 2.0.0 
 
-Version 2.0.0 is intended for use with Hapi 1.17.x and above, do not use this version for version below 1.17.x of hapi.
+Version 2.0.0 is intended for use with Hapi 17.x.x and above, do not use this version for version below 17.x.x of hapi.
 
 ## Contribute
 
