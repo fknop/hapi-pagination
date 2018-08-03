@@ -237,6 +237,14 @@ const register = function () {
         }
     });
 
+    server.route({
+        method: 'GET',
+        path: '/custom-header',
+        handler: (request, h) => {
+            return h.paginate([{}, {}, {}], 3).header('custom-header', 'pizza');
+        }
+    });
+
     return server;
 };
 
@@ -2333,4 +2341,29 @@ describe('Should include original values of query parameters in pagination urls 
         expect(splitParams(response.meta.last)).to.include(objectQuery);
 
     });
+});
+
+describe('Include custom headers', () => {
+    it('Should include any custom-header set in the pre-processed response', async () => {
+        const server = register();
+        await server.register(require(pluginName));
+
+        const request = {
+            method: 'GET',
+            url: `/custom-header`
+        };
+
+        const customHeaderName = 'custom-header';
+        const customHeaderValue = 'pizza';
+        const expectedCount = 3;
+        const expectedPageCount = 1;
+
+        const res = await server.inject(request);
+        expect(res.request.response.headers[customHeaderName]).to.equal(customHeaderValue);
+
+        const response = res.request.response.source;
+        expect(response.meta.count).to.equal(expectedCount);
+        expect(response.meta.pageCount).to.equal(expectedPageCount);
+        expect(response.meta.totalCount).to.equal(expectedCount);
+    });  
 });
