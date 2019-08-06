@@ -1,10 +1,10 @@
 'use strict';
 
-const Code = require('code');
-const Lab = require('lab');
+const Code = require('@hapi/code');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
-const Hapi = require('hapi');
-const Joi = require('joi');
+const Hapi = require('@hapi/hapi');
+const Joi = require('@hapi/joi');
 
 const describe = lab.describe;
 const it = lab.it;
@@ -1907,6 +1907,29 @@ describe('Wrong options', () => {
         await expect(serverRegister()).to.reject();
 
     });
+
+    it('Should return an error on paginate', async () => {
+
+        const server = register();
+        await server.register(require(pluginName));
+        server.route({
+            method: 'GET',
+            path: '/error',
+            handler: (request, h) => {
+               return h.paginate(
+                   [1, 2], 0, { key: 1 }
+                );
+            }
+        });
+
+        const request = {
+            method: 'GET',
+            url: '/error'
+        };
+
+        const res = await server.inject(request);
+        expect(res.request.response.statusCode).to.equal(500);
+    });
 });
 
 describe('Results with other keys', () => {
@@ -1934,7 +1957,6 @@ describe('Results with other keys', () => {
     it('Should return an internal server error', async () => {
 
         const server = register();
-
 
         await server.register(require(pluginName));
 
