@@ -368,7 +368,6 @@ const server = new Hapi.Server();
 // Add your connection
 
 const options = {
-    enabled: false,
      routes: {
          include: [],  // Emptying include list will disable pagination
      }
