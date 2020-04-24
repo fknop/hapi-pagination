@@ -595,8 +595,7 @@ describe('Override default values', () => {
         });
 
         const res = await server.inject({
-            url:
-                `/users3?limit=12&resultsKey=results&totalCountKey=${totalCountKey}`,
+            url: `/users3?limit=12&resultsKey=results&totalCountKey=${totalCountKey}`,
             method: 'GET'
         });
 
@@ -1366,10 +1365,7 @@ describe('Passing page and limit as query parameters', () => {
 describe('Test /users route', () => {
     it('Test default with totalCount added to request object', async () => {
         const urlForPage = (page) => [
-            'http://localhost/users?',
-            `page=${page}`,
-            '&',
-            'limit=5'
+            `http://localhost/users?page=${page}&limit=5`
         ];
 
         const server = register();
@@ -1396,13 +1392,73 @@ describe('Test /users route', () => {
         expect(response.results).to.have.length(5);
     });
 
-    it('Test hasPrev behave correctly', async () => {
+    it('Test that hasNext, related links behave correctly', async () => {
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                meta: {
+                    hasNext: {
+                        active: true
+                    },
+                    next: {
+                        active: true
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?page=4&limit=5'
+        });
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.hasNext).to.equal(false);
+        expect(meta.next).to.be.null();
+        expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
+        expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
+    });
+
+    it('Test that hasNext, related links behave correctly with zero index', async () => {
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                zeroIndex: true,
+                meta: {
+                    hasNext: {
+                        active: true
+                    },
+                    next: {
+                        active: true
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?page=3&limit=5'
+        });
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.hasNext).to.equal(false);
+        expect(meta.next).to.be.null();
+        expect(meta.first).to.equal('http://localhost/users?page=0&limit=5');
+        expect(meta.last).to.equal('http://localhost/users?page=3&limit=5');
+    });
+
+    it('Test that hasPrev, related links behave correctly', async () => {
         const server = register();
         await server.register({
             plugin: require(pluginName),
             options: {
                 meta: {
                     hasPrevious: {
+                        active: true
+                    },
+                    previous: {
                         active: true
                     }
                 }
@@ -1416,6 +1472,38 @@ describe('Test /users route', () => {
         const response = res.request.response.source;
         const meta = response.meta;
         expect(meta.hasPrevious).to.equal(false);
+        expect(meta.previous).to.be.null();
+        expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
+        expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
+    });
+
+    it('Test that hasPrev, related links behave correctly with zero index', async () => {
+        const server = register();
+        await server.register({
+            plugin: require(pluginName),
+            options: {
+                zeroIndex: true,
+                meta: {
+                    hasPrevious: {
+                        active: true
+                    },
+                    previous: {
+                        active: true
+                    }
+                }
+            }
+        });
+
+        const res = await server.inject({
+            method: 'GET',
+            url: '/users?page=0&limit=5'
+        });
+        const response = res.request.response.source;
+        const meta = response.meta;
+        expect(meta.hasPrevious).to.equal(false);
+        expect(meta.previous).to.equal(null);
+        expect(meta.first).to.equal('http://localhost/users?page=0&limit=5');
+        expect(meta.last).to.equal('http://localhost/users?page=3&limit=5');
     });
 });
 
@@ -2122,7 +2210,7 @@ describe('Should include original values of query parameters in pagination urls 
     const urlPrefixLen = urlPrefix.length;
     const expectedCount = 3;
 
-    const splitParams = url => {
+    const splitParams = (url) => {
         expect(url).to.startWith(urlPrefix);
         return url.substr(urlPrefixLen).split('&');
     };
