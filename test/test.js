@@ -1418,6 +1418,7 @@ describe('Test /users route', () => {
         expect(meta.next).to.be.null();
         expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
         expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
+        expect(meta.self).to.equal('http://localhost/users?page=4&limit=5');
     });
 
     it('Test that hasNext, related links behave correctly with zero index', async () => {
@@ -1447,6 +1448,7 @@ describe('Test /users route', () => {
         expect(meta.next).to.be.null();
         expect(meta.first).to.equal('http://localhost/users?page=0&limit=5');
         expect(meta.last).to.equal('http://localhost/users?page=3&limit=5');
+        expect(meta.self).to.equal('http://localhost/users?page=3&limit=5');
     });
 
     it('Test that hasPrev, related links behave correctly', async () => {
@@ -1475,6 +1477,7 @@ describe('Test /users route', () => {
         expect(meta.previous).to.be.null();
         expect(meta.first).to.equal('http://localhost/users?page=1&limit=5');
         expect(meta.last).to.equal('http://localhost/users?page=4&limit=5');
+        expect(meta.self).to.equal('http://localhost/users?page=1&limit=5');
     });
 
     it('Test that hasPrev, related links behave correctly with zero index', async () => {
@@ -1504,6 +1507,7 @@ describe('Test /users route', () => {
         expect(meta.previous).to.equal(null);
         expect(meta.first).to.equal('http://localhost/users?page=0&limit=5');
         expect(meta.last).to.equal('http://localhost/users?page=3&limit=5');
+        expect(meta.self).to.equal('http://localhost/users?page=0&limit=5');
     });
 });
 
