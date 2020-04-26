@@ -1,13 +1,10 @@
-'use strict'
-
+const Bourne = require('@hapi/bourne')
 const Code = require('@hapi/code')
 const Lab = require('@hapi/lab')
 const lab = (exports.lab = Lab.script())
 const Hapi = require('@hapi/hapi')
 const Joi = require('@hapi/joi')
-
-const describe = lab.describe
-const it = lab.it
+const { describe, it } = lab
 const expect = Code.expect
 
 const pluginName = '../lib'
@@ -20,9 +17,50 @@ for (let i = 0; i < 20; ++i) {
   })
 }
 
+// This is required due to changes in how Joi coerces arrays and strings
+// https://github.com/hapijs/joi/issues/2031
+const testJoi = Joi.extend(
+  {
+    type: 'object',
+    base: Joi.object(),
+    coerce: {
+      from: 'string',
+      method(value, helpers) {
+        if (value[0] !== '{' && !/^\s*\{/.test(value)) {
+          return
+        }
+
+        try {
+          return { value: Bourne.parse(value) }
+        } catch (ignoreErr) {}
+      }
+    }
+  },
+  {
+    type: 'array',
+    base: Joi.array(),
+    coerce: {
+      from: 'string',
+      method(value, helpers) {
+        if (
+          typeof value !== 'string' ||
+          (value[0] !== '[' && !/^\s*\[/.test(value))
+        ) {
+          return
+        }
+
+        try {
+          return { value: Bourne.parse(value) }
+        } catch (ignoreErr) {}
+      }
+    }
+  }
+)
+
 const register = () => {
   const connection = { host: 'localhost' }
   const server = new Hapi.Server(connection)
+  server.validator(require('@hapi/joi'))
 
   server.route({
     method: 'GET',
@@ -218,14 +256,14 @@ const register = () => {
   server.route({
     method: 'GET',
     path: '/query-params',
-    config: {
+    options: {
       validate: {
         query: {
-          testDate: Joi.date(),
-          testArray: Joi.array(),
-          testObject: Joi.object(),
-          page: Joi.number(),
-          limit: Joi.number()
+          testDate: testJoi.date(),
+          testArray: testJoi.array(),
+          testObject: testJoi.object(),
+          page: testJoi.number(),
+          limit: testJoi.number()
         }
       }
     },
@@ -2264,8 +2302,9 @@ describe('Should include original values of query parameters in pagination urls 
   })
 
   it('Should include objects in pagination urls', async () => {
+    const expectedObject = { a: 1, b: 2 }
     const objectQuery = `testObject=${encodeURIComponent(
-      JSON.stringify({ a: 1, b: 2 })
+      JSON.stringify(expectedObject)
     )}`
 
     const server = register()
@@ -2279,7 +2318,7 @@ describe('Should include original values of query parameters in pagination urls 
     const res = await server.inject(request)
     expect(res.request.query.testObject)
       .to.be.an.object()
-      .and.only.include({ a: 1, b: 2 })
+      .and.only.include(expectedObject)
 
     const response = res.request.response.source
     expect(response.meta.count).to.equal(expectedCount)
