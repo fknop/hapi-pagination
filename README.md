@@ -46,6 +46,10 @@ your calls to your API to suit your needs.
 
 See the default options object below.
 
+#### Root-level parameters
+
+* `zeroIndex`: Defaults to `false`; change this to `true` if you want to start paginating at page 0 instead of page 1
+
 #### The query parameters
 
 The plugin accepts query parameters to handle the pagination, you can customize
@@ -293,7 +297,8 @@ const options = {
     routes: {
         include: ['*'],
         exclude: []
-    }
+    },
+    zeroIndex: false
 };
 ```
 
