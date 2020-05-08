@@ -1087,6 +1087,45 @@ describe('Override default values', () => {
     expect(response).to.have.length(0)
   })
 
+  it('Override meta location - using range not satisfiable status code when requested page is out of range', async () => {
+    const options = {
+      query: {
+        limit: {
+          default: 5
+        },
+        page: {
+          default: 5
+        }
+      },
+      meta: {
+        location: 'header',
+        alwaysIncludeHeaders: true,
+        rangeNotSatisfiableStatusCode: 416
+      }
+    }
+
+    const server = register()
+    await server.register({
+      plugin: require(pluginName),
+      options
+    })
+
+    const res = await server.inject({
+      method: 'GET',
+      url: '/users'
+    })
+    const statusCode = res.request.response.statusCode
+    expect(statusCode).to.equal(416)
+
+    const headers = res.request.response.headers
+    expect(headers['Content-Range']).to.equal('*/20')
+    expect(headers.Link).to.exist()
+
+    const response = res.request.response.source
+    expect(response).to.be.an.array()
+    expect(response).to.have.length(0)
+  })
+
   it('Override meta location - set metadata if requested page is out of range when using forced header inclusion', async () => {
     const options = {
       query: {

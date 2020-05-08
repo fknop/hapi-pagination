@@ -20,7 +20,7 @@ Version 4.x.x is inteded for use with scoped @hapi packages (v19, requires Node 
 
 Version 3.x.x is inteded for use with scoped @hapi packages (v18).
 
-## Version 2.0.0 
+## Version 2.0.0
 
 Version 2.0.0 is intended for use with Hapi 17.x.x and above, do not use this version for version below 17.x.x of Hapi.
 
@@ -81,7 +81,7 @@ By default the plugin will generate a metadata object alongside your resources i
 You can also decide to put the metadata in the response header, so the body remains clean.
 In this case, the plugin will use 2 kinds of headers:
 * `Content-Range`: `startIndex-endIndex/totalCount` (see https://tools.ietf.org/html/rfc7233#section-4.2)
-  This header gives the start and end indexes of the current page records, followed by the total number of records.
+  This header gives the start and end indexes of the current page records, followed by the total number of records.  In the case that `meta.alwaysIncludeHeaders` is `true` and the result set is empty the value will instead take the form `*/totalCount` per RFC 7233.
 * `Link`: `<url>; rel=relationship` (see https://tools.ietf.org/html/rfc2068#section-19.6.2.4)
   This header gives the url to different resources related to the current page. The available relationships are :
     + `rel=self`: the current page
@@ -113,6 +113,8 @@ You can customize the metadata with the following options:
 * `page`: The page number requested. Default name is page, disabled by default.
 * `limit`: The limit requested. Default name is limit, disabled by default.
 * `location`: 'body' put the metadata in the response body, 'header' put the metadata in the response header. Default is 'body'.
+* `alwaysIncludeHeaders`: when `location` is 'header' and this option is set to `true`, the Content-Range and Link headers will be set even when the result set is empty, and when the entire result set fits on a single page.
+* `rangeNotSatisfiableStatusCode`: when `alwaysIncludeHeaders` is `true` and the requested page is out of range of the result set, this status code will be used.
 * `successStatusCode`: HTTP response status code when returning paginated data, undefined by default so the code set by the application prevails.
 
 #### The results
