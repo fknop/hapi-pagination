@@ -927,8 +927,41 @@ describe('Override default values', () => {
     expect(statusCode).to.equal(200)
     const headers = res.request.response.headers
     const response = res.request.response.source
-    expect(headers['Content-Range']).to.not.exist
-    expect(headers.Link).to.not.exist
+    expect(headers['Content-Range']).to.not.exist()
+    expect(headers.Link).to.not.exist()
+    expect(response).to.be.an.array()
+    expect(response).to.have.length(20)
+  })
+
+  it('Override meta location - move metadata to http headers with unique page and forced header inclusion', async () => {
+    const options = {
+      meta: {
+        location: 'header',
+        alwaysIncludeHeaders: true,
+        successStatusCode: 206
+      }
+    }
+
+    const server = register()
+    await server.register({
+      plugin: require(pluginName),
+      options
+    })
+
+    const res = await server.inject({
+      method: 'GET',
+      url: '/users'
+    })
+    const statusCode = res.request.response.statusCode
+    expect(statusCode).to.equal(206)
+    const headers = res.request.response.headers
+    const response = res.request.response.source
+    expect(headers['Content-Range']).to.equal('0-19/20')
+    expect(headers.Link).to.be.an.array()
+    expect(headers.Link).to.have.length(3)
+    expect(headers.Link[0]).match(/rel="self"$/)
+    expect(headers.Link[1]).match(/rel="first"$/)
+    expect(headers.Link[2]).match(/rel="last"$/)
     expect(response).to.be.an.array()
     expect(response).to.have.length(20)
   })
@@ -1046,8 +1079,92 @@ describe('Override default values', () => {
     expect(statusCode).to.equal(200)
 
     const headers = res.request.response.headers
-    expect(headers['Content-Range']).to.not.exist
-    expect(headers.Link).to.not.exist
+    expect(headers['Content-Range']).to.not.exist()
+    expect(headers.Link).to.not.exist()
+
+    const response = res.request.response.source
+    expect(response).to.be.an.array()
+    expect(response).to.have.length(0)
+  })
+
+  it('Override meta location - using range not satisfiable status code when requested page is out of range', async () => {
+    const options = {
+      query: {
+        limit: {
+          default: 5
+        },
+        page: {
+          default: 5
+        }
+      },
+      meta: {
+        location: 'header',
+        alwaysIncludeHeaders: true,
+        rangeNotSatisfiableStatusCode: 416
+      }
+    }
+
+    const server = register()
+    await server.register({
+      plugin: require(pluginName),
+      options
+    })
+
+    const res = await server.inject({
+      method: 'GET',
+      url: '/users'
+    })
+    const statusCode = res.request.response.statusCode
+    expect(statusCode).to.equal(416)
+
+    const headers = res.request.response.headers
+    expect(headers['Content-Range']).to.equal('*/20')
+    expect(headers.Link).to.exist()
+
+    const response = res.request.response.source
+    expect(response).to.be.an.array()
+    expect(response).to.have.length(0)
+  })
+
+  it('Override meta location - set metadata if requested page is out of range when using forced header inclusion', async () => {
+    const options = {
+      query: {
+        limit: {
+          default: 5
+        },
+        page: {
+          default: 5
+        }
+      },
+      meta: {
+        location: 'header',
+        alwaysIncludeHeaders: true,
+        successStatusCode: 206
+      }
+    }
+
+    const server = register()
+    await server.register({
+      plugin: require(pluginName),
+      options
+    })
+
+    const res = await server.inject({
+      method: 'GET',
+      url: '/users'
+    })
+
+    const statusCode = res.request.response.statusCode
+    expect(statusCode).to.equal(206)
+
+    const headers = res.request.response.headers
+    expect(headers['Content-Range']).to.equal('*/20')
+    expect(headers.Link).to.be.an.array()
+    expect(headers.Link).to.have.length(4)
+    expect(headers.Link[0]).match(/rel="self"$/)
+    expect(headers.Link[1]).match(/rel="first"$/)
+    expect(headers.Link[2]).match(/rel="last"$/)
+    expect(headers.Link[3]).match(/rel="prev"$/)
 
     const response = res.request.response.source
     expect(response).to.be.an.array()
