@@ -20,13 +20,16 @@
   },
   "dependencies": {
     "@hapi/boom": "^9.1.0",
-    "@hapi/hapi": "^19.1.1",
     "@hapi/hoek": "^9.0.4",
     "@hapi/joi": "^17.1.1"
+  },
+  "peerDependencies": {
+    "@hapi/hapi": "^19.0.0"
   },
   "devDependencies": {
     "@hapi/bourne": "^2.0.0",
     "@hapi/code": "^8.0.1",
+    "@hapi/hapi": "^19.1.1",
     "@hapi/lab": "^22.0.4",
     "coveralls": "^3.0.5"
   }
