@@ -2180,6 +2180,23 @@ describe('Empty result set', () => {
     expect(response.statusCode).to.be.greaterThan(199)
     expect(response.statusCode).to.be.lessThan(300)
   })
+
+  it('Last, next, and previous links should be null', async () => {
+    const server = register()
+    await server.register(require(pluginName))
+
+    const request = {
+      method: 'GET',
+      url: '/empty'
+    }
+
+    const res = await server.inject(request)
+
+    const response = res.request.response.source
+    expect(response.meta.last).to.be.null()
+    expect(response.meta.next).to.be.null()
+    expect(response.meta.previous).to.be.null()
+  })
 })
 
 describe('Exception', () => {
