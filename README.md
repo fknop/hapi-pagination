@@ -290,7 +290,7 @@ const options = {
       name: 'results'
     },
     reply: {
-        paginate: 'paginate'
+        paginate: 'paginate',
         results: {
           name: 'results'
         },
