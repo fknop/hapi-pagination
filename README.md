@@ -12,6 +12,10 @@ Hapi plugin to handle 'custom' resources pagination in json only.
 ```
 npm install hapi-pagination --save
 ```
+## Version 5.x.x
+
+Version 5.x.x is inteded for use with scoped @hapi packages (v21, requires Node versions >= 14).
+
 ## Version 4.x.x
 
 Version 4.x.x is inteded for use with scoped @hapi packages (v19, requires Node versions >= 12).
